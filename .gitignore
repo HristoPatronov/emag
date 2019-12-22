@@ -24,3 +24,10 @@ hs_err_pid*
 
 # out folder
 out/
+
+# idea folder
+.idea/
+
+#iml files
+*.iml
+
