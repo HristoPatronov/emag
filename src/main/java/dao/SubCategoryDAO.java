@@ -1,8 +1,6 @@
 package dao;
 
-import model.Review;
 import model.SubCategory;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

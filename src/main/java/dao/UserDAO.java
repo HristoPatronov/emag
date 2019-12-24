@@ -1,8 +1,6 @@
 package dao;
 
-import model.Product;
 import model.User;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -32,7 +30,7 @@ public class UserDAO implements IUserDAO {
     @Override
     public void registerUser(User user) throws SQLException {
         Connection connection = DBManager.getInstance().getConnection();
-        String url = "INSERT INTO users (first_name, last_name, username, password, e-mail, is_admin) VALUES (?, ?, ?, ?, ?, ?);";
+        String url = "INSERT INTO users (first_name, last_name, username, password, e-mail, is_admin, is_activated) VALUES (?, ?, ?, ?, ?, ?, ?);";
         try(PreparedStatement statement = connection.prepareStatement(url)) {
             statement.setString(1, user.getFirst_name());
             statement.setString(2, user.getLast_name());
@@ -40,6 +38,7 @@ public class UserDAO implements IUserDAO {
             statement.setString(4, user.getPassword());
             statement.setString(5, user.geteMail());
             statement.setBoolean(6, user.isAdmin());
+            statement.setBoolean(7, user.isActivated());
             statement.executeUpdate();
         }
     }

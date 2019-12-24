@@ -1,8 +1,6 @@
 package dao;
 
 import model.Address;
-import model.Review;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -66,6 +64,7 @@ public class AddressDAO implements IAddressDAO{
     }
 
     @Override
+    //not necessary???
     public Address getAddress(Integer addressId) throws SQLException {
         Connection connection = DBManager.getInstance().getConnection();
         String url = "SELECT * FROM addresses WHERE id = ?;";

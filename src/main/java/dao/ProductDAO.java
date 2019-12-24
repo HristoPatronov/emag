@@ -1,8 +1,6 @@
 package dao;
 
-import model.Order;
 import model.Product;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -237,5 +235,51 @@ public class ProductDAO implements IProductDAO {
             statement.setInt(2, productId);
             statement.executeUpdate();
         }
+    }
+
+    @Override
+    public List<Product> getFavouriteProducts(Integer userId) throws SQLException {
+        List<Product> products = new ArrayList<>();
+        Connection connection = DBManager.getInstance().getConnection();
+        String url = "SELECT p.* FROM products as p JOIN orders_have_products AS ohp ON p.id = ohp.order_id " +
+                "JOIN orders AS o ON ohp.product_id = o.id;";
+        try(PreparedStatement statement = connection.prepareStatement(url)) {
+            ResultSet set = statement.executeQuery();
+            while (set.next()){
+                Product product = new Product(set.getInt(1),
+                        set.getString(2),
+                        set.getString(3),
+                        set.getDouble(4),
+                        set.getInt(5),
+                        set.getInt(6),
+                        set.getInt(7),
+                        set.getInt(8));
+                products.add(product);
+            }
+        }
+        return products;
+    }
+
+    @Override
+    public List<Product> getProductsByOrder(Integer orderId) throws SQLException {
+        List<Product> products = new ArrayList<>();
+        Connection connection = DBManager.getInstance().getConnection();
+        String url = "SELECT p.* FROM products as p JOIN users_have_favourite_products AS uhfp ON p.id = uhfp.user_id" +
+                " JOIN users AS u ON uhfp.product_id = u.id;";
+        try(PreparedStatement statement = connection.prepareStatement(url)) {
+            ResultSet set = statement.executeQuery();
+            while (set.next()){
+                Product product = new Product(set.getInt(1),
+                        set.getString(2),
+                        set.getString(3),
+                        set.getDouble(4),
+                        set.getInt(5),
+                        set.getInt(6),
+                        set.getInt(7),
+                        set.getInt(8));
+                products.add(product);
+            }
+        }
+        return products;
     }
 }
