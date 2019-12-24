@@ -2,17 +2,18 @@ package dao;
 
 import model.Address;
 
-import java.util.Collection;
+import java.sql.SQLException;
+import java.util.List;
 
 public interface IAddressDAO {
 
-    void addAddress(Long userId, Address address);
+    void addAddress(Integer userId, Address address) throws SQLException;
 
-    Collection<Address> getAllAddresses(Long userId);
+    List<Address> getAllAddresses(Integer userId) throws SQLException;
 
-    void updateAddress(Long userId, Long addressId);
+    void updateAddress(Address address, Integer addressId) throws SQLException;
 
-    Address getAddress(Long addressId);
+    Address getAddress(Integer addressId) throws SQLException;
 
-    void deleteAddress(Long addressId);
+    void deleteAddress(Integer addressId) throws SQLException;
 }

@@ -1,11 +1,11 @@
 package dao;
 
-import model.Category;
 import model.SubCategory;
 
-import java.util.Collection;
+import java.sql.SQLException;
+import java.util.List;
 
 public interface ISubCategoryDAO {
 
-    Collection<SubCategory> getSubCategoryByCategory(Long categoryId);
+    List<SubCategory> getSubCategoryByCategory(Integer categoryId) throws SQLException;
 }

@@ -2,9 +2,10 @@ package dao;
 
 import model.Category;
 
-import java.util.Collection;
+import java.sql.SQLException;
+import java.util.List;
 
 public interface ICategoryDAO {
 
-    Collection<Category> getAllCategories();
+    List<Category> getAllCategories() throws SQLException;
 }

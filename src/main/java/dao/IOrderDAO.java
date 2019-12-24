@@ -2,11 +2,12 @@ package dao;
 
 import model.Order;
 
-import java.util.Collection;
+import java.sql.SQLException;
+import java.util.List;
 
 public interface IOrderDAO {
 
-    void addOrder(Order order);
+    void addOrder(Order order) throws SQLException;
 
-    Collection<Order> getOrdersByUserId(Long userId);
+    List<Order> getOrdersByUserId(Integer userId) throws SQLException;
 }

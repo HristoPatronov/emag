@@ -2,13 +2,15 @@ package dao;
 
 import model.User;
 
+import java.sql.SQLException;
+
 public interface IUserDAO {
 
-    User getUserById();
-    void registerUser();
-    boolean checkIfUserExists(String email, String password);
-    boolean isUserAlreadyRegistered(String email);
-    void updateUserInfo(User user);
+    User getUserById(Integer id) throws SQLException;
+    void registerUser(User user) throws SQLException;
+    boolean checkIfUserExists(String email, String password) throws SQLException;
+    boolean checkIfUserExists(String email) throws SQLException;
+    void updateUserInfo(User user) throws SQLException;
 
 
 }
