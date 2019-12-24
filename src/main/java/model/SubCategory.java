@@ -4,8 +4,8 @@ public class SubCategory {
 
     private Integer id;
     private String name;
-    private Integer categoryId;
     private boolean isHeader;
+    private Integer categoryId;
 
     public SubCategory(Integer id,  String name, Integer categoryId, boolean isHeader) {
         this.id = id;
@@ -21,7 +21,6 @@ public class SubCategory {
     public void setId(Integer id) {
         this.id = id;
     }
-
 
     public String getName() {
         return name;

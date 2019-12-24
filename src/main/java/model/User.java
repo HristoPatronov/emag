@@ -1,9 +1,5 @@
 package model;
 
-
-import java.util.ArrayList;
-import java.util.List;
-
 public class User {
 
     private Integer id;
@@ -13,10 +9,7 @@ public class User {
     private String password;
     private String eMail;
     private boolean isAdmin;
-    private ShoppingCart shoppingCart;
-    private boolean isLogged;
     private boolean isActivated;
-    private List<Address> addresses;
 
     public User(Integer id, String first_name, String last_name, String userName, String password, String eMail, boolean isAdmin, boolean isActivated) {
         this.id = id;
@@ -27,7 +20,6 @@ public class User {
         this.eMail = eMail;
         this.isAdmin = isAdmin;
         this.isActivated = isActivated;
-        this.addresses = new ArrayList<>();
     }
 
     public Integer getId() {
@@ -93,9 +85,4 @@ public class User {
     public void setActivated(boolean activated) {
         isActivated = activated;
     }
-
-    public List<Address> getAddresses() {
-        return addresses;
-    }
-
 }

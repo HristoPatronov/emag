@@ -1,19 +1,13 @@
 package model;
 
-
-import java.util.ArrayList;
-import java.util.List;
-
 public class Category {
 
     private Integer id;
     private String name;
-    private List<SubCategory> subCategories;
 
     public Category(Integer id, String name) {
         this.id = id;
         this.name = name;
-        this.subCategories = new ArrayList<>();
     }
 
     public Integer getId() {
@@ -31,9 +25,4 @@ public class Category {
     public void setName(String name) {
         this.name = name;
     }
-
-    public List<SubCategory> getSubCategories() {
-        return subCategories;
-    }
-
 }

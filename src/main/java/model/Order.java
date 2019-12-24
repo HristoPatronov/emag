@@ -1,8 +1,6 @@
 package model;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
 
 public class Order {
 
@@ -12,7 +10,6 @@ public class Order {
     private Integer userId;
     private Integer paymentTypeId;
     private Integer statusId;
-    private List<Product> orderedProducts;
 
     public Order(Integer id, Double totalPrice, LocalDate date, Integer userId, Integer paymentTypeId, Integer statusId) {
         this.id = id;
@@ -21,7 +18,6 @@ public class Order {
         this.userId = userId;
         this.paymentTypeId = paymentTypeId;
         this.statusId = statusId;
-        this.orderedProducts = new ArrayList<>();
     }
 
     public Integer getId() {
@@ -71,10 +67,4 @@ public class Order {
     public void setStatusId(Integer statusId) {
         this.statusId = statusId;
     }
-
-    public List<Product> getOrderedProducts() {
-        return orderedProducts;
-    }
-
-
 }

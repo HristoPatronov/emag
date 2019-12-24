@@ -5,10 +5,8 @@ import java.util.HashMap;
 public class Specification {
 
     private Long id;
-
     private HashMap<String, HashMap<String, String>> description;
                     //title,        descTitle, desc
-
 
     public Specification(Long id) {
         this.id = id;

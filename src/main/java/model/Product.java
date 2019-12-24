@@ -1,7 +1,5 @@
 package model;
 
-
-import java.util.ArrayList;
 import java.util.List;
 
 public class Product {
@@ -14,7 +12,6 @@ public class Product {
     private Integer stock;
     private Integer specificationId;
     private Integer subCategoryId;
-    private List<Review> reviews;
 
     public Product(Integer id, String name, String description, Double price, Integer discount, Integer stock, Integer specificationId, Integer subCategoryId) {
         this.id = id;
@@ -25,7 +22,6 @@ public class Product {
         this.stock = stock;
         this.specificationId = specificationId;
         this.subCategoryId = subCategoryId;
-        this.reviews = new ArrayList<>();
     }
 
     public Integer getId() {
@@ -90,9 +86,5 @@ public class Product {
 
     public void setSubCategoryId(Integer subCategoryId) {
         this.subCategoryId = subCategoryId;
-    }
-
-    public List<Review> getReviews() {
-        return reviews;
     }
 }
