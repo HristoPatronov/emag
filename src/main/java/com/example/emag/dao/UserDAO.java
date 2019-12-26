@@ -62,25 +62,27 @@ public class UserDAO implements IUserDAO {
     public boolean checkIfUserExists(String email, String password) throws SQLException {
         Connection connection = DBManager.getInstance().getConnection();
         String url = "SELECT id FROM users WHERE email = ? AND password = ?;";
-        ResultSet set = null;
+        boolean exist = false;
         try(PreparedStatement statement = connection.prepareStatement(url)) {
             statement.setString(1, email);
             statement.setString(2, password);
-            set = statement.executeQuery();
+            ResultSet set = statement.executeQuery();
+            exist = set.next();
         }
-        return set != null;
+        return exist;
     }
 
     @Override
     public boolean checkIfUserExists(String email) throws SQLException {
         Connection connection = DBManager.getInstance().getConnection();
         String url = "SELECT id FROM users WHERE email = ?;";
-        ResultSet set = null;
+        boolean exist = false;
         try(PreparedStatement statement = connection.prepareStatement(url)) {
             statement.setString(1, email);
-            set = statement.executeQuery();
+            ResultSet set = statement.executeQuery();
+            exist = set.next();
         }
-        return set != null;
+        return exist;
     }
 
     @Override
