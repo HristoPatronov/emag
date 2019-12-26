@@ -1,6 +1,8 @@
 package com.example.emag.controller;
 
+import com.example.emag.dao.UserDAO;
 import com.example.emag.responses.UserResponse;
+import com.example.emag.utils.UserUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -10,19 +12,52 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.view.RedirectView;
 
 import javax.servlet.http.HttpSession;
+import java.sql.SQLException;
 
 @Controller
 public class UserController {
 
-    @GetMapping("/login")
-    @ResponseBody public ModelAndView login(@RequestParam String email, @RequestParam String password, HttpSession session) {
-        String a = "a";
-        String b = "a";
-        String c = "a";
-        return new ModelAndView("redirect:/register");
+    @PostMapping("/login")
+    @ResponseBody public ModelAndView login(@RequestParam String email, Model model) {
+        boolean exists = false;
+        if (UserUtil.isUsernameValid(email)){
+            try {
+                exists = UserDAO.getInstance().checkIfUserExists(email);
+                if (exists){
+                    model.addAttribute("email", email);
+                    return new ModelAndView("/fullyLogin", "email", email);
+                } else {
+                    return new ModelAndView("/register");
+                }
+            } catch (SQLException e) {
+                System.out.println(e.getMessage());
+            }
+        }
+
+        return new ModelAndView("redirect:/login");
+    }
+
+    @PostMapping("/fullyLogin")
+    @ResponseBody public ModelAndView fullyLogin(@RequestParam String email, @RequestParam String password, HttpSession session, Model model){
+        boolean exists = false;
+        if (UserUtil.isPasswordValid(password)){
+            try {
+                exists = UserDAO.getInstance().checkIfUserExists(email, password);
+            } catch (SQLException e) {
+                System.out.println(e.getMessage());
+            }
+        } else {
+            model.addAttribute("msg", "Invalid password");
+            return new ModelAndView("/login");
+        }
+        if (exists){
+            return new ModelAndView("/mainPage");
+        } else {
+            model.addAttribute("msg", "invalid password");
+            return new ModelAndView("/login");
+        }
     }
 
     @GetMapping("/register")

@@ -45,7 +45,7 @@ public class UserDAO implements IUserDAO {
     @Override
     public void registerUser(User user) throws SQLException {
         Connection connection = DBManager.getInstance().getConnection();
-        String url = "INSERT INTO users (first_name, last_name, username, password, e-mail, is_admin, is_activated) VALUES (?, ?, ?, ?, ?, ?, ?);";
+        String url = "INSERT INTO users (first_name, last_name, username, password, email, is_admin, is_activated) VALUES (?, ?, ?, ?, ?, ?, ?);";
         try(PreparedStatement statement = connection.prepareStatement(url)) {
             statement.setString(1, user.getFirst_name());
             statement.setString(2, user.getLast_name());
@@ -86,7 +86,7 @@ public class UserDAO implements IUserDAO {
     @Override
     public void updateUserInfo(User user) throws SQLException {
         Connection connection = DBManager.getInstance().getConnection();
-        String url = "UPDATE users SET first_name = ? , last_name = ?, username = ?, password = ?, e-mail = ? WHERE id = ?;";
+        String url = "UPDATE users SET first_name = ? , last_name = ?, username = ?, password = ?, email = ? WHERE id = ?;";
         try(PreparedStatement statement = connection.prepareStatement(url)) {
             statement.setString(1,user.getFirst_name());
             statement.setString(2,user.getLast_name());
