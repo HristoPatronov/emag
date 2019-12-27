@@ -45,14 +45,13 @@ public class UserDAO implements IUserDAO {
     @Override
     public void registerUser(User user) throws SQLException {
         Connection connection = DBManager.getInstance().getConnection();
-        String url = "INSERT INTO users (first_name, last_name, username, password, email, is_admin) VALUES (?, ?, ?, ?, ?, ?);";
+        String url = "INSERT INTO users (first_name, last_name, username, password, email) VALUES (?, ?, ?, ?, ?);";
         try(PreparedStatement statement = connection.prepareStatement(url)) {
             statement.setString(1, user.getFirst_name());
             statement.setString(2, user.getLast_name());
             statement.setString(3, user.getUserName());
             statement.setString(4, user.getPassword());
             statement.setString(5, user.geteMail());
-            statement.setBoolean(6, user.isAdmin());
             statement.executeUpdate();
         }
     }
@@ -114,7 +113,8 @@ public class UserDAO implements IUserDAO {
                     set.getString(4),
                     set.getString(5),
                     set.getString(6),
-                    set.getBoolean(7));
+                    set.getBoolean(7),
+                    set.getBoolean(8));
         }
         return user;
     }
