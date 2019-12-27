@@ -45,7 +45,7 @@ public class UserDAO implements IUserDAO {
     @Override
     public void registerUser(User user) throws SQLException {
         Connection connection = DBManager.getInstance().getConnection();
-        String url = "INSERT INTO users (first_name, last_name, username, password, email, is_admin, is_activated) VALUES (?, ?, ?, ?, ?, ?, ?);";
+        String url = "INSERT INTO users (first_name, last_name, username, password, email, is_admin) VALUES (?, ?, ?, ?, ?, ?);";
         try(PreparedStatement statement = connection.prepareStatement(url)) {
             statement.setString(1, user.getFirst_name());
             statement.setString(2, user.getLast_name());
@@ -53,7 +53,6 @@ public class UserDAO implements IUserDAO {
             statement.setString(4, user.getPassword());
             statement.setString(5, user.geteMail());
             statement.setBoolean(6, user.isAdmin());
-            statement.setBoolean(7, user.isActivated());
             statement.executeUpdate();
         }
     }
@@ -97,4 +96,26 @@ public class UserDAO implements IUserDAO {
             statement.executeUpdate();
         }
     }
+
+    @Override
+    public User getUserByEmail(String email) throws SQLException {
+        Connection connection = DBManager.getInstance().getConnection();
+        String url = "SELECT * FROM users WHERE email = ?;";
+        User user = null;
+        try(PreparedStatement statement = connection.prepareStatement(url)) {
+            statement.setString(1, email);
+            ResultSet set = statement.executeQuery();
+            set.next();
+            user = new User(set.getInt(1),
+                    set.getString(2),
+                    set.getString(3),
+                    set.getString(4),
+                    set.getString(5),
+                    set.getString(6),
+                    set.getBoolean(7));
+        }
+        return user;
+    }
+
+
 }
