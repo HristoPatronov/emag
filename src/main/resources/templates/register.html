@@ -7,7 +7,7 @@
 <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <title>k</title>
+    <title>Register Page</title>
     <link rel="stylesheet" href="/css/error.css">
 </head>
 <body>
@@ -18,14 +18,15 @@
 <div class="login">
     <!--/*@thymesVar id="user" type="com.example.emag.model.User"*/-->
     <form action="#" th:action="@{/register}" th:method="POST" method="post">
-        <input type="text" id="firstName" placeholder="firstName" name="firstName"><br>
-        <input type="text" id="lastName" placeholder="lastName" name="lastName"><br>
-        <input type="text" id="username" placeholder="username" name="username"><br>
-        <input type="text" id="email" placeholder="email" name="email"><br>
-        <input type="password" id="password" placeholder="password" name="password"><br>
+        <input type="text" id="firstName" placeholder="firstName" name="firstName" minlength="2" maxlength="45" required><br>
+        <input type="text" id="lastName" placeholder="lastName" name="lastName" minlength="2" maxlength="45" required><br>
+        <input type="text" id="username" placeholder="username" name="username" minlength="4" maxlength="45" required><br>
+        <input type="email" id="email" placeholder="email" name="email" maxlength="45" required><br>
+        <input type="password" id="password" placeholder="password" name="password" minlength="6" maxlength="225" required><br>
+        <input type="password" id="password2" placeholder="confirm password" name="password2" minlength="6" maxlength="225" required><br>
         <input type="submit" value="Sign up"> <br>
     </form>
-    <a href="register.html"><input type="button" value="Sign In"></a>
+    <a href="login"><input type="button" value="Sign In"></a>
     <br>
     <span class="error" th:if="${error} != null" th:text="*{error}"></span>
 </div>
