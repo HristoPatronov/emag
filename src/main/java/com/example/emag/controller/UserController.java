@@ -30,21 +30,20 @@ public class UserController {
             try {
                 User user = UserDAO.getInstance().getUserByEmail(email);
                 if (user != null) {
-                    boolean exists = false;
-                    if (UserUtil.isPasswordValid(password)) {
-                        exists = user.getPassword().equals(password);
-                    }
-                    if (exists) {
+                    boolean validPassword = UserUtil.isPasswordValid(password) && user.getPassword().equals(password);
+                    if (validPassword) {
                         return "redirect:/index";
                     } else {
-                        model.addAttribute("msg", "invalid password");
+                        model.addAttribute("error", "invalid password");
                         return "login";
                     }
                 } else {
+                    model.addAttribute("error", "You aren't registered");
                     return "register";
                 }
             } catch (SQLException e) {
-                System.out.println(e.getMessage());
+                model.addAttribute("error", "Wrong credentials entered");
+                return "login";
             }
         }
         return "login";
@@ -68,7 +67,7 @@ public class UserController {
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
-        return "login";
+        return "redirect:/login";
     }
 
 }

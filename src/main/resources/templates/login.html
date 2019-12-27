@@ -21,7 +21,9 @@
         <input type="password" id="password" placeholder="password" name="password"><br>
         <input type="submit" value="Log In"> <br>
     </form>
-    <a href="register.html"><input type="button" value="Sign In"></a>
+    <a href="register"><input type="button" value="Sign In"></a>
+    <br>
+    <span class="css/error" th:if="${error} != null" th:text="error"></span>
 </div>
 </body>
 </html>
