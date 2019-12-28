@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-@Controller
+@RestController
 public class UserController {
 
     @GetMapping("/index")
@@ -36,7 +36,8 @@ public class UserController {
     @PostMapping("/login")
     public String login(@RequestParam String email,
                         @RequestParam String password,
-                        Model model) {
+                        Model model,
+                        HttpSession session) {
 
         if(!UserUtil.isEMailValid(email)){
             model.addAttribute("error", "E-mail address should be a valid one!");
@@ -46,12 +47,8 @@ public class UserController {
             if (UserDAO.getInstance().checkIfUserExists(email)) {
                 User user = UserDAO.getInstance().getUserByEmail(email);
                 if (user.getPassword().equals(password)) {
-                    if (user.isSubscribed()) {
-                        return "redirect:/index";
-                    } else {
-                        model.addAttribute("error", "User is not activated, please check your e-mail!");
-                        return "login";
-                    }
+                    session.setAttribute("userId", user.getId());
+                    return "home";
                 } else {
                     model.addAttribute("error", "Invalid credentials!"); //password does not match
                     return "login";
@@ -185,10 +182,23 @@ public class UserController {
         }
         return products;
     }
+
+    //get products in cart
+    @GetMapping("/cart")
+    public List<Product> getProductsFromCart(HttpSession session, Model model) {
+        List<Product> products = new ArrayList<>();
+        if (session.getAttribute("cart") != null) {
+            products = (List<Product>) session.getAttribute("cart");
+        } else {
+            model.addAttribute("errr", "no products in cart");
+            return null;
+        }
+        return products;
+    }
+
     //add product to cart
     @PostMapping("/cart")
-    public void addProductToCart(@RequestParam int id, HttpSession session, Model model){
-
+    public void addProductToCart(@RequestParam int id, HttpSession session, Model model){  //id = productId
         List<Product> products = new ArrayList<>();
         if (session.getAttribute("cart") != null) {
             products = (List<Product>) session.getAttribute("cart");
@@ -208,8 +218,8 @@ public class UserController {
     }
 
     //remove product from cart
-    @PostMapping("/removeFromCart")
-    public void removeProductFromCart(@RequestParam int id, HttpSession session, Model model){
+    @DeleteMapping("/cart")
+    public void removeProductFromCart(@RequestParam int id, HttpSession session, Model model){   //id = productId
         List<Product> products = new ArrayList<>();
         if (session.getAttribute("cart") != null){
             products = (List<Product>) session.getAttribute("cart");
@@ -221,17 +231,57 @@ public class UserController {
         session.setAttribute("cart", products);
     }
 
+    //tested OK
+    //get favourite products
+    @GetMapping("/favourite")
+    public List<Product> getFavouriteProducts(HttpSession session, Model model) {
+        List<Product> products = new ArrayList<>();
+        try {
+            products = ProductDAO.getInstance().getFavouriteProducts((Integer) session.getAttribute("userId"));
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return products;
+    }
+
+    //tested OK
     //add to favourite
-    @PostMapping("/addToFavourite")
-    public void addProductToFavourite(@RequestParam int id, HttpSession session, Model model){
+    @PostMapping("/favourite")
+    public void addProductToFavourite(@RequestParam int id, HttpSession session, Model model){   //id = productId
+        List<Product> products = new ArrayList<>();
+        int userId = (int) session.getAttribute("userId");
         Product product = null;
         try {
+            products = ProductDAO.getInstance().getFavouriteProducts(userId);
             product = ProductDAO.getInstance().getProductById(id);
+            for (Product p : products) {
+                if (p.getId().equals(product.getId())) {
+                    model.addAttribute("error", "this product already present in favourite list");
+                    return;
+                }
+            }
             if (product != null){
-                Integer userId = (Integer) session.getAttribute("userId");
                 ProductDAO.getInstance().addFavouriteProduct(userId, product.getId());
             } else {
                 model.addAttribute("error", "this item doesn't exists");
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    //tested OK
+    //remove favourite product
+    @DeleteMapping("/favourite")
+    public void deleteFavouriteProduct(@RequestParam int id, HttpSession session, Model model) {  //productId
+        List<Product> products = new ArrayList<>();
+        int userId = (int) session.getAttribute("userId");
+        try {
+            products = ProductDAO.getInstance().getFavouriteProducts(userId);
+            for (Product p : products) {
+                if(p.getId() == id) {
+                    ProductDAO.getInstance().removeFavouriteProduct(userId, id);
+                }
             }
         } catch (SQLException e) {
             System.out.println(e.getMessage());

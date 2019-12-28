@@ -249,9 +249,10 @@ public class ProductDAO implements IProductDAO {
     public List<Product> getFavouriteProducts(Integer userId) throws SQLException {
         List<Product> products = new ArrayList<>();
         Connection connection = DBManager.getInstance().getConnection();
-        String url = "SELECT p.* FROM products as p JOIN orders_have_products AS ohp ON p.id = ohp.order_id " +
-                "JOIN orders AS o ON ohp.product_id = o.id;";
+        String url = "SELECT p.* FROM products as p JOIN users_have_favourite_products AS uhfp " +
+                "ON p.id = uhfp.product_id JOIN users AS u ON uhfp.user_id = u.id WHERE u.id = ?;";
         try(PreparedStatement statement = connection.prepareStatement(url)) {
+            statement.setInt(1, userId);
             ResultSet set = statement.executeQuery();
             while (set.next()){
                 Product product = new Product(set.getInt(1),
@@ -271,9 +272,10 @@ public class ProductDAO implements IProductDAO {
     public List<Product> getProductsByOrder(Integer orderId) throws SQLException {
         List<Product> products = new ArrayList<>();
         Connection connection = DBManager.getInstance().getConnection();
-        String url = "SELECT p.* FROM products as p JOIN users_have_favourite_products AS uhfp ON p.id = uhfp.user_id" +
-                " JOIN users AS u ON uhfp.product_id = u.id;";
+        String url = "SELECT p.* FROM products as p JOIN orders_have_products AS ohp ON p.id = ohp.product_id " +
+                "JOIN orders AS o ON ohp.order_id = o.id WHERE o.id = ?;";
         try(PreparedStatement statement = connection.prepareStatement(url)) {
+            statement.setInt(1, orderId);
             ResultSet set = statement.executeQuery();
             while (set.next()){
                 Product product = new Product(set.getInt(1),
@@ -312,7 +314,18 @@ public class ProductDAO implements IProductDAO {
     @Override
     public void addFavouriteProduct(Integer userId, Integer productId) throws SQLException {
         Connection connection = DBManager.getInstance().getConnection();
-        String url = "INSERT INTO users_have_favourite_product (user_id, product_id) VALUES (?, ?);";
+        String url = "INSERT INTO users_have_favourite_products (user_id, product_id) VALUES (?, ?);";
+        try(PreparedStatement statement = connection.prepareStatement(url)) {
+            statement.setInt(1, userId);
+            statement.setInt(2, productId);
+            statement.executeUpdate();
+        }
+    }
+
+    @Override
+    public void removeFavouriteProduct(Integer userId, Integer productId) throws SQLException {
+        Connection connection = DBManager.getInstance().getConnection();
+        String url = "DELETE FROM users_have_favourite_products WHERE user_id = ? AND product_id = ?";
         try(PreparedStatement statement = connection.prepareStatement(url)) {
             statement.setInt(1, userId);
             statement.setInt(2, productId);
