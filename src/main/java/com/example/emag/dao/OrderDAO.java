@@ -1,13 +1,11 @@
 package com.example.emag.dao;
 
 import com.example.emag.model.Order;
-
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class OrderDAO implements IOrderDAO {
-
 
     private static OrderDAO mInstance;
 

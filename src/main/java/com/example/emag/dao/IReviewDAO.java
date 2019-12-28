@@ -1,7 +1,6 @@
 package com.example.emag.dao;
 
 import com.example.emag.model.Review;
-
 import java.sql.SQLException;
 import java.util.List;
 

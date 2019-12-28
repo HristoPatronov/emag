@@ -16,6 +16,9 @@ import javax.servlet.http.HttpSession;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 public class UserController {
@@ -128,7 +131,6 @@ public class UserController {
         model.addAttribute("error", "Error");
         return "register";
     }
-
 
     //get Personal info
     @GetMapping("/userInfo")
