@@ -120,12 +120,6 @@ public class UserController {
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
-<<<<<<< HEAD
-        return "redirect:/login";
-    }
-=======
->>>>>>> 5a0333ccda8e641e7baffeaed73f767225474512
-
         model.addAttribute("error", "Error");
         return "register";
     }
