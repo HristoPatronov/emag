@@ -24,5 +24,6 @@ public interface IProductDAO {
     List<Product> getProductsByOrder(Integer orderId) throws SQLException;
     List<Order> getOrdersByUserId(Integer userId) throws SQLException;
     void addFavouriteProduct(Integer userId, Integer productId) throws SQLException;
-    void removeFavouriteProduct(Integer userId, Integer prodctId) throws SQLException;
+    void removeFavouriteProduct(Integer userId, Integer productId) throws SQLException;
+    void addProductsToOrder(List<Product> products, Integer orderId) throws SQLException;
 }

@@ -297,6 +297,7 @@ public class ProductDAO implements IProductDAO {
         Connection connection = DBManager.getInstance().getConnection();
         String url = "SELECT * FROM orders WHERE user_id = ?;";
         try(PreparedStatement statement = connection.prepareStatement(url)) {
+            statement.setInt(1, userId);
             ResultSet set = statement.executeQuery();
             while (set.next()) {
                 Order order = new Order(set.getInt(1),
@@ -308,7 +309,7 @@ public class ProductDAO implements IProductDAO {
                 orders.add(order);
             }
         }
-            return orders;
+        return orders;
     }
 
     @Override
@@ -333,4 +334,18 @@ public class ProductDAO implements IProductDAO {
         }
     }
 
+    @Override
+    public void addProductsToOrder(List<Product> products, Integer orderId) throws SQLException {
+        Connection connection = DBManager.getInstance().getConnection();
+        String url = "INSERT INTO orders_have_products (order_id, product_id) VALUES (?,?)";
+        connection.setAutoCommit(false);
+        for (Product product : products) {
+            try (PreparedStatement statement = connection.prepareStatement(url)) {
+                statement.setInt(1, orderId);
+                statement.setInt(2, product.getId());
+                statement.executeUpdate();
+            }
+        }
+        connection.commit();
+    }
 }

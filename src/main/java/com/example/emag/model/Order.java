@@ -11,6 +11,16 @@ public class Order {
     private Integer paymentTypeId;
     private Integer statusId;
 
+    public Order() {}
+
+    public Order(Double totalPrice, LocalDate date, Integer userId, Integer paymentTypeId, Integer statusId) {
+        this.totalPrice = totalPrice;
+        this.date = date;
+        this.userId = userId;
+        this.paymentTypeId = paymentTypeId;
+        this.statusId = statusId;
+    }
+
     public Order(Integer id, Double totalPrice, LocalDate date, Integer userId, Integer paymentTypeId, Integer statusId) {
         this.id = id;
         this.totalPrice = totalPrice;

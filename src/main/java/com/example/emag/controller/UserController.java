@@ -1,8 +1,6 @@
 package com.example.emag.controller;
 
-import com.example.emag.dao.AddressDAO;
-import com.example.emag.dao.ProductDAO;
-import com.example.emag.dao.UserDAO;
+import com.example.emag.dao.*;
 import com.example.emag.model.Address;
 import com.example.emag.model.Order;
 import com.example.emag.model.Product;
@@ -14,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -276,15 +275,16 @@ public class UserController {
 
     //get orders
     @GetMapping("/order")
-    public List<Order> allOrders(@RequestParam int id, HttpSession session, HttpServletResponse response, Model model){
+    public List<Order> allOrders(HttpSession session, HttpServletResponse response, Model model){
         if(session.getAttribute("userId") == null) {
             model.addAttribute("error", "you should be logged in");
             response.setStatus(405);
             return null;
         }
+        int userId = (int) session.getAttribute("userId");
         List<Order> list = new ArrayList<>();
         try {
-            list = ProductDAO.getInstance().getOrdersByUserId(id);
+            list = ProductDAO.getInstance().getOrdersByUserId(userId);
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
@@ -355,7 +355,7 @@ public class UserController {
     //remove product from cart
     @DeleteMapping("/cart")
     public void removeProductFromCart(@RequestParam int id, HttpSession session, HttpServletResponse response, Model model){   //id = productId
-        if(session.getAttribute("userId") == null) {
+        if (session.getAttribute("userId") == null) {
             model.addAttribute("error", "you should be logged in");
             response.setStatus(405);
             return;
@@ -373,13 +373,51 @@ public class UserController {
 
 
     //checkout TODO
-
+    @GetMapping("/checkout")
+    public void checkout(@RequestParam int paymentType, HttpSession session, HttpServletResponse response, Model model) {
+        if (session.getAttribute("userId") == null) {
+            model.addAttribute("error", "you should be logged in");
+            response.setStatus(405);
+            return;
+        }
+        List<Product> products = new ArrayList<>();
+        if (session.getAttribute("cart") != null){
+            products = (List<Product>) session.getAttribute("cart");
+        } else {
+            model.addAttribute("error", "The cart is empty");
+            return;
+        }
+        double totalPrice = 0;
+        for (Product product : products) {
+            totalPrice += product.getPrice();
+        }
+        int userId = (int) session.getAttribute("userId");
+        Order order = new Order(totalPrice, LocalDate.now(), userId, paymentType, 1);
+        try {
+            int orderId = OrderDAO.getInstance().addOrder(order);
+            ProductDAO.getInstance().addProductsToOrder(products, orderId);
+            session.setAttribute("cart", null);
+        } catch (SQLException e) {
+            try {
+                DBManager.getInstance().getConnection().rollback();
+            } catch (SQLException ex) {
+                System.out.println(e.getMessage());
+            }
+            System.out.println(e.getMessage());
+        } finally {
+            try {
+                DBManager.getInstance().getConnection().setAutoCommit(true);
+            } catch (SQLException e) {
+                System.out.println(e.getMessage());
+            }
+        }
+    }
 
     //tested OK
     //get favourite products
     @GetMapping("/favourite")
     public List<Product> getFavouriteProducts(HttpSession session, HttpServletResponse response, Model model) {
-        if(session.getAttribute("userId") == null) {
+        if (session.getAttribute("userId") == null) {
             model.addAttribute("error", "you should be logged in");
             response.setStatus(405);
             return null;
@@ -397,7 +435,7 @@ public class UserController {
     //add to favourite
     @PostMapping("/favourite")
     public void addProductToFavourite(@RequestParam int id, HttpSession session, HttpServletResponse response, Model model){   //id = productId
-        if(session.getAttribute("userId") == null) {
+        if (session.getAttribute("userId") == null) {
             model.addAttribute("error", "you should be logged in");
             response.setStatus(405);
             return;
@@ -428,7 +466,7 @@ public class UserController {
     //remove favourite product
     @DeleteMapping("/favourite")
     public void deleteFavouriteProduct(@RequestParam int id, HttpSession session, HttpServletResponse response, Model model) {  //productId
-        if(session.getAttribute("userId") == null) {
+        if (session.getAttribute("userId") == null) {
             model.addAttribute("error", "you should be logged in");
             response.setStatus(405);
             return;

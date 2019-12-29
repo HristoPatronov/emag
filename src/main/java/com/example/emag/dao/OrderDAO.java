@@ -2,6 +2,7 @@ package com.example.emag.dao;
 
 import com.example.emag.model.Order;
 import java.sql.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,17 +21,22 @@ public class OrderDAO implements IOrderDAO {
     }
 
     @Override
-    public void addOrder(Order order) throws SQLException {
+    public int addOrder(Order order) throws SQLException {
         Connection connection = DBManager.getInstance().getConnection();
-        String url = "INSERT INTO addresses (city, district, street, ZIP, phone_number, user_id) VALUES (?,?,?,?,?,?);";
-        try(PreparedStatement statement = connection.prepareStatement(url)) {
+        String url = "INSERT INTO orders (total_price, date, user_id, payment_type_id, status_id) VALUES (?,?,?,?,?);";
+        int id = 0;
+        try(PreparedStatement statement = connection.prepareStatement(url, Statement.RETURN_GENERATED_KEYS)) {
             statement.setDouble(1, order.getTotalPrice());
             statement.setDate(2, Date.valueOf(order.getDate()));
             statement.setInt(3, order.getUserId());
             statement.setInt(4, order.getPaymentTypeId());
             statement.setInt(5, order.getStatusId());
             statement.executeUpdate();
+            ResultSet set = statement.getGeneratedKeys();
+            set.next();
+            id = set.getInt(1);
         }
+        return id;
     }
 
     @Override
