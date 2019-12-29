@@ -8,10 +8,10 @@ import com.example.emag.model.Order;
 import com.example.emag.model.Product;
 import com.example.emag.model.User;
 import com.example.emag.utils.UserUtil;
-import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -33,6 +33,7 @@ public class UserController {
         return "login";
     }
 
+    //login
     @PostMapping("/login")
     public String login(@RequestParam String email,
                         @RequestParam String password,
@@ -48,6 +49,7 @@ public class UserController {
                 User user = UserDAO.getInstance().getUserByEmail(email);
                 if (user.getPassword().equals(password)) {
                     session.setAttribute("userId", user.getId());
+                    model.addAttribute("msg", "success");
                     return "home";
                 } else {
                     model.addAttribute("error", "Invalid credentials!"); //password does not match
@@ -70,6 +72,7 @@ public class UserController {
         return "register";
     }
 
+    //register
     @PostMapping("/register")
     public String register(@RequestParam String firstName,
                            @RequestParam String lastName,
@@ -117,6 +120,7 @@ public class UserController {
             if (!UserDAO.getInstance().checkIfUserExists(email)) {
                 User user = new User(firstName, lastName, username, password, email);
                 UserDAO.getInstance().registerUser(user);
+                model.addAttribute("msg", "success");
                 return "login";
             } else {
                 model.addAttribute("error", "User with that e-mail already exists");
@@ -129,9 +133,27 @@ public class UserController {
         return "register";
     }
 
+    //logout
+    @GetMapping("/logout")
+    public String logout(HttpSession session, HttpServletResponse response, Model model) {
+        if(session.getAttribute("userId") == null) {
+            model.addAttribute("error", "you should be logged in");
+            response.setStatus(405);
+            return "login";
+        }
+        session.setAttribute("userId", null);
+        model.addAttribute("msg", "success");
+        return "login";
+    }
+
     //get Personal info
     @GetMapping("/userInfo")
-    public User getUserInfoById(@RequestParam int id){
+    public User getUserInfoById(@RequestParam int id, HttpSession session, HttpServletResponse response, Model model){
+        if(session.getAttribute("userId") == null) {
+            model.addAttribute("error", "you should be logged in");
+            response.setStatus(405);
+            return null;
+        }
         User user = null;
         try {
             user = UserDAO.getInstance().getUserById(id);
@@ -141,19 +163,14 @@ public class UserController {
         return user;
     }
 
-    @GetMapping("/getAllAdresses")
-    public List<Address> allAdressesByUserId(@RequestParam int id){
-        List<Address> list = new ArrayList<>();
-        try {
-            list = AddressDAO.getInstance().getAllAddresses(id);
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
-        }
-        return list;
-    }
     //update Personal info
     @PostMapping("/updateInfo")
-    public void updateUserInfo(@RequestBody User user){
+    public void updateUserInfo(@RequestBody User user, HttpSession session, HttpServletResponse response, Model model){
+        if(session.getAttribute("userId") == null) {
+            model.addAttribute("error", "you should be logged in");
+            response.setStatus(405);
+            return;
+        }
         try {
             UserDAO.getInstance().updateUserInfo(user);
         } catch (SQLException e) {
@@ -161,8 +178,110 @@ public class UserController {
         }
     }
 
+    //get all addresses
+    @GetMapping("/getAddresses")
+    public List<Address> allAdressesByUserId(HttpSession session, HttpServletResponse response, Model model){
+        if(session.getAttribute("userId") == null) {
+            model.addAttribute("error", "you should be logged in");
+            response.setStatus(405);
+            return null;
+        }
+        int userId = (int) session.getAttribute("userId");
+        List<Address> list = new ArrayList<>();
+        try {
+            list = AddressDAO.getInstance().getAllAddresses(userId);
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return list;
+    }
+
+    //add address
+    @PostMapping("/address")
+    public void addAddress(@RequestBody Address address,
+                           HttpServletResponse response,
+                           HttpSession session,
+                           Model model) {
+        if(session.getAttribute("userId") == null) {
+            model.addAttribute("error", "you should be logged in");
+            response.setStatus(405);
+            return;
+        }
+        int userId = (int) session.getAttribute("userId");
+        try {
+            AddressDAO.getInstance().addAddress(userId, address);
+            model.addAttribute("msg", "success");
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    //remove address TODO
+    @DeleteMapping("/address")
+    public void deleteAddress(@RequestParam int addressId,
+                              HttpServletResponse response,
+                              HttpSession session,
+                              Model model) {
+        if(session.getAttribute("userId") == null) {
+            model.addAttribute("error", "you should be logged in");
+            response.setStatus(405);
+            return;
+        }
+        int userId = (int) session.getAttribute("userId");
+        try {
+            List<Address> addresses = AddressDAO.getInstance().getAllAddresses(userId);
+            for (Address address : addresses) {
+                if (addressId == address.getId()) {
+                    AddressDAO.getInstance().deleteAddress(addressId);
+                    model.addAttribute("msg", "success");
+                    return;
+                }
+            }
+            model.addAttribute("error", "no such address");
+            response.setStatus(405);
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    //edit address TODO
+    @PostMapping("/editAddress")
+    public void editAddress(@RequestBody Address address,
+                            @RequestParam int addressId,
+                            HttpServletResponse response,
+                            HttpSession session,
+                            Model model) {
+        if(session.getAttribute("userId") == null) {
+            model.addAttribute("error", "you should be logged in");
+            response.setStatus(405);
+            return;
+        }
+        int userId = (int) session.getAttribute("userId");
+
+        try {
+            List<Address> addresses = AddressDAO.getInstance().getAllAddresses(userId);
+            for (Address currentAddress : addresses) {
+                if (addressId == currentAddress.getId()) {
+                    AddressDAO.getInstance().updateAddress(address, addressId);
+                    model.addAttribute("msg", "success");
+                    return;
+                }
+            }
+            model.addAttribute("error", "no such address");
+            response.setStatus(405);
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    //get orders
     @GetMapping("/order")
-    public List<Order> allOrders(@RequestParam int id){
+    public List<Order> allOrders(@RequestParam int id, HttpSession session, HttpServletResponse response, Model model){
+        if(session.getAttribute("userId") == null) {
+            model.addAttribute("error", "you should be logged in");
+            response.setStatus(405);
+            return null;
+        }
         List<Order> list = new ArrayList<>();
         try {
             list = ProductDAO.getInstance().getOrdersByUserId(id);
@@ -172,8 +291,14 @@ public class UserController {
         return list;
     }
 
+    //get products by order
     @GetMapping("/order/products")
-    public List<Product> productsByOrder(@RequestParam int id){
+    public List<Product> productsByOrder(@RequestParam int id, HttpSession session, HttpServletResponse response, Model model){
+        if(session.getAttribute("userId") == null) {
+            model.addAttribute("error", "you should be logged in");
+            response.setStatus(405);
+            return null;
+        }
         List<Product> products = new ArrayList<>();
         try {
             products = ProductDAO.getInstance().getProductsByOrder(id);
@@ -185,7 +310,12 @@ public class UserController {
 
     //get products in cart
     @GetMapping("/cart")
-    public List<Product> getProductsFromCart(HttpSession session, Model model) {
+    public List<Product> getProductsFromCart(HttpSession session, HttpServletResponse response, Model model) {
+        if(session.getAttribute("userId") == null) {
+            model.addAttribute("error", "you should be logged in");
+            response.setStatus(405);
+            return null;
+        }
         List<Product> products = new ArrayList<>();
         if (session.getAttribute("cart") != null) {
             products = (List<Product>) session.getAttribute("cart");
@@ -198,7 +328,12 @@ public class UserController {
 
     //add product to cart
     @PostMapping("/cart")
-    public void addProductToCart(@RequestParam int id, HttpSession session, Model model){  //id = productId
+    public void addProductToCart(@RequestParam int id, HttpSession session, HttpServletResponse response, Model model){  //id = productId
+        if(session.getAttribute("userId") == null) {
+            model.addAttribute("error", "you should be logged in");
+            response.setStatus(405);
+            return;
+        }
         List<Product> products = new ArrayList<>();
         if (session.getAttribute("cart") != null) {
             products = (List<Product>) session.getAttribute("cart");
@@ -219,7 +354,12 @@ public class UserController {
 
     //remove product from cart
     @DeleteMapping("/cart")
-    public void removeProductFromCart(@RequestParam int id, HttpSession session, Model model){   //id = productId
+    public void removeProductFromCart(@RequestParam int id, HttpSession session, HttpServletResponse response, Model model){   //id = productId
+        if(session.getAttribute("userId") == null) {
+            model.addAttribute("error", "you should be logged in");
+            response.setStatus(405);
+            return;
+        }
         List<Product> products = new ArrayList<>();
         if (session.getAttribute("cart") != null){
             products = (List<Product>) session.getAttribute("cart");
@@ -231,10 +371,19 @@ public class UserController {
         session.setAttribute("cart", products);
     }
 
+
+    //checkout TODO
+
+
     //tested OK
     //get favourite products
     @GetMapping("/favourite")
-    public List<Product> getFavouriteProducts(HttpSession session, Model model) {
+    public List<Product> getFavouriteProducts(HttpSession session, HttpServletResponse response, Model model) {
+        if(session.getAttribute("userId") == null) {
+            model.addAttribute("error", "you should be logged in");
+            response.setStatus(405);
+            return null;
+        }
         List<Product> products = new ArrayList<>();
         try {
             products = ProductDAO.getInstance().getFavouriteProducts((Integer) session.getAttribute("userId"));
@@ -247,7 +396,12 @@ public class UserController {
     //tested OK
     //add to favourite
     @PostMapping("/favourite")
-    public void addProductToFavourite(@RequestParam int id, HttpSession session, Model model){   //id = productId
+    public void addProductToFavourite(@RequestParam int id, HttpSession session, HttpServletResponse response, Model model){   //id = productId
+        if(session.getAttribute("userId") == null) {
+            model.addAttribute("error", "you should be logged in");
+            response.setStatus(405);
+            return;
+        }
         List<Product> products = new ArrayList<>();
         int userId = (int) session.getAttribute("userId");
         Product product = null;
@@ -273,7 +427,12 @@ public class UserController {
     //tested OK
     //remove favourite product
     @DeleteMapping("/favourite")
-    public void deleteFavouriteProduct(@RequestParam int id, HttpSession session, Model model) {  //productId
+    public void deleteFavouriteProduct(@RequestParam int id, HttpSession session, HttpServletResponse response, Model model) {  //productId
+        if(session.getAttribute("userId") == null) {
+            model.addAttribute("error", "you should be logged in");
+            response.setStatus(405);
+            return;
+        }
         List<Product> products = new ArrayList<>();
         int userId = (int) session.getAttribute("userId");
         try {

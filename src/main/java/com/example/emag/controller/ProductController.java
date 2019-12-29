@@ -26,6 +26,7 @@ public class ProductController {
         }
         return product;
     }
+
     //return products by search
     @GetMapping("/search")
     public List<Product> productsFromSearch(@RequestParam String text){

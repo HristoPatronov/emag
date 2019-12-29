@@ -15,7 +15,7 @@ import java.util.List;
 @RestController
 public class CategoryController {
 
-    //return categories and subCategories
+    //return categories
     @GetMapping("/category")
     public List<Category> categoryList(){
         List<Category> list = new ArrayList<>();
@@ -26,7 +26,8 @@ public class CategoryController {
         }
         return list;
     }
-    //return products by subcategory
+
+    //return subcategories
     @GetMapping("/subCategory")
     public List<SubCategory> subCategoryList(@RequestParam int id){
         List<SubCategory> subCategories = new ArrayList<>();

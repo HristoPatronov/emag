@@ -26,14 +26,14 @@ public class AddressDAO implements IAddressDAO {
     @Override
     public void addAddress(Integer userId, Address address) throws SQLException {
         Connection connection = DBManager.getInstance().getConnection();
-        String url = "INSERT INTO addresses (city, district, street, ZIP, phone_number, user_id) VALUES (?,?,?,?,?,?);";
+        String url = "INSERT INTO addresses (city, district, street, zip, phone_number, user_id) VALUES (?,?,?,?,?,?);";
         try(PreparedStatement statement = connection.prepareStatement(url)) {
             statement.setString(1, address.getCity());
             statement.setString(2, address.getDistrict());
             statement.setString(3, address.getStreet());
-            statement.setString(4, address.getZIP());
+            statement.setString(4, address.getZip());
             statement.setString(5, address.getPhoneNumber());
-            statement.setLong(6, userId);
+            statement.setInt(6, userId);
             statement.executeUpdate();
         }
     }
@@ -63,12 +63,12 @@ public class AddressDAO implements IAddressDAO {
     @Override
     public void updateAddress(Address address, Integer addressId) throws SQLException {
         Connection connection = DBManager.getInstance().getConnection();
-        String url = "UPDATE addresses SET city = ? , district = ?, street = ?, ZIP = ?, phone_number = ? WHERE id = ?;";
+        String url = "UPDATE addresses SET city = ? , district = ?, street = ?, zip = ?, phone_number = ? WHERE id = ?;";
         try(PreparedStatement statement = connection.prepareStatement(url)) {
             statement.setString(1, address.getCity());
             statement.setString(2, address.getDistrict());
             statement.setString(3, address.getStreet());
-            statement.setString(4, address.getZIP());
+            statement.setString(4, address.getZip());
             statement.setString(5, address.getPhoneNumber());
             statement.setInt(6, addressId);
             statement.executeUpdate();
