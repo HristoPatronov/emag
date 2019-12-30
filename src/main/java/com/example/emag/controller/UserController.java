@@ -44,20 +44,18 @@ public class UserController {
             return "login";
         }
         try {
-            if (UserDAO.getInstance().checkIfUserExists(email)) {
                 User user = UserDAO.getInstance().getUserByEmail(email);
-                if (user.getPassword().equals(password)) {
+                if (user != null && user.getPassword().equals(password)) {
                     session.setAttribute("userId", user.getId());
                     model.addAttribute("msg", "success");
+                    if(user.isAdmin()) {
+                        return "admin";
+                    }
                     return "home";
                 } else {
                     model.addAttribute("error", "Invalid credentials!"); //password does not match
                     return "login";
                 }
-            } else {
-                model.addAttribute("error", "Invalid credentials!"); //user not exist
-                return "login";
-            }
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
