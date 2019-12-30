@@ -6,9 +6,7 @@ import com.example.emag.model.Product;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpSession;
 import java.sql.SQLException;
@@ -84,6 +82,7 @@ public class AdminController {
             if (product != null) {
                 ProductDAO.getInstance().updateQuantity(id, newQuantity);
                 model.addAttribute("quantity", "Quantity was modified successfully");
+                return "admin";
             }
         } catch (SQLException e) {
             System.out.println(e.getMessage());

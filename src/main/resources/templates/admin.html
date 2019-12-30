@@ -23,20 +23,24 @@
         <input type="text" placeholder="subCategoryId" name="subCategoryId" th:value="${subCategoryId}" maxlength="225" required><br>
         <input type="submit" value="Add Product"> <br>
     </form>
+    <span class="error" th:if="${add} != null" th:text="*{add}"></span>
     <form action="#" th:action="@{/removeProduct}" th:method="POST" method="post" >
         <input type="text" id="idProduct" placeholder="idProduct" name="idProduct" maxlength="45" required><br>
         <input type="submit" value="Remove Product"> <br>
     </form>
+    <span class="error" th:if="${remove} != null" th:text="*{remove}"></span>
     <form action="#" th:action="@{/setDiscount}" th:method="POST" method="post" >
         <input type="text" id="Productid" placeholder="Productid" name="Productid" maxlength="45" required><br>
         <input type="text" id="discount" placeholder="discount" name="discount" maxlength="225" required><br>
         <input type="submit" value="Change product discount"> <br>
     </form>
+    <span class="error" th:if="${discount} != null" th:text="*{discount}"></span>
     <form action="#" th:action="@{/updateQuantity}" th:method="POST" method="post" >
         <input type="text" id="id" placeholder="id" name="id" maxlength="45" required><br>
         <input type="text" id="newQuantity" placeholder="newQuantity" name="newQuantity" maxlength="225" required><br>
         <input type="submit" value="Change product quantity"> <br>
     </form>
+    <span class="error" th:if="${quantity} != null" th:text="*{quantity}"></span>
 </div>
 </body>
 </html>
