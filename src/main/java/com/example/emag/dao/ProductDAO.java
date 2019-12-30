@@ -76,7 +76,9 @@ public class ProductDAO implements IProductDAO {
         try(PreparedStatement statement = connection.prepareStatement(url)) {
             statement.setInt(1, id);
             ResultSet set = statement.executeQuery();
-            set.next();
+            if (!set.next()){
+                return null;
+            }
             product = new Product(set.getInt(1),
                     set.getString(2),
                     set.getString(3),

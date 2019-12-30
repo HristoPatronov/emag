@@ -6,6 +6,7 @@ import com.example.emag.model.Order;
 import com.example.emag.model.Product;
 import com.example.emag.model.User;
 import com.example.emag.utils.UserUtil;
+import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,7 +20,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-@RestController
+@Controller
 public class UserController {
 
     @GetMapping("/index")

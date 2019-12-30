@@ -121,5 +121,17 @@ public class UserDAO implements IUserDAO {
         return user;
     }
 
-
+    @Override
+    public boolean isAdminByUserId(Integer id) throws SQLException {
+        Connection connection = DBManager.getInstance().getConnection();
+        String url = "SELECT is_admin FROM users WHERE id = ?;";
+        boolean isAdmin = false;
+        try(PreparedStatement statement = connection.prepareStatement(url)) {
+            statement.setInt(1, id);
+            ResultSet set = statement.executeQuery();
+            set.next();
+            isAdmin = set.getBoolean("is_admin");
+        }
+        return isAdmin;
+    }
 }

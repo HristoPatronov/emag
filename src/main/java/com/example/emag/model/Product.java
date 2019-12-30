@@ -10,6 +10,18 @@ public class Product {
     private Integer stock;
     private Integer subCategoryId;
 
+    public Product() {
+    }
+
+    public Product(String name, String description, Double price, Integer discount, Integer stock, Integer subCategoryId) {
+        this.name = name;
+        this.description = description;
+        this.price = price;
+        this.discount = discount;
+        this.stock = stock;
+        this.subCategoryId = subCategoryId;
+    }
+
     public Product(Integer id, String name, String description, Double price, Integer discount, Integer stock, Integer subCategoryId) {
         this.id = id;
         this.name = name;
