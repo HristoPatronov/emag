@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-@RestController
+@Controller
 public class UserController {
 
     @GetMapping("/index")
@@ -374,6 +374,7 @@ public class UserController {
     //checkout TODO
     @GetMapping("/checkout")
     public void checkout(@RequestParam int paymentType, HttpSession session, HttpServletResponse response, Model model) {
+        //TODO check quantity sold and remove product quantity from DB
         if (session.getAttribute("userId") == null) {
             model.addAttribute("error", "you should be logged in");
             response.setStatus(405);
@@ -395,6 +396,7 @@ public class UserController {
         try {
             int orderId = OrderDAO.getInstance().addOrder(order);
             ProductDAO.getInstance().addProductsToOrder(products, orderId);
+
             session.setAttribute("cart", null);
         } catch (SQLException e) {
             try {

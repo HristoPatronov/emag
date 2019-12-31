@@ -10,9 +10,10 @@
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <title>Admin Page</title>
+    <link rel="stylesheet" href="/css/error.css">
 </head>
 <body>
-<h4>DOBAVQAI NESHTA</h4>
+<h4>Admin Page</h4>
 <div>
     <form action="#" th:action="@{/addProduct}" th:object="${product}" th:method="POST" method="post" >
         <input type="text"  placeholder="name" name="name" th:value="${name}" maxlength="45" required><br>

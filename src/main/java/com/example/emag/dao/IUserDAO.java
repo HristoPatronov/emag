@@ -3,6 +3,7 @@ package com.example.emag.dao;
 import com.example.emag.model.User;
 
 import java.sql.SQLException;
+import java.util.List;
 
 public interface IUserDAO {
 
@@ -13,6 +14,7 @@ public interface IUserDAO {
     void updateUserInfo(User user) throws SQLException;
     User getUserByEmail(String email) throws SQLException;
     boolean isAdminByUserId(Integer id) throws SQLException;
+    List<String> getAllSubscribedUsers() throws SQLException;
 
 
 }

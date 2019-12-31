@@ -1,10 +1,13 @@
 package com.example.emag.dao;
 
+import com.example.emag.model.Address;
 import com.example.emag.model.User;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class UserDAO implements IUserDAO {
 
@@ -133,5 +136,19 @@ public class UserDAO implements IUserDAO {
             isAdmin = set.getBoolean("is_admin");
         }
         return isAdmin;
+    }
+
+    @Override
+    public List<String> getAllSubscribedUsers() throws SQLException {
+        List<String> users = new ArrayList<>();
+        Connection connection = DBManager.getInstance().getConnection();
+        String url = "SELECT email FROM users WHERE subscribed = 1;";
+        try(PreparedStatement statement = connection.prepareStatement(url)) {
+            ResultSet set = statement.executeQuery();
+            while (set.next()){
+                users.add(set.getString("email"));
+            }
+        }
+        return users;
     }
 }

@@ -2,9 +2,9 @@ package com.example.emag.controller;
 
 import com.example.emag.dao.ReviewDAO;
 import com.example.emag.model.Review;
+import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.sql.SQLException;
@@ -12,7 +12,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-@RestController
+@Controller
 public class ReviewController {
 
     //add review to product

@@ -5,15 +5,15 @@ import com.example.emag.model.Product;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-@RestController
+@Controller
 public class ProductController {
 
+    private List<Product> currentProducts = new ArrayList<>();
 
     //return product with its information
     @GetMapping("/product")
@@ -30,12 +30,49 @@ public class ProductController {
     //return products by search
     @GetMapping("/search")
     public List<Product> productsFromSearch(@RequestParam String text){
-        List<Product> list = new ArrayList<>();
         try {
-            list = ProductDAO.getInstance().getProductsFromSearch(text);
+            this.currentProducts = ProductDAO.getInstance().getProductsFromSearch(text);
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
-        return list;
+        return currentProducts;
     }
+
+    @GetMapping("/subCategory")
+    public List<Product> productsFromSubCategory(@RequestParam int id){
+        try {
+            this.currentProducts = ProductDAO.getInstance().getProductsBySubCategory(id);
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return this.currentProducts;
+    }
+
+    @GetMapping("/orderBy")
+    public List<Product> products(@RequestParam int order){
+            switch (order){
+                case 0:
+                    this.currentProducts.sort((o1, o2) -> Double.compare(o2.getPrice(), o1.getPrice()));
+                break;
+                case 1:
+                    this.currentProducts.sort((o1, o2) -> Double.compare(o1.getPrice(), o2.getPrice()));
+                break;
+
+                default:
+                    break;
+            }
+            return this.currentProducts;
+    }
+
+    @GetMapping("/between")
+    public List<Product> between(@RequestParam int min, @RequestParam int max){
+        List<Product> newList = new ArrayList<>();
+        for (Product product : this.currentProducts){
+            if (product.getPrice() >= min && product.getPrice() <= max){
+                newList.add(product);
+            }
+        }
+        return newList;
+    }
+    //TODO how to connect between min max and order by asc/desc
 }

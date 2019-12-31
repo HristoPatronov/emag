@@ -7,12 +7,12 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpSession;
 import java.sql.SQLException;
+import java.util.List;
 
-@RestController
+@Controller
 public class AdminController {
 
     //add product
@@ -63,6 +63,10 @@ public class AdminController {
                 ProductDAO.getInstance().setDiscount(Productid, discount);
                 model.addAttribute("discount", "Discount was set successfully");
                 //send email to subscribers
+//                List<String> email = UserDAO.getInstance().getAllSubscribedUsers();
+//                for (String string : email){
+//                    SendEmailController.sendMail(string, "discount", "discount was set to product " + product.getName());
+//                }
                 return "admin";
             }
         } catch (SQLException e) {
