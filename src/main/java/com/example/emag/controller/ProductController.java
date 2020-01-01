@@ -5,12 +5,13 @@ import com.example.emag.model.Product;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-@Controller
+@RestController
 public class ProductController {
 
     private List<Product> currentProducts = new ArrayList<>();
@@ -38,7 +39,7 @@ public class ProductController {
         return currentProducts;
     }
 
-    @GetMapping("/subCategory")
+    @GetMapping("/productsBySubCategory")
     public List<Product> productsFromSubCategory(@RequestParam int id){
         try {
             this.currentProducts = ProductDAO.getInstance().getProductsBySubCategory(id);

@@ -1,5 +1,7 @@
 package com.example.emag.model;
 
+import java.util.Objects;
+
 public class Product {
 
     private Integer id;
@@ -86,5 +88,31 @@ public class Product {
 
     public void setSubCategoryId(Integer subCategoryId) {
         this.subCategoryId = subCategoryId;
+    }
+
+    @Override
+    public String toString() {
+        return "Product{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", price=" + price +
+                ", discount=" + discount +
+                ", stock=" + stock +
+                ", subCategoryId=" + subCategoryId +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Product product = (Product) o;
+        return Objects.equals(id, product.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

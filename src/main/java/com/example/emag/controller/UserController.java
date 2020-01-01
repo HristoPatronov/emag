@@ -15,12 +15,15 @@ import javax.servlet.http.HttpSession;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-@Controller
+@RestController
 public class UserController {
 
     @GetMapping("/index")
@@ -292,13 +295,13 @@ public class UserController {
 
     //get products by order
     @GetMapping("/order/products")
-    public List<Product> productsByOrder(@RequestParam int id, HttpSession session, HttpServletResponse response, Model model){
+    public Map<Product, Integer> productsByOrder(@RequestParam int id, HttpSession session, HttpServletResponse response, Model model){
         if(session.getAttribute("userId") == null) {
             model.addAttribute("error", "you should be logged in");
             response.setStatus(405);
             return null;
         }
-        List<Product> products = new ArrayList<>();
+        Map<Product, Integer> products = new HashMap<>();
         try {
             products = ProductDAO.getInstance().getProductsByOrder(id);
         } catch (SQLException e) {
@@ -307,112 +310,6 @@ public class UserController {
         return products;
     }
 
-    //get products in cart
-    @GetMapping("/cart")
-    public List<Product> getProductsFromCart(HttpSession session, HttpServletResponse response, Model model) {
-        if(session.getAttribute("userId") == null) {
-            model.addAttribute("error", "you should be logged in");
-            response.setStatus(405);
-            return null;
-        }
-        List<Product> products = new ArrayList<>();
-        if (session.getAttribute("cart") != null) {
-            products = (List<Product>) session.getAttribute("cart");
-        } else {
-            model.addAttribute("errr", "no products in cart");
-            return null;
-        }
-        return products;
-    }
-
-    //add product to cart
-    @PostMapping("/cart")
-    public void addProductToCart(@RequestParam int id, HttpSession session, HttpServletResponse response, Model model){  //id = productId
-        if(session.getAttribute("userId") == null) {
-            model.addAttribute("error", "you should be logged in");
-            response.setStatus(405);
-            return;
-        }
-        List<Product> products = new ArrayList<>();
-        if (session.getAttribute("cart") != null) {
-            products = (List<Product>) session.getAttribute("cart");
-        }
-        Product fetchedProduct = null;
-        try {
-            fetchedProduct = ProductDAO.getInstance().getProductById(id);
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
-        }
-        if (fetchedProduct != null && fetchedProduct.getStock() > 0) {
-            products.add(fetchedProduct);
-            session.setAttribute("cart", products);
-        } else {
-            model.addAttribute("error", "This product doesn't exist");
-        }
-    }
-
-    //remove product from cart
-    @DeleteMapping("/cart")
-    public void removeProductFromCart(@RequestParam int id, HttpSession session, HttpServletResponse response, Model model){   //id = productId
-        if (session.getAttribute("userId") == null) {
-            model.addAttribute("error", "you should be logged in");
-            response.setStatus(405);
-            return;
-        }
-        List<Product> products = new ArrayList<>();
-        if (session.getAttribute("cart") != null){
-            products = (List<Product>) session.getAttribute("cart");
-        } else {
-            model.addAttribute("error", "The cart is empty");
-            return;
-        }
-        products.removeIf(product -> product.getId() == id);
-        session.setAttribute("cart", products);
-    }
-
-
-    //checkout TODO
-    @GetMapping("/checkout")
-    public void checkout(@RequestParam int paymentType, HttpSession session, HttpServletResponse response, Model model) {
-        //TODO check quantity sold and remove product quantity from DB
-        if (session.getAttribute("userId") == null) {
-            model.addAttribute("error", "you should be logged in");
-            response.setStatus(405);
-            return;
-        }
-        List<Product> products = new ArrayList<>();
-        if (session.getAttribute("cart") != null){
-            products = (List<Product>) session.getAttribute("cart");
-        } else {
-            model.addAttribute("error", "The cart is empty");
-            return;
-        }
-        double totalPrice = 0;
-        for (Product product : products) {
-            totalPrice += product.getPrice();
-        }
-        int userId = (int) session.getAttribute("userId");
-        Order order = new Order(totalPrice, LocalDate.now(), userId, paymentType, 1);
-        try {
-            int orderId = OrderDAO.getInstance().addOrder(order);
-            ProductDAO.getInstance().addProductsToOrder(products, orderId);
-
-            session.setAttribute("cart", null);
-        } catch (SQLException e) {
-            try {
-                DBManager.getInstance().getConnection().rollback();
-            } catch (SQLException ex) {
-                System.out.println(e.getMessage());
-            }
-            System.out.println(e.getMessage());
-        } finally {
-            try {
-                DBManager.getInstance().getConnection().setAutoCommit(true);
-            } catch (SQLException e) {
-                System.out.println(e.getMessage());
-            }
-        }
-    }
 
     //tested OK
     //get favourite products

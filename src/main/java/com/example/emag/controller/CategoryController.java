@@ -13,7 +13,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-@Controller
+@RestController
 public class CategoryController {
 
     //return categories

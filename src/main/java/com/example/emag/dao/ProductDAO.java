@@ -8,7 +8,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ProductDAO implements IProductDAO {
 
@@ -271,10 +273,10 @@ public class ProductDAO implements IProductDAO {
     }
 
     @Override
-    public List<Product> getProductsByOrder(Integer orderId) throws SQLException {
-        List<Product> products = new ArrayList<>();
+    public Map<Product, Integer> getProductsByOrder(Integer orderId) throws SQLException {
+        Map<Product, Integer> products = new HashMap<>();
         Connection connection = DBManager.getInstance().getConnection();
-        String url = "SELECT p.* FROM products as p JOIN orders_have_products AS ohp ON p.id = ohp.product_id " +
+        String url = "SELECT p.*, ohp.quantity FROM products as p JOIN orders_have_products AS ohp ON p.id = ohp.product_id " +
                 "JOIN orders AS o ON ohp.order_id = o.id WHERE o.id = ?;";
         try(PreparedStatement statement = connection.prepareStatement(url)) {
             statement.setInt(1, orderId);
@@ -287,7 +289,7 @@ public class ProductDAO implements IProductDAO {
                         set.getInt(5),
                         set.getInt(6),
                         set.getInt(7));
-                products.add(product);
+                products.put(product, set.getInt(8));
             }
         }
         return products;
@@ -337,17 +339,48 @@ public class ProductDAO implements IProductDAO {
     }
 
     @Override
-    public void addProductsToOrder(List<Product> products, Integer orderId) throws SQLException {
+    public void addProductsToOrder(Map<Product, Integer> products, Integer orderId) throws SQLException {
         Connection connection = DBManager.getInstance().getConnection();
-        String url = "INSERT INTO orders_have_products (order_id, product_id) VALUES (?,?)";
+        String url = "INSERT INTO orders_have_products (order_id, product_id, quantity) VALUES (?,?,?)";
         connection.setAutoCommit(false);
-        for (Product product : products) {
+        for (Product product : products.keySet()) {
             try (PreparedStatement statement = connection.prepareStatement(url)) {
                 statement.setInt(1, orderId);
                 statement.setInt(2, product.getId());
+                statement.setInt(3, products.get(product));
                 statement.executeUpdate();
             }
         }
         connection.commit();
+    }
+
+    @Override
+    public boolean checkIfProductsExist(Map<Product, Integer> products) throws SQLException {
+        Connection connection = DBManager.getInstance().getConnection();
+        String url = "SELECT stock FROM products WHERE id = ?";
+        for (Product product : products.keySet()) {
+            try (PreparedStatement statement = connection.prepareStatement(url)) {
+                statement.setInt(1, product.getId());
+                ResultSet set = statement.executeQuery();
+                set.next();
+                if (set.getInt(1) < products.get(product)) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public void removeProducts(Map<Product, Integer> products) throws SQLException {
+        Connection connection = DBManager.getInstance().getConnection();
+        String url = "UPDATE products SET stock = stock - ? WHERE id = ?;";
+        for (Product product : products.keySet()) {
+            try(PreparedStatement statement = connection.prepareStatement(url)) {
+                statement.setInt(1, products.get(product));
+                statement.setInt(2, product.getId());
+                statement.executeUpdate();
+            }
+        }
     }
 }

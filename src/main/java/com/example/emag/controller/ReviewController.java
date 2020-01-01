@@ -12,7 +12,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-@Controller
+@RestController
 public class ReviewController {
 
     //add review to product

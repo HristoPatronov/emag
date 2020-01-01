@@ -7,12 +7,13 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpSession;
 import java.sql.SQLException;
 import java.util.List;
 
-@Controller
+@RestController
 public class AdminController {
 
     //add product
@@ -30,6 +31,7 @@ public class AdminController {
         }
         return "admin";
     }
+
     //remove product by ID
     @PostMapping("/removeProduct")
     public String removeProduct(@RequestParam int idProduct, Model model, HttpSession session){
@@ -50,6 +52,7 @@ public class AdminController {
         model.addAttribute("remove", "product doesn't exist");
         return "admin";
     }
+
     //set discount
     @PostMapping("/setDiscount")
     public String setDiscountAtProduct(@RequestParam int Productid, @RequestParam int discount, Model model, HttpSession session){
@@ -75,6 +78,7 @@ public class AdminController {
         model.addAttribute("discount", "Discount wasn't set because there isn't product with that ID");
         return "admin";
     }
+
     //update quantity
     @PostMapping("/updateQuantity")
     public String updateQuantity(@RequestParam int id, @RequestParam int newQuantity, Model model, HttpSession session){
