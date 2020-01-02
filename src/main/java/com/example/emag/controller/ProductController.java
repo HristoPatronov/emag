@@ -14,8 +14,6 @@ import java.util.List;
 @RestController
 public class ProductController {
 
-    private List<Product> currentProducts = new ArrayList<>();
-
     //return product with its information
     @GetMapping("/product")
     public Product getProduct(@RequestParam int id){
@@ -31,8 +29,9 @@ public class ProductController {
     //return products by search
     @GetMapping("/search")
     public List<Product> productsFromSearch(@RequestParam String text, Double min, Double max, String orderBy){
+        List<Product> currentProducts = new ArrayList<>();
         try {
-            this.currentProducts = ProductDAO.getInstance().getProductsFromSearch(text, min, max, orderBy);
+            currentProducts = ProductDAO.getInstance().getProductsFromSearch(text, min, max, orderBy);
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
@@ -41,11 +40,12 @@ public class ProductController {
 
     @GetMapping("/productsBySubCategory")
     public List<Product> productsFromSubCategory(@RequestParam int id, Double min, Double max, String orderBy){
+        List<Product> currentProducts = new ArrayList<>();
         try {
-            this.currentProducts = ProductDAO.getInstance().getProductsBySubCategory(id, min, max, orderBy);
+            currentProducts = ProductDAO.getInstance().getProductsBySubCategory(id, min, max, orderBy);
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
-        return this.currentProducts;
+        return currentProducts;
     }
 }

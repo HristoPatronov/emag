@@ -338,7 +338,7 @@ public class UserController {
             response.setStatus(405);
             return;
         }
-        List<Product> products = new ArrayList<>();
+        List<Product> products;
         int userId = (int) session.getAttribute("userId");
         Product product = null;
         try {
@@ -369,7 +369,7 @@ public class UserController {
             response.setStatus(405);
             return;
         }
-        List<Product> products = new ArrayList<>();
+        List<Product> products;
         int userId = (int) session.getAttribute("userId");
         try {
             products = ProductDAO.getInstance().getFavouriteProducts(userId);
