@@ -14,6 +14,9 @@ import java.util.Map;
 
 public class ProductDAO implements IProductDAO {
 
+    public static final double MIN_PRICE_OF_PRODUCT = 0;
+    public static final double MAX_PRICE_OF_PRODUCT = Integer.MAX_VALUE;
+
 
     private static ProductDAO mInstance;
 
@@ -49,12 +52,17 @@ public class ProductDAO implements IProductDAO {
     }
 
     @Override
-    public List<Product> getProductsBySubCategory(Integer subCategoryId) throws SQLException {
+    public List<Product> getProductsBySubCategory(Integer subCategoryId, Double minPrice, Double maxPrice, String orderBy) throws SQLException {
+        minPrice = minPrice == null ? MIN_PRICE_OF_PRODUCT : minPrice;
+        maxPrice = maxPrice == null ? MAX_PRICE_OF_PRODUCT : maxPrice;
+        orderBy = orderBy == null ? "ASC" : orderBy;
         List<Product> products = new ArrayList<>();
         Connection connection = DBManager.getInstance().getConnection();
-        String url = "SELECT * FROM products WHERE sub_category_id = ?;";
+        String url = "SELECT * FROM products WHERE sub_category_id = ? AND price BETWEEN ? AND ? ORDER BY price " + orderBy + ";";
         try(PreparedStatement statement = connection.prepareStatement(url)) {
             statement.setInt(1, subCategoryId);
+            statement.setDouble(2, minPrice);
+            statement.setDouble(3, maxPrice);
             ResultSet set = statement.executeQuery();
             while (set.next()){
                 Product product = new Product(set.getInt(1),
@@ -93,100 +101,17 @@ public class ProductDAO implements IProductDAO {
     }
 
     @Override
-    public List<Product> getProductsFromSearch(String searchInput) throws SQLException {
+    public List<Product> getProductsFromSearch(String searchInput, Double minPrice, Double maxPrice, String orderBy) throws SQLException {
+        minPrice = minPrice == null ? MIN_PRICE_OF_PRODUCT : minPrice;
+        maxPrice = maxPrice == null ? MAX_PRICE_OF_PRODUCT : maxPrice;
+        orderBy = orderBy == null ? "ASC" : orderBy;
         List<Product> products = new ArrayList<>();
         Connection connection = DBManager.getInstance().getConnection();
-        String url = "SELECT * FROM products WHERE name LIKE ? ;";
+        String url = "SELECT * FROM products WHERE name LIKE ? AND price BETWEEN ? AND ? ORDER BY price " + orderBy + ";";
         try(PreparedStatement statement = connection.prepareStatement(url)) {
             statement.setString(1, "%" + searchInput + "%");
-            ResultSet set = statement.executeQuery();
-            while (set.next()){
-                Product product = new Product(set.getInt(1),
-                        set.getString(2),
-                        set.getString(3),
-                        set.getDouble(4),
-                        set.getInt(5),
-                        set.getInt(6),
-                        set.getInt(7));
-                products.add(product);
-            }
-        }
-        return products;
-    }
-
-    @Override
-    public List<Product> getProductsByPriceAsc() throws SQLException {
-        List<Product> products = new ArrayList<>();
-        Connection connection = DBManager.getInstance().getConnection();
-        String url = "SELECT * FROM products ORDER BY ASC;";
-        try(PreparedStatement statement = connection.prepareStatement(url)) {
-            ResultSet set = statement.executeQuery();
-            while (set.next()){
-                Product product = new Product(set.getInt(1),
-                        set.getString(2),
-                        set.getString(3),
-                        set.getDouble(4),
-                        set.getInt(5),
-                        set.getInt(6),
-                        set.getInt(7));
-                products.add(product);
-            }
-        }
-        return products;
-    }
-
-    @Override
-    public List<Product> getProductsByPriceDesc() throws SQLException {
-        List<Product> products = new ArrayList<>();
-        Connection connection = DBManager.getInstance().getConnection();
-        String url = "SELECT * FROM products ORDER BY DESC;";
-        try(PreparedStatement statement = connection.prepareStatement(url)) {
-            ResultSet set = statement.executeQuery();
-            while (set.next()){
-                Product product = new Product(set.getInt(1),
-                        set.getString(2),
-                        set.getString(3),
-                        set.getDouble(4),
-                        set.getInt(5),
-                        set.getInt(6),
-                        set.getInt(7));
-                products.add(product);
-            }
-        }
-        return products;
-    }
-
-    @Override
-    public List<Product> getProductsBetweenMinMaxAsc(Double min, Double max) throws SQLException {
-        List<Product> products = new ArrayList<>();
-        Connection connection = DBManager.getInstance().getConnection();
-        String url = "SELECT * FROM products ORDER BY ASC WHERE price >= ? AND price <= ?;";
-        try(PreparedStatement statement = connection.prepareStatement(url)) {
-            statement.setDouble(1, min);
-            statement.setDouble(2, max);
-            ResultSet set = statement.executeQuery();
-            while (set.next()){
-                Product product = new Product(set.getInt(1),
-                        set.getString(2),
-                        set.getString(3),
-                        set.getDouble(4),
-                        set.getInt(5),
-                        set.getInt(6),
-                        set.getInt(7));
-                products.add(product);
-            }
-        }
-        return products;
-    }
-
-    @Override
-    public List<Product> getProductsBetweenMinMaxDesc(Double min, Double max) throws SQLException {
-        List<Product> products = new ArrayList<>();
-        Connection connection = DBManager.getInstance().getConnection();
-        String url = "SELECT * FROM products ORDER BY DESC WHERE price >= ? AND price <= ?;";
-        try(PreparedStatement statement = connection.prepareStatement(url)) {
-            statement.setDouble(1, min);
-            statement.setDouble(2, max);
+            statement.setDouble(2, minPrice);
+            statement.setDouble(3, maxPrice);
             ResultSet set = statement.executeQuery();
             while (set.next()){
                 Product product = new Product(set.getInt(1),

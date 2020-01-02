@@ -10,13 +10,9 @@ import java.util.Map;
 public interface IProductDAO {
 
     List<Product> getAllProducts() throws SQLException;
-    List<Product> getProductsBySubCategory(Integer subCategoryId) throws SQLException;
+    List<Product> getProductsBySubCategory(Integer subCategoryId, Double minPrice, Double maxPrice, String orderBy) throws SQLException;
     Product getProductById(Integer id) throws SQLException;
-    List<Product> getProductsFromSearch(String searchInput) throws SQLException;
-    List<Product> getProductsByPriceAsc() throws SQLException;
-    List<Product> getProductsByPriceDesc() throws SQLException;
-    List<Product> getProductsBetweenMinMaxAsc(Double min, Double max) throws SQLException;
-    List<Product> getProductsBetweenMinMaxDesc(Double min, Double max) throws SQLException;
+    List<Product> getProductsFromSearch(String searchInput, Double minPrice, Double maxPrice, String orderBy) throws SQLException;
     void addProduct(Product product) throws SQLException;  //ADMIN STUFF
     void removeProduct(Integer productId) throws SQLException; //ADMIN STUFF
     void updateQuantity(Integer productId, Integer quantity) throws SQLException; //ADMIN STUFF
