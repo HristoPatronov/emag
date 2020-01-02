@@ -66,10 +66,10 @@ public class AdminController {
                 ProductDAO.getInstance().setDiscount(Productid, discount);
                 model.addAttribute("discount", "Discount was set successfully");
                 //send email to subscribers
-//                List<String> email = UserDAO.getInstance().getAllSubscribedUsers();
-//                for (String string : email){
-//                    SendEmailController.sendMail(string, "discount", "discount was set to product " + product.getName());
-//                }
+                List<String> email = UserDAO.getInstance().getAllSubscribedUsers();
+                for (String string : email){
+                    SendEmailController.sendMail(string, "discount", "discount was set to product " + product.getName());
+                }
                 return "admin";
             }
         } catch (SQLException e) {
