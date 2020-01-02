@@ -54,7 +54,7 @@ public class UserDAO implements IUserDAO {
             statement.setString(2, user.getLast_name());
             statement.setString(3, user.getUserName());
             statement.setString(4, user.getPassword());
-            statement.setString(5, user.geteMail());
+            statement.setString(5, user.getEMail());
             statement.executeUpdate();
         }
     }
@@ -95,7 +95,7 @@ public class UserDAO implements IUserDAO {
             statement.setString(2,user.getLast_name());
             statement.setString(3,user.getUserName());
             statement.setString(4,user.getPassword());
-            statement.setString(5,user.geteMail());
+            statement.setString(5,user.getEMail());
             statement.setInt(6, user.getId());
             statement.executeUpdate();
         }
