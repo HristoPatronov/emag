@@ -1,5 +1,6 @@
 package com.example.emag.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -9,6 +10,7 @@ import lombok.Setter;
 @Setter
 public class Category {
 
+    @JsonIgnore
     private Integer id;
     private String name;
 

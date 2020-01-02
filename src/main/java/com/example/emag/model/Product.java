@@ -1,5 +1,6 @@
 package com.example.emag.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -11,12 +12,14 @@ import java.util.Objects;
 @Setter
 public class Product {
 
+    @JsonIgnore
     private Integer id;
     private String name;
     private String description;
     private Double price;
     private Integer discount;
     private Integer stock;
+    @JsonIgnore
     private Integer subCategoryId;
 
     public Product(String name, String description, Double price, Integer discount, Integer stock, Integer subCategoryId) {

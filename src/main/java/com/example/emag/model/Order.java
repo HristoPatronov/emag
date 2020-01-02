@@ -1,5 +1,6 @@
 package com.example.emag.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -14,6 +15,7 @@ public class Order {
     private Integer id;
     private Double totalPrice;
     private LocalDate date;
+    @JsonIgnore
     private Integer userId;
     private Integer paymentTypeId;
     private Integer statusId;

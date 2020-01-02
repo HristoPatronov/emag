@@ -5,9 +5,7 @@ import com.example.emag.dao.UserDAO;
 import com.example.emag.model.Product;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
 import java.sql.SQLException;
@@ -33,7 +31,7 @@ public class AdminController {
     }
 
     //remove product by ID
-    @PostMapping("/removeProduct")
+    @DeleteMapping("/removeProduct")
     public String removeProduct(@RequestParam int idProduct, Model model, HttpSession session){
         int id = (Integer) session.getAttribute("userId");
         try {
@@ -54,7 +52,7 @@ public class AdminController {
     }
 
     //set discount
-    @PostMapping("/setDiscount")
+    @PutMapping("/setDiscount")
     public String setDiscountAtProduct(@RequestParam int Productid, @RequestParam int discount, Model model, HttpSession session){
         int id = (Integer) session.getAttribute("userId");
         try {
@@ -80,7 +78,7 @@ public class AdminController {
     }
 
     //update quantity
-    @PostMapping("/updateQuantity")
+    @PutMapping("/updateQuantity")
     public String updateQuantity(@RequestParam int id, @RequestParam int newQuantity, Model model, HttpSession session){
         int userId = (Integer) session.getAttribute("userId");
         try {

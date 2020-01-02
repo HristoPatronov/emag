@@ -1,5 +1,6 @@
 package com.example.emag.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -11,7 +12,9 @@ import java.util.HashMap;
 @Setter
 public class Specification {
 
+    @JsonIgnore
     private Integer id;
+    @JsonIgnore
     private Integer productId;
     private HashMap<String, HashMap<String, String>> description;
 

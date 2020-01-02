@@ -55,10 +55,14 @@ public class ProductDAO implements IProductDAO {
     public List<Product> getProductsBySubCategory(Integer subCategoryId, Double minPrice, Double maxPrice, String orderBy) throws SQLException {
         minPrice = minPrice == null ? MIN_PRICE_OF_PRODUCT : minPrice;
         maxPrice = maxPrice == null ? MAX_PRICE_OF_PRODUCT : maxPrice;
-        orderBy = orderBy == null ? "ASC" : orderBy;
         List<Product> products = new ArrayList<>();
         Connection connection = DBManager.getInstance().getConnection();
-        String url = "SELECT * FROM products WHERE sub_category_id = ? AND price BETWEEN ? AND ? ORDER BY price " + orderBy + ";";
+        String url;
+        if (orderBy == null) {
+            url = "SELECT * FROM products WHERE sub_category_id = ? AND price BETWEEN ? AND ?;";
+        } else {
+            url = "SELECT * FROM products WHERE sub_category_id = ? AND price BETWEEN ? AND ? ORDER BY price " + orderBy + ";";
+        }
         try(PreparedStatement statement = connection.prepareStatement(url)) {
             statement.setInt(1, subCategoryId);
             statement.setDouble(2, minPrice);
@@ -104,10 +108,14 @@ public class ProductDAO implements IProductDAO {
     public List<Product> getProductsFromSearch(String searchInput, Double minPrice, Double maxPrice, String orderBy) throws SQLException {
         minPrice = minPrice == null ? MIN_PRICE_OF_PRODUCT : minPrice;
         maxPrice = maxPrice == null ? MAX_PRICE_OF_PRODUCT : maxPrice;
-        orderBy = orderBy == null ? "ASC" : orderBy;
         List<Product> products = new ArrayList<>();
         Connection connection = DBManager.getInstance().getConnection();
-        String url = "SELECT * FROM products WHERE name LIKE ? AND price BETWEEN ? AND ? ORDER BY price " + orderBy + ";";
+        String url;
+        if (orderBy == null) {
+            url = "SELECT * FROM products WHERE name LIKE ? AND price BETWEEN ? AND ?;";
+        } else {
+            url = "SELECT * FROM products WHERE name LIKE ? AND price BETWEEN ? AND ? ORDER BY price " + orderBy + ";";
+        }
         try(PreparedStatement statement = connection.prepareStatement(url)) {
             statement.setString(1, "%" + searchInput + "%");
             statement.setDouble(2, minPrice);

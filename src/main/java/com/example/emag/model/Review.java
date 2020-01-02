@@ -1,5 +1,6 @@
 package com.example.emag.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -11,12 +12,15 @@ import java.time.LocalDate;
 @Setter
 public class Review {
 
+    @JsonIgnore
     private Integer id;
     private String title;
     private String text;
     private Integer rating;
     private LocalDate date;
+    @JsonIgnore
     private Integer userId;
+    @JsonIgnore
     private Integer productId;
 
     public Review(String title, String text, Integer rating, LocalDate date, Integer userId, Integer productId) {

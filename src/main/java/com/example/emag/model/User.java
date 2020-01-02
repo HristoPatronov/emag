@@ -1,5 +1,6 @@
 package com.example.emag.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -8,14 +9,17 @@ import lombok.Setter;
 @Getter
 @Setter
 public class User {
-
+    @JsonIgnore
     private Integer id;
     private String first_name;
     private String last_name;
     private String userName;
+    //perhaps should be ignored also
     private String password;
     private String eMail;
+    @JsonIgnore
     private boolean isAdmin;
+    @JsonIgnore
     private boolean subscribed;
 
     public User(String first_name, String last_name, String userName, String password, String eMail) {

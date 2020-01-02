@@ -6,14 +6,12 @@ import com.example.emag.model.Order;
 import com.example.emag.model.Product;
 import com.example.emag.model.User;
 import com.example.emag.utils.UserUtil;
-import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.sql.SQLException;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -148,16 +146,17 @@ public class UserController {
     }
 
     //get Personal info
-    @GetMapping("/userInfo")
-    public User getUserInfoById(@RequestParam int id, HttpSession session, HttpServletResponse response, Model model){
+    @GetMapping("/user/info")
+    public User getUserInfoById(HttpSession session, HttpServletResponse response, Model model){
         if(session.getAttribute("userId") == null) {
             model.addAttribute("error", "you should be logged in");
             response.setStatus(405);
             return null;
         }
+        int userId = (int) session.getAttribute("userId");
         User user = null;
         try {
-            user = UserDAO.getInstance().getUserById(id);
+            user = UserDAO.getInstance().getUserById(userId);
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
@@ -165,13 +164,14 @@ public class UserController {
     }
 
     //update Personal info
-    @PostMapping("/updateInfo")
+    @PutMapping("/user/info/edit")
     public void updateUserInfo(@RequestBody User user, HttpSession session, HttpServletResponse response, Model model){
         if(session.getAttribute("userId") == null) {
             model.addAttribute("error", "you should be logged in");
             response.setStatus(405);
             return;
         }
+        user.setId((int) session.getAttribute("userId"));
         try {
             UserDAO.getInstance().updateUserInfo(user);
         } catch (SQLException e) {
@@ -180,7 +180,7 @@ public class UserController {
     }
 
     //get all addresses
-    @GetMapping("/getAddresses")
+    @GetMapping("/user/address")
     public List<Address> allAdressesByUserId(HttpSession session, HttpServletResponse response, Model model){
         if(session.getAttribute("userId") == null) {
             model.addAttribute("error", "you should be logged in");
@@ -198,7 +198,7 @@ public class UserController {
     }
 
     //add address
-    @PostMapping("/address")
+    @PostMapping("/user/address/add")
     public void addAddress(@RequestBody Address address,
                            HttpServletResponse response,
                            HttpSession session,
@@ -218,7 +218,7 @@ public class UserController {
     }
 
     //remove address TODO
-    @DeleteMapping("/address")
+    @DeleteMapping("/user/address/delete")
     public void deleteAddress(@RequestParam int addressId,
                               HttpServletResponse response,
                               HttpSession session,
@@ -246,7 +246,7 @@ public class UserController {
     }
 
     //edit address TODO
-    @PostMapping("/editAddress")
+    @PutMapping("/user/address/edit")
     public void editAddress(@RequestBody Address address,
                             @RequestParam int addressId,
                             HttpServletResponse response,
@@ -276,7 +276,7 @@ public class UserController {
     }
 
     //get orders
-    @GetMapping("/order")
+    @GetMapping("/user/order")
     public List<Order> allOrders(HttpSession session, HttpServletResponse response, Model model){
         if(session.getAttribute("userId") == null) {
             model.addAttribute("error", "you should be logged in");
@@ -294,7 +294,7 @@ public class UserController {
     }
 
     //get products by order
-    @GetMapping("/order/products")
+    @GetMapping("/user/order/products")
     public Map<Product, Integer> productsByOrder(@RequestParam int id, HttpSession session, HttpServletResponse response, Model model){
         if(session.getAttribute("userId") == null) {
             model.addAttribute("error", "you should be logged in");
@@ -313,7 +313,7 @@ public class UserController {
 
     //tested OK
     //get favourite products
-    @GetMapping("/favourite")
+    @GetMapping("/user/favouriteProducts")
     public List<Product> getFavouriteProducts(HttpSession session, HttpServletResponse response, Model model) {
         if (session.getAttribute("userId") == null) {
             model.addAttribute("error", "you should be logged in");
@@ -331,7 +331,7 @@ public class UserController {
 
     //tested OK
     //add to favourite
-    @PostMapping("/favourite")
+    @PostMapping("/user/favouriteProducts/add")
     public void addProductToFavourite(@RequestParam int id, HttpSession session, HttpServletResponse response, Model model){   //id = productId
         if (session.getAttribute("userId") == null) {
             model.addAttribute("error", "you should be logged in");
@@ -362,7 +362,7 @@ public class UserController {
 
     //tested OK
     //remove favourite product
-    @DeleteMapping("/favourite")
+    @DeleteMapping("/user/favouriteProducts/delete")
     public void deleteFavouriteProduct(@RequestParam int id, HttpSession session, HttpServletResponse response, Model model) {  //productId
         if (session.getAttribute("userId") == null) {
             model.addAttribute("error", "you should be logged in");

@@ -29,6 +29,9 @@ public class ProductController {
     //return products by search
     @GetMapping("/search")
     public List<Product> productsFromSearch(@RequestParam String text, Double min, Double max, String orderBy){
+        //check orderBy == ASC/DESC
+        //check id
+        //check min/max
         List<Product> currentProducts = new ArrayList<>();
         try {
             currentProducts = ProductDAO.getInstance().getProductsFromSearch(text, min, max, orderBy);
@@ -40,6 +43,9 @@ public class ProductController {
 
     @GetMapping("/productsBySubCategory")
     public List<Product> productsFromSubCategory(@RequestParam int id, Double min, Double max, String orderBy){
+        //check orderBy == ASC/DESC
+        //check id
+        //check min/max
         List<Product> currentProducts = new ArrayList<>();
         try {
             currentProducts = ProductDAO.getInstance().getProductsBySubCategory(id, min, max, orderBy);

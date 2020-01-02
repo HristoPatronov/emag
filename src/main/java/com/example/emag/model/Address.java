@@ -1,5 +1,6 @@
 package com.example.emag.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -9,12 +10,14 @@ import lombok.Setter;
 @Setter
 public class Address {
 
+    @JsonIgnore
     private Integer id;
     private String city;
     private String district;
     private String street;
     private String zip;
     private String phoneNumber;
+    @JsonIgnore
     private Integer userId;
 
     public Address(String city, String district, String street, String zip, String phoneNumber, Integer userId) {
