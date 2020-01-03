@@ -30,7 +30,6 @@ public class ProductController {
     @GetMapping("/search")
     public List<Product> productsFromSearch(@RequestParam String text, Double min, Double max, String orderBy){
         //check orderBy == ASC/DESC
-        //check id
         //check min/max
         List<Product> currentProducts = new ArrayList<>();
         try {

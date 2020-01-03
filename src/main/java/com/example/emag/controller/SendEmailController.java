@@ -37,11 +37,8 @@ public class SendEmailController {
             );
             message.setSubject(subject);
             message.setText(body);
-
             Transport.send(message);
-
             System.out.println("Done");
-
         } catch (MessagingException e) {
             e.printStackTrace();
         }

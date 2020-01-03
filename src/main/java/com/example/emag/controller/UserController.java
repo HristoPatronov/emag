@@ -179,6 +179,29 @@ public class UserController {
         }
     }
 
+    @PutMapping("/user/changePassword")
+    public String userChangePassword(@RequestParam String oldPassword, @RequestParam String newPassword, HttpSession session, Model model, HttpServletResponse response){
+        if(session.getAttribute("userId") == null) {
+            model.addAttribute("error", "you should be logged in");
+            response.setStatus(405);
+            return "login";
+        }
+        int userId = (int) session.getAttribute("userId");
+        try {
+            User user = UserDAO.getInstance().getUserById(userId);
+            if (user.getPassword().equals(oldPassword)){
+                UserDAO.getInstance().changePassword(userId, newPassword);
+                return "user/info";
+            } else {
+                model.addAttribute("error", " old password does not match");
+                return "user/changePassword";
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return "home";
+    }
+
     //get all addresses
     @GetMapping("/user/address")
     public List<Address> allAdressesByUserId(HttpSession session, HttpServletResponse response, Model model){

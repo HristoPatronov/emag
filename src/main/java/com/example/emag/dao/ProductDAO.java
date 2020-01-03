@@ -275,7 +275,6 @@ public class ProductDAO implements IProductDAO {
     public void addProductsToOrder(Map<Product, Integer> products, Integer orderId) throws SQLException {
         Connection connection = DBManager.getInstance().getConnection();
         String url = "INSERT INTO orders_have_products (order_id, product_id, quantity) VALUES (?,?,?)";
-        connection.setAutoCommit(false);
         for (Product product : products.keySet()) {
             try (PreparedStatement statement = connection.prepareStatement(url)) {
                 statement.setInt(1, orderId);
@@ -284,7 +283,6 @@ public class ProductDAO implements IProductDAO {
                 statement.executeUpdate();
             }
         }
-        connection.commit();
     }
 
     @Override

@@ -89,14 +89,24 @@ public class UserDAO implements IUserDAO {
     @Override
     public void updateUserInfo(User user) throws SQLException {
         Connection connection = DBManager.getInstance().getConnection();
-        String url = "UPDATE users SET first_name = ? , last_name = ?, username = ?, password = ?, email = ? WHERE id = ?;";
+        String url = "UPDATE users SET first_name = ? , last_name = ?, username = ?,  email = ? WHERE id = ?;";
         try(PreparedStatement statement = connection.prepareStatement(url)) {
             statement.setString(1,user.getFirst_name());
             statement.setString(2,user.getLast_name());
             statement.setString(3,user.getUserName());
-            statement.setString(4,user.getPassword());
-            statement.setString(5,user.getEMail());
-            statement.setInt(6, user.getId());
+            statement.setString(4,user.getEMail());
+            statement.setInt(5, user.getId());
+            statement.executeUpdate();
+        }
+    }
+
+    @Override
+    public void changePassword(Integer id, String newPassword) throws SQLException {
+        Connection connection = DBManager.getInstance().getConnection();
+        String url = "UPDATE users SET password = ? WHERE id = ?;";
+        try(PreparedStatement statement = connection.prepareStatement(url)) {
+            statement.setString(1, newPassword);
+            statement.setInt(2, id);
             statement.executeUpdate();
         }
     }

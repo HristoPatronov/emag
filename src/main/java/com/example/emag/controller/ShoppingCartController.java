@@ -156,7 +156,6 @@ public class ShoppingCartController {
     }
 
 
-    //checkout TODO
     @GetMapping("/checkout")
     public void checkout(@RequestParam int paymentType,
                          HttpSession session,
@@ -177,17 +176,20 @@ public class ShoppingCartController {
         }
         double totalPrice = 0;
         for (Product product : products.keySet()) {
-            totalPrice += product.getPrice()*products.get(product);
+            double discount = (double) product.getDiscount()/ 100;
+            totalPrice += product.getPrice()*(1 - discount)*products.get(product);
         }
         int userId = (int) session.getAttribute("userId");
         Order order = new Order(totalPrice, LocalDate.now(), userId, paymentType, 1);
         try {
             //check if products quantities is on stock
             if (ProductDAO.getInstance().checkIfProductsExist(products)) {
+                DBManager.getInstance().getConnection().setAutoCommit(false);
                 int orderId = OrderDAO.getInstance().addOrder(order);
                 ProductDAO.getInstance().addProductsToOrder(products, orderId);
                 // remove products from stock
                 ProductDAO.getInstance().removeProducts(products);
+                DBManager.getInstance().getConnection().commit();
             } else {
                 model.addAttribute("error", "products are not available for purchase!");
                 return;
