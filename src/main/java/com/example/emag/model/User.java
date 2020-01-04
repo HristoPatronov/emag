@@ -19,7 +19,7 @@ public class User {
     private String password;
     private String eMail;
     @JsonIgnore
-    private boolean isAdmin;
+    private boolean admin;
     @JsonIgnore
     private boolean subscribed;
 
@@ -31,24 +31,33 @@ public class User {
         this.eMail = eMail;
     }
 
-    public User(Integer id, String first_name, String last_name, String userName, String password, String eMail, boolean isAdmin) {
-        this.id = id;
+    public User(String first_name, String last_name, String userName, String password, String eMail, boolean subscribed) {
         this.first_name = first_name;
         this.last_name = last_name;
         this.userName = userName;
         this.password = password;
         this.eMail = eMail;
-        this.isAdmin = isAdmin;
+        this.subscribed = subscribed;
     }
 
-    public User(Integer id, String first_name, String last_name, String userName, String password, String eMail, boolean isAdmin, boolean subscribed) {
+    public User(Integer id, String first_name, String last_name, String userName, String password, String eMail, boolean admin) {
         this.id = id;
         this.first_name = first_name;
         this.last_name = last_name;
         this.userName = userName;
         this.password = password;
         this.eMail = eMail;
-        this.isAdmin = isAdmin;
+        this.admin = admin;
+    }
+
+    public User(Integer id, String first_name, String last_name, String userName, String password, String eMail, boolean admin, boolean subscribed) {
+        this.id = id;
+        this.first_name = first_name;
+        this.last_name = last_name;
+        this.userName = userName;
+        this.password = password;
+        this.eMail = eMail;
+        this.admin = admin;
         this.subscribed = subscribed;
     }
 }

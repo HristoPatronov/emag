@@ -6,6 +6,7 @@ import com.example.emag.model.Order;
 import com.example.emag.model.Product;
 import com.example.emag.model.User;
 import com.example.emag.utils.UserUtil;
+import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
@@ -79,6 +80,7 @@ public class UserController {
                            @RequestParam String email,
                            @RequestParam String password,
                            @RequestParam String password2,
+                           @RequestParam(defaultValue="false") boolean subscribed,
                             Model model) {
 
         if(!UserUtil.isFirstNameValid(firstName)){
@@ -117,7 +119,7 @@ public class UserController {
 
         try {
             if (!UserDAO.getInstance().checkIfUserExists(email)) {
-                User user = new User(firstName, lastName, username, password, email);
+                User user = new User(firstName, lastName, username, password, email, subscribed);
                 UserDAO.getInstance().registerUser(user);
                 model.addAttribute("msg", "success");
                 return "login";
@@ -143,6 +145,26 @@ public class UserController {
         session.setAttribute("userId", null);
         model.addAttribute("msg", "success");
         return "login";
+    }
+
+    //unsubscribe
+    @PutMapping("user/subscription")
+    public String unsubscribe(@RequestParam(defaultValue = "false") boolean subscribed,
+                              HttpSession session,
+                              HttpServletResponse response,
+                              Model model) {
+        if(session.getAttribute("userId") == null) {
+            model.addAttribute("error", "you should be logged in");
+            response.setStatus(405);
+            return "login";
+        }
+        int userId = (int) session.getAttribute("userId");
+        try {
+            UserDAO.getInstance().changeSubscriptionStatus(userId, subscribed);
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return "home";
     }
 
     //get Personal info
