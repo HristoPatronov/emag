@@ -44,7 +44,8 @@ public class ProductDAO implements IProductDAO {
                                             set.getDouble(4),
                                             set.getInt(5),
                                             set.getInt(6),
-                                            set.getInt(7));
+                                            set.getInt(7),
+                                            set.getInt(8));
                 products.add(product);
             }
         }
@@ -75,7 +76,8 @@ public class ProductDAO implements IProductDAO {
                         set.getDouble(4),
                         set.getInt(5),
                         set.getInt(6),
-                        set.getInt(7));
+                        set.getInt(7),
+                        set.getInt(8));
                 products.add(product);
             }
         }
@@ -99,7 +101,8 @@ public class ProductDAO implements IProductDAO {
                     set.getDouble(4),
                     set.getInt(5),
                     set.getInt(6),
-                    set.getInt(7));
+                    set.getInt(7),
+                    set.getInt(8));
         }
         return product;
     }
@@ -128,7 +131,8 @@ public class ProductDAO implements IProductDAO {
                         set.getDouble(4),
                         set.getInt(5),
                         set.getInt(6),
-                        set.getInt(7));
+                        set.getInt(7),
+                        set.getInt(8));
                 products.add(product);
             }
         }
@@ -198,7 +202,8 @@ public class ProductDAO implements IProductDAO {
                         set.getDouble(4),
                         set.getInt(5),
                         set.getInt(6),
-                        set.getInt(7));
+                        set.getInt(7),
+                        set.getInt(8));
                 products.add(product);
             }
         }
@@ -221,8 +226,9 @@ public class ProductDAO implements IProductDAO {
                         set.getDouble(4),
                         set.getInt(5),
                         set.getInt(6),
-                        set.getInt(7));
-                products.put(product, set.getInt(8));
+                        set.getInt(7),
+                        set.getInt(8));
+                products.put(product, set.getInt(9));
             }
         }
         return products;
@@ -306,6 +312,41 @@ public class ProductDAO implements IProductDAO {
     public void removeProducts(Map<Product, Integer> products) throws SQLException {
         Connection connection = DBManager.getInstance().getConnection();
         String url = "UPDATE products SET stock = stock - ? WHERE id = ?;";
+        for (Product product : products.keySet()) {
+            try(PreparedStatement statement = connection.prepareStatement(url)) {
+                statement.setInt(1, products.get(product));
+                statement.setInt(2, product.getId());
+                statement.executeUpdate();
+            }
+        }
+    }
+
+    @Override
+    public void addReservedQuantity(Integer productId, Integer quantity) throws SQLException {
+        Connection connection = DBManager.getInstance().getConnection();
+        String url = "UPDATE products SET reserved_quantity = reserved_quantity + ? WHERE id = ?;";
+        try(PreparedStatement statement = connection.prepareStatement(url)) {
+            statement.setInt(1, quantity);
+            statement.setInt(2, productId);
+            statement.executeUpdate();
+        }
+    }
+
+    @Override
+    public void removeReservedQuantity(Integer productId, Integer quantity) throws SQLException {
+        Connection connection = DBManager.getInstance().getConnection();
+        String url = "UPDATE products SET reserved_quantity = reserved_quantity - ? WHERE id = ?;";
+        try(PreparedStatement statement = connection.prepareStatement(url)) {
+            statement.setInt(1, quantity);
+            statement.setInt(2, productId);
+            statement.executeUpdate();
+        }
+    }
+
+    @Override
+    public void removeReservedQuantities(Map<Product, Integer> products) throws SQLException {
+        Connection connection = DBManager.getInstance().getConnection();
+        String url = "UPDATE products SET reserved_quantity = reserved_quantity - ? WHERE id = ?;";
         for (Product product : products.keySet()) {
             try(PreparedStatement statement = connection.prepareStatement(url)) {
                 statement.setInt(1, products.get(product));

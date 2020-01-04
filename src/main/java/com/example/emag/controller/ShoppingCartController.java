@@ -61,10 +61,15 @@ public class ShoppingCartController {
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
-        if (fetchedProduct != null && fetchedProduct.getStock() > 0) {
+        if (fetchedProduct != null && (fetchedProduct.getStock() - fetchedProduct.getReservedQuantity()) > 0) {
             if (!products.containsKey(fetchedProduct)) {
                 products.put(fetchedProduct, 1);
                 session.setAttribute("cart", products);
+                try {
+                    ProductDAO.getInstance().addReservedQuantity(fetchedProduct.getId(), 1);
+                } catch (SQLException e) {
+                    System.out.println(e.getMessage());
+                }
             } else {
                 model.addAttribute("error", "This product already in cart!");
             }
@@ -99,6 +104,12 @@ public class ShoppingCartController {
         }
         if (fetchedProduct != null) {
             if (products.containsKey(fetchedProduct)) {
+                try {
+                    ProductDAO.getInstance().removeReservedQuantity(fetchedProduct.getId(),
+                                                                    products.get(fetchedProduct));
+                } catch (SQLException e) {
+                    System.out.println(e.getMessage());
+                }
                 products.remove(fetchedProduct);
                 session.setAttribute("cart", products);
             } else {
@@ -140,12 +151,24 @@ public class ShoppingCartController {
         }
         if (fetchedProduct != null) {
             if (products.containsKey(fetchedProduct)) {
-                if (fetchedProduct.getStock() < quantity) {
+                if ((fetchedProduct.getStock() - fetchedProduct.getReservedQuantity() +
+                        products.get(fetchedProduct)) < quantity) {
                     model.addAttribute("error", "the quantity is not available on stock");
                     return;
                 } else {
-                    products.put(fetchedProduct, quantity);
-                    session.setAttribute("cart", products);
+                    try {
+                        if (quantity < products.get(fetchedProduct)) {
+                            ProductDAO.getInstance().removeReservedQuantity(fetchedProduct.getId(),
+                                    products.get(fetchedProduct) - quantity);
+                        } else {
+                            ProductDAO.getInstance().addReservedQuantity(fetchedProduct.getId(),
+                                    quantity - products.get(fetchedProduct));
+                        }
+                        products.put(fetchedProduct, quantity);
+                        session.setAttribute("cart", products);
+                    } catch (SQLException e) {
+                        System.out.println(e.getMessage());
+                    }
                 }
             } else {
                 model.addAttribute("error", "This product is not in cart!");
@@ -155,7 +178,7 @@ public class ShoppingCartController {
         }
     }
 
-
+    //checkout
     @GetMapping("/checkout")
     public void checkout(@RequestParam int paymentType,
                          HttpSession session,
@@ -182,18 +205,14 @@ public class ShoppingCartController {
         int userId = (int) session.getAttribute("userId");
         Order order = new Order(totalPrice, LocalDate.now(), userId, paymentType, 1);
         try {
-            //check if products quantities is on stock
-            if (ProductDAO.getInstance().checkIfProductsExist(products)) {
-                DBManager.getInstance().getConnection().setAutoCommit(false);
-                int orderId = OrderDAO.getInstance().addOrder(order);
-                ProductDAO.getInstance().addProductsToOrder(products, orderId);
-                // remove products from stock
-                ProductDAO.getInstance().removeProducts(products);
-                DBManager.getInstance().getConnection().commit();
-            } else {
-                model.addAttribute("error", "products are not available for purchase!");
-                return;
-            }
+            DBManager.getInstance().getConnection().setAutoCommit(false);
+            int orderId = OrderDAO.getInstance().addOrder(order);
+            ProductDAO.getInstance().addProductsToOrder(products, orderId);
+            // remove products from stock
+            ProductDAO.getInstance().removeProducts(products);
+            //remove reserved quantities
+            ProductDAO.getInstance().removeReservedQuantities(products);
+            DBManager.getInstance().getConnection().commit();
             session.setAttribute("cart", null);
         } catch (SQLException e) {
             try {

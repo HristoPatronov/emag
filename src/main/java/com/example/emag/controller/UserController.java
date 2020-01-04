@@ -142,6 +142,15 @@ public class UserController {
             response.setStatus(405);
             return "login";
         }
+        if (session.getAttribute("cart") != null){
+            Map<Product, Integer> products = (Map<Product, Integer>) session.getAttribute("cart");
+            try {
+                ProductDAO.getInstance().removeReservedQuantities(products);
+            } catch (SQLException e) {
+                System.out.println(e.getMessage());
+            }
+            session.setAttribute("cart", null);
+        }
         session.setAttribute("userId", null);
         model.addAttribute("msg", "success");
         return "login";
