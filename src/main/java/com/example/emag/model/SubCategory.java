@@ -17,10 +17,11 @@ public class SubCategory {
     @JsonIgnore
     private Integer categoryId;
 
-    public SubCategory(Integer id, String name, Integer categoryId, boolean isHeader) {
+    public SubCategory(Integer id, String name,  boolean isHeader, Integer categoryId) {
         this.id = id;
         this.name = name;
-        this.categoryId = categoryId;
         this.isHeader = isHeader;
+        this.categoryId = categoryId;
+
     }
 }

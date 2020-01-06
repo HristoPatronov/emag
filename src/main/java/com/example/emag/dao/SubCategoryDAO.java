@@ -35,8 +35,8 @@ public class SubCategoryDAO implements ISubCategoryDAO {
             while (set.next()) {
                 subCategory = new SubCategory(set.getInt(1),
                         set.getString(2),
-                        set.getInt(3),
-                        set.getBoolean(4));
+                        set.getBoolean(3),
+                        set.getInt(4));
                 subCategories.add(subCategory);
             }
         }

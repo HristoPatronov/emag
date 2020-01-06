@@ -31,10 +31,11 @@ public class CategoryDAO implements ICategoryDAO {
         Category category = null;
         try(PreparedStatement statement = connection.prepareStatement(url)) {
             ResultSet set = statement.executeQuery();
-            set.next();
-            category = new Category(set.getInt(1),
-                                    set.getString(2));
-            categories.add(category);
+            while(set.next()) {
+                category = new Category(set.getInt(1),
+                        set.getString(2));
+                categories.add(category);
+            }
         }
         return categories;
     }
