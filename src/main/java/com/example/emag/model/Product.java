@@ -24,6 +24,13 @@ public class Product {
     @JsonIgnore
     private Integer subCategoryId;
 
+
+    //DTO for getProductsByOrder -- ProductDAO getProductsByOrder line 213
+    public Product(String name, Double price) {
+        this.name = name;
+        this.price = price;
+    }
+
     public Product(String name, String description, Double price, Integer discount, Integer stock, Integer reservedQuantity, Integer subCategoryId) {
         this.name = name;
         this.description = description;

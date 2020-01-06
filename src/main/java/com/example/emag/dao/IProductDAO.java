@@ -19,7 +19,7 @@ public interface IProductDAO {
     void setDiscount(Integer productId, Integer discount) throws SQLException; //ADMIN STUFF
     List<Product> getFavouriteProducts(Integer userId) throws SQLException;
     Map<Product, Integer> getProductsByOrder(Integer orderId) throws SQLException;
-    List<Order> getOrdersByUserId(Integer userId) throws SQLException;
+    //List<Order> getOrdersByUserId(Integer userId) throws SQLException;
     void addFavouriteProduct(Integer userId, Integer productId) throws SQLException;
     void removeFavouriteProduct(Integer userId, Integer productId) throws SQLException;
     void addProductsToOrder(Map<Product, Integer> products, Integer orderId) throws SQLException;

@@ -1,6 +1,5 @@
 package com.example.emag.dao;
 
-import com.example.emag.model.Order;
 import com.example.emag.model.Product;
 
 import java.sql.Connection;
@@ -214,46 +213,40 @@ public class ProductDAO implements IProductDAO {
     public Map<Product, Integer> getProductsByOrder(Integer orderId) throws SQLException {
         Map<Product, Integer> products = new HashMap<>();
         Connection connection = DBManager.getInstance().getConnection();
-        String url = "SELECT p.*, ohp.quantity FROM products as p JOIN orders_have_products AS ohp ON p.id = ohp.product_id " +
+        String url = "SELECT p.name, p.price, ohp.quantity FROM products as p JOIN orders_have_products AS ohp ON p.id = ohp.product_id " +
                 "JOIN orders AS o ON ohp.order_id = o.id WHERE o.id = ?;";
         try(PreparedStatement statement = connection.prepareStatement(url)) {
             statement.setInt(1, orderId);
             ResultSet set = statement.executeQuery();
             while (set.next()){
-                Product product = new Product(set.getInt(1),
-                        set.getString(2),
-                        set.getString(3),
-                        set.getDouble(4),
-                        set.getInt(5),
-                        set.getInt(6),
-                        set.getInt(7),
-                        set.getInt(8));
-                products.put(product, set.getInt(9));
+                Product product = new Product(set.getString(1),
+                        set.getDouble(2));
+                products.put(product, set.getInt(3));
             }
         }
         return products;
     }
 
-    @Override
-    public List<Order> getOrdersByUserId(Integer userId) throws SQLException {
-        List<Order> orders = new ArrayList<>();
-        Connection connection = DBManager.getInstance().getConnection();
-        String url = "SELECT * FROM orders WHERE user_id = ?;";
-        try(PreparedStatement statement = connection.prepareStatement(url)) {
-            statement.setInt(1, userId);
-            ResultSet set = statement.executeQuery();
-            while (set.next()) {
-                Order order = new Order(set.getInt(1),
-                        set.getDouble(2),
-                        set.getDate(3).toLocalDate(),
-                        set.getInt(4),
-                        set.getInt(5),
-                        set.getInt(6));
-                orders.add(order);
-            }
-        }
-        return orders;
-    }
+//    @Override
+//    public List<Order> getOrdersByUserId(Integer userId) throws SQLException {
+//        List<Order> orders = new ArrayList<>();
+//        Connection connection = DBManager.getInstance().getConnection();
+//        String url = "SELECT * FROM orders WHERE user_id = ?;";
+//        try(PreparedStatement statement = connection.prepareStatement(url)) {
+//            statement.setInt(1, userId);
+//            ResultSet set = statement.executeQuery();
+//            while (set.next()) {
+//                Order order = new Order(set.getInt(1),
+//                        set.getDouble(2),
+//                        set.getDate(3).toLocalDate(),
+//                        set.getInt(4),
+//                        set.getInt(5),
+//                        set.getInt(6));
+//                orders.add(order);
+//            }
+//        }
+//        return orders;
+//    }
 
     @Override
     public void addFavouriteProduct(Integer userId, Integer productId) throws SQLException {

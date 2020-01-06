@@ -17,8 +17,38 @@ public class Order {
     private LocalDate date;
     @JsonIgnore
     private Integer userId;
+    @JsonIgnore
     private Integer paymentTypeId;
+    private PaymentType paymentType;
+    @JsonIgnore
     private Integer statusId;
+    private Status status;
+
+    @NoArgsConstructor
+    @Setter
+    @Getter
+    public static class PaymentType {
+        private int id;
+        private String name;
+
+        public PaymentType(int id, String name) {
+            this.id = id;
+            this.name = name;
+        }
+    }
+
+    @NoArgsConstructor
+    @Setter
+    @Getter
+    public static class Status {
+        private int id;
+        private String name;
+
+        public Status(int id, String name) {
+            this.id = id;
+            this.name = name;
+        }
+    }
 
     public Order(Double totalPrice, LocalDate date, Integer userId, Integer paymentTypeId, Integer statusId) {
         this.totalPrice = totalPrice;

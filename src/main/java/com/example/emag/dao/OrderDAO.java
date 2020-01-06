@@ -2,7 +2,6 @@ package com.example.emag.dao;
 
 import com.example.emag.model.Order;
 import java.sql.*;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,7 +42,9 @@ public class OrderDAO implements IOrderDAO {
     public List<Order> getOrdersByUserId(Integer userId) throws SQLException {
         List<Order> orders = new ArrayList<>();
         Connection connection = DBManager.getInstance().getConnection();
-        String url = "SELECT * FROM orders WHERE user_id = ?;";
+        String url = "SELECT o.*, pt.*, s.* FROM orders AS o " +
+                "JOIN payment_types AS pt ON o.payment_type_id = pt.id " +
+                "JOIN statuses AS s ON o.status_id = s.id WHERE user_id = ?;";
         try(PreparedStatement statement = connection.prepareStatement(url)) {
             statement.setInt(1, userId);
             ResultSet set = statement.executeQuery();
@@ -54,6 +55,8 @@ public class OrderDAO implements IOrderDAO {
                         set.getInt(4),
                         set.getInt(5),
                         set.getInt(6));
+                order.setPaymentType(new Order.PaymentType(set.getInt(7), set.getString(8)));
+                order.setStatus(new Order.Status(set.getInt(9), set.getString(10)));
                 orders.add(order);
             }
         }

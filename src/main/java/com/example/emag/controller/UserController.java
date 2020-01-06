@@ -6,7 +6,6 @@ import com.example.emag.model.Order;
 import com.example.emag.model.Product;
 import com.example.emag.model.User;
 import com.example.emag.utils.UserUtil;
-import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
@@ -340,7 +339,7 @@ public class UserController {
         int userId = (int) session.getAttribute("userId");
         List<Order> list = new ArrayList<>();
         try {
-            list = ProductDAO.getInstance().getOrdersByUserId(userId);
+            list = OrderDAO.getInstance().getOrdersByUserId(userId);
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
