@@ -54,7 +54,7 @@ public class AdminController {
     //set discount
     @PutMapping("/setDiscount")
     public String setDiscountAtProduct(@RequestParam int Productid, @RequestParam int discount, Model model, HttpSession session){
-        int id = (Integer) session.getAttribute("userId");
+        int id = (int) session.getAttribute("userId");
         try {
             if (!UserDAO.getInstance().isAdminByUserId(id)){
                 return "home";
@@ -66,7 +66,9 @@ public class AdminController {
                 //send email to subscribers
                 List<String> email = UserDAO.getInstance().getAllSubscribedUsers();
                 for (String string : email){
-                    SendEmailController.sendMail(string, "discount", "discount was set to product " + product.getName());
+                    SendEmailController.sendMail(string, "discount",
+                            discount + "% discount was setted to product " + product.getName() + " " +
+                                    product.getDescription() + " available pcs: " + product.getStock());
                 }
                 return "admin";
             }

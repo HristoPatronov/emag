@@ -11,14 +11,15 @@ public class SendEmailController {
     private static final String SENDER = "emag.no.reply@gmail.com";
 
     public static void sendMail(String to, String subject, String body){
-        final String username = SENDER;        //TODO set your email - a valid gmail account
-        final String password = "emag2020";    //TODO set your email pass
+        final String username = "emag.no.reply@gmail.com";
+        final String password = "emag2020";
 
         Properties prop = new Properties();
-        prop.put("mail.smtp.host", "smtp.gmail.com");
-        prop.put("mail.smtp.port", "587");
         prop.put("mail.smtp.auth", "true");
         prop.put("mail.smtp.starttls.enable", "true");   //TLS
+        prop.put("mail.smtp.host", "smtp.gmail.com");
+        prop.put("mail.smtp.port", "587");
+        prop.put("mail.smtp.ssl.trust", "smtp.gmail.com");
 
         Session session = Session.getInstance(prop,
                 new javax.mail.Authenticator() {
@@ -28,7 +29,6 @@ public class SendEmailController {
                 });
 
         try {
-
             Message message = new MimeMessage(session);
             message.setFrom(new InternetAddress(SENDER));
             message.setRecipients(
