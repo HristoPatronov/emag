@@ -16,6 +16,4 @@ public class SubCategory {
     private String name;
     private boolean isHeader;
     private Category category;
-
-
 }

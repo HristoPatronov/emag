@@ -12,7 +12,7 @@ import java.util.List;
 public class OrderDAO implements IOrderDAO {
 
     @Override
-    public int addOrder(Order order) throws SQLException {
+    public void addOrder(Order order) throws SQLException {
         Connection connection = DBManager.getInstance().getConnection();
         String url = "INSERT INTO orders (total_price, date, user_id, payment_type_id, status_id) VALUES (?,?,?,?,?);";
         int id = 0;
@@ -23,11 +23,10 @@ public class OrderDAO implements IOrderDAO {
             statement.setLong(4, order.getPaymentType().getId());
             statement.setLong(5, order.getStatus().getId());
             statement.executeUpdate();
-            ResultSet set = statement.getGeneratedKeys();
-            set.next();
-            id = set.getInt(1);
+            ResultSet keys = statement.getGeneratedKeys();
+            keys.next();
+            order.setId(keys.getLong(1));
         }
-        return id;
     }
 
     @Override

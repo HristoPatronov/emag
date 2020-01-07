@@ -1,6 +1,6 @@
 package com.example.emag.model.pojo;
 
-import com.example.emag.model.dto.ReviewDTO;
+import com.example.emag.model.dto.AddReviewDTO;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,10 +22,9 @@ public class Review {
     private User user;
     private Product product;
 
-    public Review(ReviewDTO reviewDto) {
-        this.text = reviewDto.getTitle();
-        this.text = reviewDto.getText();
-        this.rating = reviewDto.getRating();
+    public Review(AddReviewDTO addReviewDto) {
+        this.title = addReviewDto.getTitle();
+        this.text = addReviewDto.getText();
+        this.rating = addReviewDto.getRating();
     }
-
 }

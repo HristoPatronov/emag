@@ -24,24 +24,6 @@ public class Product {
     private int reservedQuantity;
     private SubCategory subCategory;
 
-
-    //DTO for getProductsByOrder -- ProductDAO getProductsByOrder line 213
-
-
-    @Override
-    public String toString() {
-        return "Product{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", description='" + description + '\'' +
-                ", price=" + price +
-                ", discount=" + discount +
-                ", stock=" + stock +
-                ", reservedQuantity=" + reservedQuantity +
-                ", subCategoryId=" + subCategory +
-                '}';
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

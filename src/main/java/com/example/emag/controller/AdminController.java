@@ -3,8 +3,11 @@ package com.example.emag.controller;
 import com.example.emag.exceptions.AuthorizationException;
 import com.example.emag.exceptions.NotFoundException;
 import com.example.emag.model.dao.ProductDAO;
+import com.example.emag.model.dao.SubCategoryDAO;
 import com.example.emag.model.dao.UserDAO;
 import com.example.emag.model.pojo.Product;
+import com.example.emag.model.pojo.SubCategory;
+import com.example.emag.model.pojo.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -20,16 +23,22 @@ public class AdminController extends AbstractController{
     private ProductDAO productDao;
     @Autowired
     private UserDAO userDao;
+    @Autowired
+    private SubCategoryDAO subCategoryDao;
 
     //add product
-    @PostMapping("/addProduct")
-    public Product addProduct(Product product, Model model, HttpSession session) throws SQLException {
-        int id = (Integer) session.getAttribute("userId");
-            if (!userDao.isAdminByUserId(id)){
-                throw new AuthorizationException("You need to be admin to perform this");
-            }
-            productDao.addProduct(product);
-            model.addAttribute("add", "product added successfully");
+    @PostMapping("/admin/products")
+    public Product addProduct(@RequestBody Product product, HttpSession session) throws SQLException {
+        User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
+        if(user == null){
+            throw new AuthorizationException();
+        }
+        if(!user.isAdmin()) {
+            throw new AuthorizationException("You need to be admin to perform this!");
+        }
+        //TODO validate product
+        productDao.addProduct(product);
+        //product.setSubCategory(subCategoryDao.getSubCategoryById(product.getSubCategory().getId()));
         return product;
     }
 

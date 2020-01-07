@@ -79,7 +79,9 @@ public class UserController extends AbstractController {
         if(user == null){
             throw new AuthorizationException();
         }
-        userDao.changeSubscriptionStatus(user.getId(), !user.isSubscribed());
+        user.setSubscribed(!user.isSubscribed());
+        userDao.changeSubscriptionStatus(user.getId(), user.isSubscribed());
+        session.setAttribute(SESSION_KEY_LOGGED_USER, user);
     }
 
     @GetMapping("/users")

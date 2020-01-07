@@ -7,6 +7,6 @@ import java.util.List;
 
 public interface IOrderDAO {
 
-    int addOrder(Order order) throws SQLException;
+    void addOrder(Order order) throws SQLException;
     List<Order> getOrdersByUserId(Integer userId) throws SQLException;
 }

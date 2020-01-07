@@ -28,22 +28,22 @@ public class ProductController extends AbstractController{
         return product;
     }
 
-    //return products by search TODO
-    @GetMapping("/products/{text}")
-    public List<Product> productsFromSearch(@RequestParam String text, Double min, Double max, String orderBy) throws SQLException {
-        //check orderBy == ASC/DESC
-        //check min/max
-        List<Product> currentProducts = productDao.getProductsFromSearch(text, min, max, orderBy);
-        return currentProducts;
-    }
-
-    //TODO
-    @GetMapping("/products/{subcategory}")
-    public List<Product> productsFromSubCategory(@RequestParam int id, Double min, Double max, String orderBy) throws SQLException {
-        //check orderBy == ASC/DESC
-        //check id
-        //check min/max
-        List<Product> currentProducts = productDao.getProductsBySubCategory(id, min, max, orderBy);
-        return currentProducts;
-    }
+//    //return products by search TODO
+//    @GetMapping("/products/{text}")
+//    public List<Product> productsFromSearch(@RequestParam String text, Double min, Double max, String orderBy) throws SQLException {
+//        //check orderBy == ASC/DESC
+//        //check min/max
+//        List<Product> currentProducts = productDao.getProductsFromSearch(text, min, max, orderBy);
+//        return currentProducts;
+//    }
+//
+//    //TODO
+//    @GetMapping("/products/{subcategory}")
+//    public List<Product> productsFromSubCategory(@RequestParam int id, Double min, Double max, String orderBy) throws SQLException {
+//        //check orderBy == ASC/DESC
+//        //check id
+//        //check min/max
+//        List<Product> currentProducts = productDao.getProductsBySubCategory(id, min, max, orderBy);
+//        return currentProducts;
+//    }
 }

@@ -5,10 +5,7 @@ import com.example.emag.model.pojo.Product;
 import com.example.emag.model.pojo.SubCategory;
 import org.springframework.stereotype.Component;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -146,7 +143,7 @@ public class ProductDAO implements IProductDAO {
     public void addProduct(Product product) throws SQLException {
         Connection connection = DBManager.getInstance().getConnection();
         String url = "INSERT INTO products (name, description, price, discount, stock, sub_category_id) VALUES (?, ?, ?, ?, ?, ?);";
-        try(PreparedStatement statement = connection.prepareStatement(url)) {
+        try(PreparedStatement statement = connection.prepareStatement(url, Statement.RETURN_GENERATED_KEYS)) {
             statement.setString(1, product.getName());
             statement.setString(2, product.getDescription());
             statement.setDouble(3, product.getPrice());
@@ -154,6 +151,9 @@ public class ProductDAO implements IProductDAO {
             statement.setInt(5, product.getStock());
             statement.setLong(6, product.getSubCategory().getId());
             statement.executeUpdate();
+            ResultSet keys = statement.getGeneratedKeys();
+            keys.next();
+            product.setId(keys.getLong(1));
         }
     }
 
@@ -288,12 +288,12 @@ public class ProductDAO implements IProductDAO {
     }
 
     @Override
-    public void addProductsToOrder(Map<Product, Integer> products, Integer orderId) throws SQLException {
+    public void addProductsToOrder(Map<Product, Integer> products, long orderId) throws SQLException {
         Connection connection = DBManager.getInstance().getConnection();
         String url = "INSERT INTO orders_have_products (order_id, product_id, quantity) VALUES (?,?,?)";
         for (Product product : products.keySet()) {
             try (PreparedStatement statement = connection.prepareStatement(url)) {
-                statement.setInt(1, orderId);
+                statement.setLong(1, orderId);
                 statement.setLong(2, product.getId());
                 statement.setInt(3, products.get(product));
                 statement.executeUpdate();

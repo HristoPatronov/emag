@@ -4,7 +4,9 @@ import com.example.emag.exceptions.AuthorizationException;
 import com.example.emag.exceptions.NotFoundException;
 import com.example.emag.model.dao.ProductDAO;
 import com.example.emag.model.dao.ReviewDAO;
-import com.example.emag.model.dto.ReviewDTO;
+import com.example.emag.model.dto.AddReviewDTO;
+import com.example.emag.model.dto.GetProductReviewDTO;
+import com.example.emag.model.dto.GetUserReviewDTO;
 import com.example.emag.model.pojo.Product;
 import com.example.emag.model.pojo.Review;
 import com.example.emag.model.pojo.User;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpSession;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -29,9 +32,9 @@ public class ReviewController extends AbstractController{
 
     //add review to product
     @PostMapping("/products/{productId}/reviews")
-    public Review addReviewToProduct(@PathVariable(name = "productId") long productId,
-                            @RequestBody ReviewDTO reviewDto,
-                            HttpSession session) throws SQLException {
+    public GetProductReviewDTO addReviewToProduct(@PathVariable(name = "productId") long productId,
+                                                  @RequestBody AddReviewDTO addReviewDto,
+                                                  HttpSession session) throws SQLException {
         User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
         if(user == null){
             throw new AuthorizationException();
@@ -41,30 +44,40 @@ public class ReviewController extends AbstractController{
             throw new NotFoundException("Product not found");
         }
         //TODO validete review info
-        Review review = new Review(reviewDto);
+        Review review = new Review(addReviewDto);
         review.setDate(LocalDate.now());
         review.setProduct(product);
         review.setUser(user);
         reviewDao.addReview(review);
-        return review;
+        return new GetProductReviewDTO(review);
     }
 
     @GetMapping("/products/{productId}/reviews")
-    public List<Review> getAllReviewsForProduct(@PathVariable(name = "productId") long productId) throws SQLException{
+    public List<GetProductReviewDTO> getAllReviewsForProduct(@PathVariable(name = "productId") long productId) throws SQLException{
         Product product = productDao.getProductById(productId);
         if (product == null) {
             throw new NotFoundException("Product not found");
         }
-        return reviewDao.getAllReviewsForProduct(product.getId());
+        List<Review> reviews = reviewDao.getAllReviewsForProduct(product.getId());
+        List<GetProductReviewDTO> responseDto = new ArrayList<>();
+        for (Review review : reviews) {
+            responseDto.add(new GetProductReviewDTO(review));
+        }
+        return responseDto;
     }
 
     @GetMapping("/users/reviews")
-    public List<Review> getAllReviewsForUser(HttpSession session) throws SQLException {
+    public List<GetUserReviewDTO> getAllReviewsForUser(HttpSession session) throws SQLException {
         User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
         if(user == null){
             throw new AuthorizationException();
         }
-        return reviewDao.getAllReviewsForUser(user.getId());
+        List<Review> reviews = reviewDao.getAllReviewsForUser(user.getId());
+        List<GetUserReviewDTO> responseDto = new ArrayList<>();
+        for (Review review : reviews) {
+            responseDto.add(new GetUserReviewDTO(review));
+        }
+        return responseDto;
     }
 
 

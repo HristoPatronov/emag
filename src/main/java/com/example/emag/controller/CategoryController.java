@@ -35,7 +35,7 @@ public class CategoryController extends AbstractController {
     @GetMapping("/subcategories/{categoryId}")
     public List<SubCategory> subCategoryList(@PathVariable(name = "categoryId") long categoryId) throws SQLException {
         List<SubCategory> subCategories = subCategoryDao.getSubCategoryByCategory(categoryId);
-        if (subCategories == null) {
+        if (subCategories.isEmpty()) {
             throw new NotFoundException("No such category");
         }
         return subCategories;

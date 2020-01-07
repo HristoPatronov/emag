@@ -9,7 +9,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Getter
 @Setter
-public class ReviewDTO {
+public class AddReviewDTO {
 
     private String title;
     private String text;

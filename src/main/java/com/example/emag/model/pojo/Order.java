@@ -26,9 +26,12 @@ public class Order {
     @Getter
     @AllArgsConstructor
     public static class PaymentType {
-        private int id;
+        private long id;
         private String name;
 
+        public PaymentType(long id) {
+            this.id = id;
+        }
     }
 
     @NoArgsConstructor
@@ -36,8 +39,15 @@ public class Order {
     @Getter
     @AllArgsConstructor
     public static class Status {
-        private int id;
+        private long id;
         private String name;
 
+    }
+
+    public Order(Double totalPrice, LocalDate date, User user, PaymentType paymentType) {
+        this.totalPrice = totalPrice;
+        this.date = date;
+        this.user = user;
+        this.paymentType = paymentType;
     }
 }
