@@ -1,9 +1,11 @@
 package com.example.emag.controller;
 
+import com.example.emag.exceptions.NotFoundException;
 import com.example.emag.model.dao.ProductDAO;
 import com.example.emag.model.pojo.Product;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -18,19 +20,17 @@ public class ProductController extends AbstractController{
     private ProductDAO productDao;
 
     //return product with its information
-    @GetMapping("/product")
-    public Product getProduct(@RequestParam int id){
-        Product product = null;
-        try {
-            product = ProductDAO.getInstance().getProductById(id);
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
+    @GetMapping("/products/{productId}")
+    public Product getProduct(@PathVariable(name = "productId") long productId) throws SQLException {
+        Product product = productDao.getProductById(productId);
+        if (product == null) {
+            throw new NotFoundException("Product not found");
         }
         return product;
     }
 
-    //return products by search
-    @GetMapping("/search")
+    //return products by search TODO
+    @GetMapping("/products/{text}")
     public List<Product> productsFromSearch(@RequestParam String text, Double min, Double max, String orderBy){
         //check orderBy == ASC/DESC
         //check min/max
@@ -43,7 +43,8 @@ public class ProductController extends AbstractController{
         return currentProducts;
     }
 
-    @GetMapping("/productsBySubCategory")
+    //TODO
+    @GetMapping("/products/{subcategory}")
     public List<Product> productsFromSubCategory(@RequestParam int id, Double min, Double max, String orderBy){
         //check orderBy == ASC/DESC
         //check id

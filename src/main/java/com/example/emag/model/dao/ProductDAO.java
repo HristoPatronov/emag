@@ -332,23 +332,23 @@ public class ProductDAO implements IProductDAO {
     }
 
     @Override
-    public void addReservedQuantity(Integer productId, Integer quantity) throws SQLException {
+    public void addReservedQuantity(long productId, Integer quantity) throws SQLException {
         Connection connection = DBManager.getInstance().getConnection();
         String url = "UPDATE products SET reserved_quantity = reserved_quantity + ? WHERE id = ?;";
         try(PreparedStatement statement = connection.prepareStatement(url)) {
             statement.setInt(1, quantity);
-            statement.setInt(2, productId);
+            statement.setLong(2, productId);
             statement.executeUpdate();
         }
     }
 
     @Override
-    public void removeReservedQuantity(Integer productId, Integer quantity) throws SQLException {
+    public void removeReservedQuantity(long productId, Integer quantity) throws SQLException {
         Connection connection = DBManager.getInstance().getConnection();
         String url = "UPDATE products SET reserved_quantity = reserved_quantity - ? WHERE id = ?;";
         try(PreparedStatement statement = connection.prepareStatement(url)) {
             statement.setInt(1, quantity);
-            statement.setInt(2, productId);
+            statement.setLong(2, productId);
             statement.executeUpdate();
         }
     }

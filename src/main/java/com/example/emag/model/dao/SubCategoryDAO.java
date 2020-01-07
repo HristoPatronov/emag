@@ -15,13 +15,13 @@ import java.util.List;
 public class SubCategoryDAO implements ISubCategoryDAO {
 
     @Override
-    public List<SubCategory> getSubCategoryByCategory(Integer categoryId) throws SQLException {
+    public List<SubCategory> getSubCategoryByCategory(long categoryId) throws SQLException {
         List<SubCategory> subCategories = new ArrayList<>();
         Connection connection = DBManager.getInstance().getConnection();
         String url = "SELECT sc.*, c.* FROM sub_categories AS sc JOIN categories AS c ON sc.category_id = c.id WHERE sc.category_id = ?;";
         SubCategory subCategory = null;
         try(PreparedStatement statement = connection.prepareStatement(url)) {
-            statement.setInt(1, categoryId);
+            statement.setLong(1, categoryId);
             ResultSet set = statement.executeQuery();
             while (set.next()) {
                 subCategory = new SubCategory(set.getLong(1),

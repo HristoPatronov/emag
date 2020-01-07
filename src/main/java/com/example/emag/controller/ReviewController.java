@@ -19,7 +19,7 @@ import java.util.List;
 @RestController
 public class ReviewController extends AbstractController{
 
-    public static final String SESSION_KEY_LOGGED_USER = "logged_user";
+
 
     @Autowired
     private ReviewDAO reviewDao;

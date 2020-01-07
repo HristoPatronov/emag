@@ -10,6 +10,8 @@ import java.time.LocalDateTime;
 
 public abstract class AbstractController {
 
+    public static final String SESSION_KEY_LOGGED_USER = "logged_user";
+
     @ExceptionHandler(NotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorDTO handleNotFound(Exception e) {
