@@ -1,6 +1,8 @@
 package com.example.emag.model.dao;
 
 import com.example.emag.model.pojo.Category;
+import org.springframework.stereotype.Component;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -8,20 +10,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+@Component
 public class CategoryDAO implements ICategoryDAO {
-
-
-    private static CategoryDAO mInstance;
-
-    private CategoryDAO() {
-    }
-
-    public static CategoryDAO getInstance() {
-        if (mInstance == null) {
-            mInstance = new CategoryDAO();
-        }
-        return mInstance;
-    }
 
     @Override
     public List<Category> getAllCategories() throws SQLException {

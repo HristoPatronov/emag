@@ -5,6 +5,7 @@ import com.example.emag.model.dao.OrderDAO;
 import com.example.emag.model.dao.ProductDAO;
 import com.example.emag.model.pojo.Order;
 import com.example.emag.model.pojo.Product;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,6 +18,12 @@ import java.util.Map;
 
 @RestController
 public class ShoppingCartController {
+
+    @Autowired
+    private ProductDAO productDao;
+
+    @Autowired
+    private OrderDAO orderDao;
 
     //get products in cart
     @GetMapping("/cart")

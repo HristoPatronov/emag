@@ -2,6 +2,7 @@ package com.example.emag.model.dao;
 
 import com.example.emag.model.pojo.Address;
 import com.example.emag.model.pojo.User;
+import org.springframework.stereotype.Component;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -10,20 +11,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+@Component
 public class AddressDAO implements IAddressDAO {
-
-
-    private static AddressDAO mInstance;
-
-    private AddressDAO() {
-    }
-
-    public static AddressDAO getInstance() {
-        if (mInstance == null) {
-            mInstance = new AddressDAO();
-        }
-        return mInstance;
-    }
 
     @Override
     public void addAddress(Integer userId, Address address) throws SQLException {
@@ -60,9 +49,8 @@ public class AddressDAO implements IAddressDAO {
                                 set.getString(10),
                                 set.getString(11),
                                 set.getString(12),
-                                set.getString(13),
-                                set.getBoolean(14),
-                                set.getBoolean(15)));
+                                set.getBoolean(13),
+                                set.getBoolean(14)));
                 addresses.add(address);
             }
         }
@@ -105,9 +93,8 @@ public class AddressDAO implements IAddressDAO {
                             set.getString(10),
                             set.getString(11),
                             set.getString(12),
-                            set.getString(13),
-                            set.getBoolean(14),
-                            set.getBoolean(15)));
+                            set.getBoolean(13),
+                            set.getBoolean(14)));
         }
         return address;
     }

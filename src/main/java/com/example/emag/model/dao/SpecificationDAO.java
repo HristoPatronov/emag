@@ -1,5 +1,7 @@
 package com.example.emag.model.dao;
 
+import org.springframework.stereotype.Component;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -7,20 +9,8 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
+@Component
 public class SpecificationDAO implements ISpecificationDAO {
-
-
-    private static SpecificationDAO mInstance;
-
-    private SpecificationDAO() {
-    }
-
-    public static SpecificationDAO getInstance() {
-        if (mInstance == null) {
-            mInstance = new SpecificationDAO();
-        }
-        return mInstance;
-    }
 
     @Override
     public void addSpecificationInDb(Integer productId, HashMap<String, HashMap<String, String>> specifications) throws SQLException {

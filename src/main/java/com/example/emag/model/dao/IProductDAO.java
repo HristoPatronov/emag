@@ -1,6 +1,5 @@
 package com.example.emag.model.dao;
 
-import com.example.emag.model.dto.ProductOrderDto;
 import com.example.emag.model.pojo.Product;
 
 import java.sql.SQLException;
@@ -11,7 +10,7 @@ public interface IProductDAO {
 
     List<Product> getAllProducts() throws SQLException;
     List<Product> getProductsBySubCategory(Integer subCategoryId, Double minPrice, Double maxPrice, String orderBy) throws SQLException;
-    Product getProductById(Integer id) throws SQLException;
+    Product getProductById(long id) throws SQLException;
     List<Product> getProductsFromSearch(String searchInput, Double minPrice, Double maxPrice, String orderBy) throws SQLException;
     void addProduct(Product product) throws SQLException;  //ADMIN STUFF
     void removeProduct(Integer productId) throws SQLException; //ADMIN STUFF

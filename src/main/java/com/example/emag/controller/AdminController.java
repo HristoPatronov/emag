@@ -3,6 +3,7 @@ package com.example.emag.controller;
 import com.example.emag.model.dao.ProductDAO;
 import com.example.emag.model.dao.UserDAO;
 import com.example.emag.model.pojo.Product;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,7 +12,10 @@ import java.sql.SQLException;
 import java.util.List;
 
 @RestController
-public class AdminController {
+public class AdminController extends AbstractController{
+
+    @Autowired
+    private ProductDAO productDao;
 
     //add product
     @PostMapping("/addProduct")

@@ -16,7 +16,7 @@ public interface IUserDAO {
     boolean isAdminByUserId(Integer id) throws SQLException;
     List<String> getAllSubscribedUsers() throws SQLException;
     void changePassword(Integer id, String newPassword) throws SQLException;
-    void changeSubscriptionStatus(Integer id, boolean subscribed) throws SQLException;
+    void changeSubscriptionStatus(long id, boolean subscribed) throws SQLException;
 
 
 }

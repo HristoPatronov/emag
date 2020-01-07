@@ -6,14 +6,12 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @NoArgsConstructor
+@AllArgsConstructor
 @Getter
 @Setter
-@AllArgsConstructor
-public class ProductOrderDto {
+public class LoginUserDTO {
 
-    private long id;
-    private String name;
-    private Double price;
-
+    private String eMail;
+    private String password;
 
 }

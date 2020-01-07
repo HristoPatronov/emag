@@ -2,24 +2,14 @@ package com.example.emag.model.dao;
 
 import com.example.emag.model.pojo.Order;
 import com.example.emag.model.pojo.User;
+import org.springframework.stereotype.Component;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+@Component
 public class OrderDAO implements IOrderDAO {
-
-    private static OrderDAO mInstance;
-
-    private OrderDAO() {
-    }
-
-    public static OrderDAO getInstance() {
-        if (mInstance == null) {
-            mInstance = new OrderDAO();
-        }
-        return mInstance;
-    }
 
     @Override
     public int addOrder(Order order) throws SQLException {
@@ -60,13 +50,12 @@ public class OrderDAO implements IOrderDAO {
                                 set.getString(9),
                                 set.getString(10),
                                 set.getString(11),
-                                set.getString(12),
-                                set.getBoolean(13),
-                                set.getBoolean(14)),
-                        new Order.PaymentType(set.getInt(15),
-                                set.getString(16)),
-                        new Order.Status(set.getInt(17),
-                                 set.getString(18)));
+                                set.getBoolean(12),
+                                set.getBoolean(13)),
+                        new Order.PaymentType(set.getInt(14),
+                                set.getString(15)),
+                        new Order.Status(set.getInt(16),
+                                 set.getString(17)));
                 orders.add(order);
             }
         }

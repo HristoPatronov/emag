@@ -3,6 +3,7 @@ package com.example.emag.model.dao;
 import com.example.emag.model.pojo.Category;
 import com.example.emag.model.pojo.Product;
 import com.example.emag.model.pojo.SubCategory;
+import org.springframework.stereotype.Component;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -13,23 +14,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Component
 public class ProductDAO implements IProductDAO {
 
     public static final double MIN_PRICE_OF_PRODUCT = 0;
     public static final double MAX_PRICE_OF_PRODUCT = Integer.MAX_VALUE;
-
-
-    private static ProductDAO mInstance;
-
-    private ProductDAO() {
-    }
-
-    public static ProductDAO getInstance() {
-        if (mInstance == null) {
-            mInstance = new ProductDAO();
-        }
-        return mInstance;
-    }
 
     @Override
     public List<Product> getAllProducts() throws SQLException {
@@ -93,12 +82,12 @@ public class ProductDAO implements IProductDAO {
 
     //TODO Hybernate
     @Override
-    public Product getProductById(Integer id) throws SQLException {
+    public Product getProductById(long id) throws SQLException {
         Connection connection = DBManager.getInstance().getConnection();
         String url = "SELECT p.*, sc.*, c.* FROM products AS p JOIN sub_categories AS sc ON p.sub_category_id = sc.id JOIN categories AS c ON sc.category_id = c.id WHERE p.id = ?;";
         Product product = null;
         try(PreparedStatement statement = connection.prepareStatement(url)) {
-            statement.setInt(1, id);
+            statement.setLong(1, id);
             ResultSet set = statement.executeQuery();
             if (!set.next()){
                 return null;

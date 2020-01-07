@@ -7,6 +7,6 @@ import java.util.List;
 public interface IReviewDAO {
 
     void addReview(Review review) throws SQLException;
-    List<Review> getAllReviewsForProduct(Integer productId) throws SQLException;
-    List<Review> getAllReviewsForUser(Integer userId) throws SQLException;
+    List<Review> getAllReviewsForProduct(long productId) throws SQLException;
+    List<Review> getAllReviewsForUser(long userId) throws SQLException;
 }

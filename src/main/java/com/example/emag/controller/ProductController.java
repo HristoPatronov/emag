@@ -2,6 +2,7 @@ package com.example.emag.controller;
 
 import com.example.emag.model.dao.ProductDAO;
 import com.example.emag.model.pojo.Product;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -11,7 +12,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RestController
-public class ProductController {
+public class ProductController extends AbstractController{
+
+    @Autowired
+    private ProductDAO productDao;
 
     //return product with its information
     @GetMapping("/product")
