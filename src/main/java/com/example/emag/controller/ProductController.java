@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -31,30 +30,20 @@ public class ProductController extends AbstractController{
 
     //return products by search TODO
     @GetMapping("/products/{text}")
-    public List<Product> productsFromSearch(@RequestParam String text, Double min, Double max, String orderBy){
+    public List<Product> productsFromSearch(@RequestParam String text, Double min, Double max, String orderBy) throws SQLException {
         //check orderBy == ASC/DESC
         //check min/max
-        List<Product> currentProducts = new ArrayList<>();
-        try {
-            currentProducts = ProductDAO.getInstance().getProductsFromSearch(text, min, max, orderBy);
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
-        }
+        List<Product> currentProducts = productDao.getProductsFromSearch(text, min, max, orderBy);
         return currentProducts;
     }
 
     //TODO
     @GetMapping("/products/{subcategory}")
-    public List<Product> productsFromSubCategory(@RequestParam int id, Double min, Double max, String orderBy){
+    public List<Product> productsFromSubCategory(@RequestParam int id, Double min, Double max, String orderBy) throws SQLException {
         //check orderBy == ASC/DESC
         //check id
         //check min/max
-        List<Product> currentProducts = new ArrayList<>();
-        try {
-            currentProducts = ProductDAO.getInstance().getProductsBySubCategory(id, min, max, orderBy);
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
-        }
+        List<Product> currentProducts = productDao.getProductsBySubCategory(id, min, max, orderBy);
         return currentProducts;
     }
 }

@@ -1,5 +1,7 @@
 package com.example.emag.controller;
 
+import com.example.emag.exceptions.AuthorizationException;
+import com.example.emag.exceptions.NotFoundException;
 import com.example.emag.model.dao.ProductDAO;
 import com.example.emag.model.dao.UserDAO;
 import com.example.emag.model.pojo.Product;
@@ -16,90 +18,70 @@ public class AdminController extends AbstractController{
 
     @Autowired
     private ProductDAO productDao;
+    @Autowired
+    private UserDAO userDao;
 
     //add product
     @PostMapping("/addProduct")
-    public String addProduct(Product product, Model model, HttpSession session){
+    public Product addProduct(Product product, Model model, HttpSession session) throws SQLException {
         int id = (Integer) session.getAttribute("userId");
-        try {
-            if (!UserDAO.getInstance().isAdminByUserId(id)){
-                return "home";
+            if (!userDao.isAdminByUserId(id)){
+                throw new AuthorizationException("You need to be admin to perform this");
             }
-            ProductDAO.getInstance().addProduct(product);
+            productDao.addProduct(product);
             model.addAttribute("add", "product added successfully");
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
-        }
-        return "admin";
+        return product;
     }
 
     //remove product by ID
     @DeleteMapping("/removeProduct")
-    public String removeProduct(@RequestParam int idProduct, Model model, HttpSession session){
+    public void removeProduct(@RequestParam int idProduct, Model model, HttpSession session) throws SQLException {
         int id = (Integer) session.getAttribute("userId");
-        try {
-            if (!UserDAO.getInstance().isAdminByUserId(id)){
-                return "home";
+            if (!userDao.isAdminByUserId(id)){
+                throw new AuthorizationException("You need to be admin to perform this");
             }
-            Product product = ProductDAO.getInstance().getProductById(idProduct);
-            if (product != null) {
-                ProductDAO.getInstance().removeProduct(idProduct);
-                model.addAttribute("remove", "product removed successfully");
-                return "admin";
+            Product product = productDao.getProductById(idProduct);
+            if (product == null) {
+                throw new NotFoundException("Product doesn't exist");
             }
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
-        }
-        model.addAttribute("remove", "product doesn't exist");
-        return "admin";
+        productDao.removeProduct(idProduct);
     }
 
     //set discount
     @PutMapping("/setDiscount")
-    public String setDiscountAtProduct(@RequestParam int Productid, @RequestParam int discount, Model model, HttpSession session){
+    public Product setDiscountAtProduct(@RequestParam int Productid, @RequestParam int discount, Model model, HttpSession session) throws SQLException {
         int id = (int) session.getAttribute("userId");
-        try {
-            if (!UserDAO.getInstance().isAdminByUserId(id)){
-                return "home";
+            if (!userDao.isAdminByUserId(id)){
+                throw new AuthorizationException("You need to be admin to perform this");
             }
-            Product product = ProductDAO.getInstance().getProductById(Productid);
-            if (product != null) {
-                ProductDAO.getInstance().setDiscount(Productid, discount);
-                model.addAttribute("discount", "Discount was set successfully");
-                //send email to subscribers
-                List<String> email = UserDAO.getInstance().getAllSubscribedUsers();
-                for (String string : email){
-                    SendEmailController.sendMail(string, "discount",
-                            discount + "% discount was setted to product " + product.getName() + " " +
-                                    product.getDescription() + " available pcs: " + product.getStock());
-                }
-                return "admin";
+            Product product = productDao.getProductById(Productid);
+            if (product == null) {
+                throw new NotFoundException("The product doesn't exist");
             }
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
+        productDao.setDiscount(Productid, discount);
+        model.addAttribute("discount", "Discount was set successfully");
+        //send email to subscribers
+        List<String> email = userDao.getAllSubscribedUsers();
+        for (String string : email){
+            SendEmailController.sendMail(string, "discount",
+                    discount + "% discount was setted to product " + product.getName() + " " +
+                            product.getDescription() + " available pcs: " + product.getStock());
         }
-        model.addAttribute("discount", "Discount wasn't set because there isn't product with that ID");
-        return "admin";
+        return product;
     }
 
     //update quantity
     @PutMapping("/updateQuantity")
-    public String updateQuantity(@RequestParam int id, @RequestParam int newQuantity, Model model, HttpSession session){
+    public Product updateQuantity(@RequestParam int id, @RequestParam int newQuantity, Model model, HttpSession session) throws SQLException {
         int userId = (Integer) session.getAttribute("userId");
-        try {
-            if (!UserDAO.getInstance().isAdminByUserId(userId)){
-                return "home";
+            if (!userDao.isAdminByUserId(userId)){
+                throw new AuthorizationException("You need to be admin to perform this");
             }
-            Product product = ProductDAO.getInstance().getProductById(id);
-            if (product != null) {
-                ProductDAO.getInstance().updateQuantity(id, newQuantity);
-                model.addAttribute("quantity", "Quantity was modified successfully");
-                return "admin";
+            Product product = productDao.getProductById(id);
+            if (product == null) {
+                throw new NotFoundException("Product doesn't exist");
             }
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
-        }
-        model.addAttribute("quantity", "Quantity wasn't modified because such product doesn't exist");
-        return "admin";
+        productDao.updateQuantity(id, newQuantity);
+        return product;
     }
 }
