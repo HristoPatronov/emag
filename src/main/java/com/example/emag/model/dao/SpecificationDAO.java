@@ -1,4 +1,4 @@
-package com.example.emag.dao;
+package com.example.emag.model.dao;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

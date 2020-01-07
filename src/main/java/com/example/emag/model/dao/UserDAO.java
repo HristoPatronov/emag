@@ -1,7 +1,6 @@
-package com.example.emag.dao;
+package com.example.emag.model.dao;
 
-import com.example.emag.model.Address;
-import com.example.emag.model.User;
+import com.example.emag.model.pojo.User;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -96,7 +95,7 @@ public class UserDAO implements IUserDAO {
             statement.setString(2,user.getLast_name());
             statement.setString(3,user.getUserName());
             statement.setString(4,user.getEMail());
-            statement.setInt(5, user.getId());
+            statement.setLong(5, user.getId());
             statement.executeUpdate();
         }
     }

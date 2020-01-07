@@ -1,7 +1,7 @@
-package com.example.emag.dao;
+package com.example.emag.model.dao;
 
-import com.example.emag.model.Order;
-import com.example.emag.model.Product;
+import com.example.emag.model.dto.ProductOrderDto;
+import com.example.emag.model.pojo.Product;
 
 import java.sql.SQLException;
 import java.util.List;

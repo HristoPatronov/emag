@@ -1,9 +1,8 @@
 package com.example.emag.controller;
 
-import com.example.emag.dao.ProductDAO;
-import com.example.emag.dao.UserDAO;
-import com.example.emag.model.Product;
-import org.springframework.stereotype.Controller;
+import com.example.emag.model.dao.ProductDAO;
+import com.example.emag.model.dao.UserDAO;
+import com.example.emag.model.pojo.Product;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 

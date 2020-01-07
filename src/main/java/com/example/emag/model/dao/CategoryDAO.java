@@ -1,6 +1,6 @@
-package com.example.emag.dao;
+package com.example.emag.model.dao;
 
-import com.example.emag.model.Category;
+import com.example.emag.model.pojo.Category;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

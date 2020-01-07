@@ -1,6 +1,8 @@
-package com.example.emag.dao;
+package com.example.emag.model.dao;
 
-import com.example.emag.model.Product;
+import com.example.emag.model.pojo.Category;
+import com.example.emag.model.pojo.Product;
+import com.example.emag.model.pojo.SubCategory;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -33,18 +35,21 @@ public class ProductDAO implements IProductDAO {
     public List<Product> getAllProducts() throws SQLException {
         List<Product> products = new ArrayList<>();
         Connection connection = DBManager.getInstance().getConnection();
-        String url = "SELECT * FROM products;";
+        String url = "SELECT p.*, sc.*, c.* FROM products AS p JOIN sub_categories AS sc ON p.sub_category_id = sc.id JOIN categories AS c ON sc.category_id = c.id;";
         try(PreparedStatement statement = connection.prepareStatement(url)) {
             ResultSet set = statement.executeQuery();
             while (set.next()){
-                Product product = new Product(set.getInt(1),
+                Product product = new Product(set.getLong(1),
                                             set.getString(2),
                                             set.getString(3),
                                             set.getDouble(4),
                                             set.getInt(5),
                                             set.getInt(6),
                                             set.getInt(7),
-                                            set.getInt(8));
+                                            new SubCategory(set.getLong(9),
+                                                    set.getString(10),
+                                                    set.getBoolean(11),
+                                                    new Category(set.getLong(13), set.getString(14))));
                 products.add(product);
             }
         }
@@ -59,9 +64,9 @@ public class ProductDAO implements IProductDAO {
         Connection connection = DBManager.getInstance().getConnection();
         String url;
         if (orderBy == null) {
-            url = "SELECT * FROM products WHERE sub_category_id = ? AND price BETWEEN ? AND ?;";
+            url = "SELECT p.*, sc.*, c.* FROM products AS p JOIN sub_categories AS sc ON p.sub_category_id = sc.id JOIN categories AS c ON sc.category_id = c.id WHERE sc.sub_category_id = ? AND price BETWEEN ? AND ?;";
         } else {
-            url = "SELECT * FROM products WHERE sub_category_id = ? AND price BETWEEN ? AND ? ORDER BY price " + orderBy + ";";
+            url = "SELECT p.*, sc.*, c.* FROM products AS p JOIN sub_categories AS sc ON p.sub_category_id = sc.id JOIN categories AS c ON sc.category_id = c.id WHERE sc.sub_category_id = ? AND price BETWEEN ? AND ? ORDER BY price " + orderBy + ";";
         }
         try(PreparedStatement statement = connection.prepareStatement(url)) {
             statement.setInt(1, subCategoryId);
@@ -69,24 +74,28 @@ public class ProductDAO implements IProductDAO {
             statement.setDouble(3, maxPrice);
             ResultSet set = statement.executeQuery();
             while (set.next()){
-                Product product = new Product(set.getInt(1),
+                Product product = new Product(set.getLong(1),
                         set.getString(2),
                         set.getString(3),
                         set.getDouble(4),
                         set.getInt(5),
                         set.getInt(6),
                         set.getInt(7),
-                        set.getInt(8));
+                        new SubCategory(set.getLong(9),
+                                set.getString(10),
+                                set.getBoolean(11),
+                                new Category(set.getLong(13), set.getString(14))));
                 products.add(product);
             }
         }
         return products;
     }
 
+    //TODO Hybernate
     @Override
     public Product getProductById(Integer id) throws SQLException {
         Connection connection = DBManager.getInstance().getConnection();
-        String url = "SELECT * FROM products WHERE id = ?;";
+        String url = "SELECT p.*, sc.*, c.* FROM products AS p JOIN sub_categories AS sc ON p.sub_category_id = sc.id JOIN categories AS c ON sc.category_id = c.id WHERE p.id = ?;";
         Product product = null;
         try(PreparedStatement statement = connection.prepareStatement(url)) {
             statement.setInt(1, id);
@@ -94,14 +103,17 @@ public class ProductDAO implements IProductDAO {
             if (!set.next()){
                 return null;
             }
-            product = new Product(set.getInt(1),
+            product = new Product(set.getLong(1),
                     set.getString(2),
                     set.getString(3),
                     set.getDouble(4),
                     set.getInt(5),
                     set.getInt(6),
                     set.getInt(7),
-                    set.getInt(8));
+                    new SubCategory(set.getLong(9),
+                            set.getString(10),
+                            set.getBoolean(11),
+                            new Category(set.getLong(13), set.getString(14))));
         }
         return product;
     }
@@ -114,9 +126,9 @@ public class ProductDAO implements IProductDAO {
         Connection connection = DBManager.getInstance().getConnection();
         String url;
         if (orderBy == null) {
-            url = "SELECT * FROM products WHERE name LIKE ? AND price BETWEEN ? AND ?;";
+            url = "SELECT p.*, sc.*, c.* FROM products AS p JOIN sub_categories AS sc ON p.sub_category_id = sc.id JOIN categories AS c ON sc.category_id = c.id WHERE name LIKE ? AND price BETWEEN ? AND ?;";
         } else {
-            url = "SELECT * FROM products WHERE name LIKE ? AND price BETWEEN ? AND ? ORDER BY price " + orderBy + ";";
+            url = "SELECT p.*, sc.*, c.* FROM products AS p JOIN sub_categories AS sc ON p.sub_category_id = sc.id JOIN categories AS c ON sc.category_id = c.id WHERE name LIKE ? AND price BETWEEN ? AND ? ORDER BY price " + orderBy + ";";
         }
         try(PreparedStatement statement = connection.prepareStatement(url)) {
             statement.setString(1, "%" + searchInput + "%");
@@ -124,14 +136,17 @@ public class ProductDAO implements IProductDAO {
             statement.setDouble(3, maxPrice);
             ResultSet set = statement.executeQuery();
             while (set.next()){
-                Product product = new Product(set.getInt(1),
+                Product product = new Product(set.getLong(1),
                         set.getString(2),
                         set.getString(3),
                         set.getDouble(4),
                         set.getInt(5),
                         set.getInt(6),
                         set.getInt(7),
-                        set.getInt(8));
+                        new SubCategory(set.getLong(9),
+                                set.getString(10),
+                                set.getBoolean(11),
+                                new Category(set.getLong(13), set.getString(14))));
                 products.add(product);
             }
         }
@@ -148,7 +163,7 @@ public class ProductDAO implements IProductDAO {
             statement.setDouble(3, product.getPrice());
             statement.setInt(4, product.getDiscount());
             statement.setInt(5, product.getStock());
-            statement.setInt(6, product.getSubCategoryId());
+            statement.setLong(6, product.getSubCategory().getId());
             statement.executeUpdate();
         }
     }
@@ -189,20 +204,24 @@ public class ProductDAO implements IProductDAO {
     public List<Product> getFavouriteProducts(Integer userId) throws SQLException {
         List<Product> products = new ArrayList<>();
         Connection connection = DBManager.getInstance().getConnection();
-        String url = "SELECT p.* FROM products as p JOIN users_have_favourite_products AS uhfp " +
+        String url = "SELECT p.*, sc.*, c.* FROM products AS p JOIN sub_categories AS sc ON p.sub_category_id = sc.id JOIN categories AS c ON sc.category_id = c.id " +
+                " JOIN users_have_favourite_products AS uhfp " +
                 "ON p.id = uhfp.product_id JOIN users AS u ON uhfp.user_id = u.id WHERE u.id = ?;";
         try(PreparedStatement statement = connection.prepareStatement(url)) {
             statement.setInt(1, userId);
             ResultSet set = statement.executeQuery();
             while (set.next()){
-                Product product = new Product(set.getInt(1),
+                Product product = new Product(set.getLong(1),
                         set.getString(2),
                         set.getString(3),
                         set.getDouble(4),
                         set.getInt(5),
                         set.getInt(6),
                         set.getInt(7),
-                        set.getInt(8));
+                        new SubCategory(set.getLong(9),
+                                set.getString(10),
+                                set.getBoolean(11),
+                                new Category(set.getLong(13), set.getString(14))));
                 products.add(product);
             }
         }
@@ -213,15 +232,24 @@ public class ProductDAO implements IProductDAO {
     public Map<Product, Integer> getProductsByOrder(Integer orderId) throws SQLException {
         Map<Product, Integer> products = new HashMap<>();
         Connection connection = DBManager.getInstance().getConnection();
-        String url = "SELECT p.name, p.price, ohp.quantity FROM products as p JOIN orders_have_products AS ohp ON p.id = ohp.product_id " +
+        String url = "SELECT p.*, sc.*, c.*, ohp.quantity FROM products AS p JOIN sub_categories AS sc ON p.sub_category_id = sc.id JOIN categories AS c ON sc.category_id = c.id JOIN orders_have_products AS ohp ON p.id = ohp.product_id " +
                 "JOIN orders AS o ON ohp.order_id = o.id WHERE o.id = ?;";
         try(PreparedStatement statement = connection.prepareStatement(url)) {
             statement.setInt(1, orderId);
             ResultSet set = statement.executeQuery();
             while (set.next()){
-                Product product = new Product(set.getString(1),
-                        set.getDouble(2));
-                products.put(product, set.getInt(3));
+                Product product = new Product(set.getLong(1),
+                        set.getString(2),
+                        set.getString(3),
+                        set.getDouble(4),
+                        set.getInt(5),
+                        set.getInt(6),
+                        set.getInt(7),
+                        new SubCategory(set.getLong(9),
+                                set.getString(10),
+                                set.getBoolean(11),
+                                new Category(set.getLong(13), set.getString(14))));
+                products.put(product, set.getInt(15));
             }
         }
         return products;
@@ -277,7 +305,7 @@ public class ProductDAO implements IProductDAO {
         for (Product product : products.keySet()) {
             try (PreparedStatement statement = connection.prepareStatement(url)) {
                 statement.setInt(1, orderId);
-                statement.setInt(2, product.getId());
+                statement.setLong(2, product.getId());
                 statement.setInt(3, products.get(product));
                 statement.executeUpdate();
             }
@@ -290,7 +318,7 @@ public class ProductDAO implements IProductDAO {
         String url = "SELECT stock FROM products WHERE id = ?";
         for (Product product : products.keySet()) {
             try (PreparedStatement statement = connection.prepareStatement(url)) {
-                statement.setInt(1, product.getId());
+                statement.setLong(1, product.getId());
                 ResultSet set = statement.executeQuery();
                 set.next();
                 if (set.getInt(1) < products.get(product)) {
@@ -308,7 +336,7 @@ public class ProductDAO implements IProductDAO {
         for (Product product : products.keySet()) {
             try(PreparedStatement statement = connection.prepareStatement(url)) {
                 statement.setInt(1, products.get(product));
-                statement.setInt(2, product.getId());
+                statement.setLong(2, product.getId());
                 statement.executeUpdate();
             }
         }
@@ -343,7 +371,7 @@ public class ProductDAO implements IProductDAO {
         for (Product product : products.keySet()) {
             try(PreparedStatement statement = connection.prepareStatement(url)) {
                 statement.setInt(1, products.get(product));
-                statement.setInt(2, product.getId());
+                statement.setLong(2, product.getId());
                 statement.executeUpdate();
             }
         }

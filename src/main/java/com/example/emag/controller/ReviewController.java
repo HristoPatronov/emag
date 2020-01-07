@@ -1,8 +1,7 @@
 package com.example.emag.controller;
 
-import com.example.emag.dao.ReviewDAO;
-import com.example.emag.model.Review;
-import org.springframework.stereotype.Controller;
+import com.example.emag.model.dao.ReviewDAO;
+import com.example.emag.model.pojo.Review;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletResponse;

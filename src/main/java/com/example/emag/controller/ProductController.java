@@ -1,8 +1,7 @@
 package com.example.emag.controller;
 
-import com.example.emag.dao.ProductDAO;
-import com.example.emag.model.Product;
-import org.springframework.stereotype.Controller;
+import com.example.emag.model.dao.ProductDAO;
+import com.example.emag.model.pojo.Product;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;

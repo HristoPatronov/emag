@@ -1,6 +1,8 @@
-package com.example.emag.dao;
+package com.example.emag.model.dao;
 
-import com.example.emag.model.Address;
+import com.example.emag.model.pojo.Address;
+import com.example.emag.model.pojo.User;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -33,7 +35,7 @@ public class AddressDAO implements IAddressDAO {
             statement.setString(3, address.getStreet());
             statement.setString(4, address.getZip());
             statement.setString(5, address.getPhoneNumber());
-            statement.setInt(6, userId);
+            statement.setLong(6, address.getUser().getId());
             statement.executeUpdate();
         }
     }
@@ -42,7 +44,7 @@ public class AddressDAO implements IAddressDAO {
     public List<Address> getAllAddresses(Integer userId) throws SQLException {
         List<Address> addresses = new ArrayList<>();
         Connection connection = DBManager.getInstance().getConnection();
-        String url = "SELECT * FROM addresses WHERE user_id = ?;";
+        String url = "SELECT a.*, u.* FROM addresses AS a JOIN users AS u ON a.user_id = u.id WHERE a.user_id = ?;";
         try(PreparedStatement statement = connection.prepareStatement(url)) {
             statement.setLong(1, userId);
             ResultSet set = statement.executeQuery();
@@ -53,7 +55,14 @@ public class AddressDAO implements IAddressDAO {
                         set.getString(4),
                         set.getString(5),
                         set.getString(6),
-                        set.getInt(7));
+                        new User(set.getLong(8),
+                                set.getString(9),
+                                set.getString(10),
+                                set.getString(11),
+                                set.getString(12),
+                                set.getString(13),
+                                set.getBoolean(14),
+                                set.getBoolean(15)));
                 addresses.add(address);
             }
         }
@@ -79,7 +88,7 @@ public class AddressDAO implements IAddressDAO {
     //not necessary???
     public Address getAddress(Integer addressId) throws SQLException {
         Connection connection = DBManager.getInstance().getConnection();
-        String url = "SELECT * FROM addresses WHERE id = ?;";
+        String url = "SELECT a.*, u.* FROM addresses AS a JOIN users AS u ON a.user_id = u.id WHERE id = ?;";
         Address address = null;
         try(PreparedStatement statement = connection.prepareStatement(url)) {
             statement.setInt(1, addressId);
@@ -91,7 +100,14 @@ public class AddressDAO implements IAddressDAO {
                     set.getString(4),
                     set.getString(5),
                     set.getString(6),
-                    set.getInt(7));
+                    new User(set.getLong(8),
+                            set.getString(9),
+                            set.getString(10),
+                            set.getString(11),
+                            set.getString(12),
+                            set.getString(13),
+                            set.getBoolean(14),
+                            set.getBoolean(15)));
         }
         return address;
     }

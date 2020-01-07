@@ -1,6 +1,6 @@
-package com.example.emag.dao;
+package com.example.emag.model.dao;
 
-import com.example.emag.model.Review;
+import com.example.emag.model.pojo.Review;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,8 +29,8 @@ public class ReviewDAO implements IReviewDAO {
             statement.setString(2, review.getText());
             statement.setInt(3, review.getRating());
             statement.setDate(4, Date.valueOf(review.getDate()));
-            statement.setInt(5, review.getUserId());
-            statement.setInt(6, review.getProductId());
+            statement.setLong(5, review.getUser().getId());
+            statement.setLong(6, review.getProduct().getId());
             statement.executeUpdate();
         }
     }

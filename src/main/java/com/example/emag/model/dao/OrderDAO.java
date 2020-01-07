@@ -1,6 +1,8 @@
-package com.example.emag.dao;
+package com.example.emag.model.dao;
 
-import com.example.emag.model.Order;
+import com.example.emag.model.pojo.Order;
+import com.example.emag.model.pojo.User;
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,9 +29,9 @@ public class OrderDAO implements IOrderDAO {
         try(PreparedStatement statement = connection.prepareStatement(url, Statement.RETURN_GENERATED_KEYS)) {
             statement.setDouble(1, order.getTotalPrice());
             statement.setDate(2, Date.valueOf(order.getDate()));
-            statement.setInt(3, order.getUserId());
-            statement.setInt(4, order.getPaymentTypeId());
-            statement.setInt(5, order.getStatusId());
+            statement.setLong(3, order.getUser().getId());
+            statement.setLong(4, order.getPaymentType().getId());
+            statement.setLong(5, order.getStatus().getId());
             statement.executeUpdate();
             ResultSet set = statement.getGeneratedKeys();
             set.next();
@@ -42,9 +44,10 @@ public class OrderDAO implements IOrderDAO {
     public List<Order> getOrdersByUserId(Integer userId) throws SQLException {
         List<Order> orders = new ArrayList<>();
         Connection connection = DBManager.getInstance().getConnection();
-        String url = "SELECT o.*, pt.*, s.* FROM orders AS o " +
+        String url = "SELECT o.*,u.* ,pt.*, s.* FROM orders AS o " +
                 "JOIN payment_types AS pt ON o.payment_type_id = pt.id " +
-                "JOIN statuses AS s ON o.status_id = s.id WHERE user_id = ?;";
+                "JOIN statuses AS s ON o.status_id = s.id " +
+                "JOIN users AS u ON o.user_id = u.id WHERE o.user_id = ?;";
         try(PreparedStatement statement = connection.prepareStatement(url)) {
             statement.setInt(1, userId);
             ResultSet set = statement.executeQuery();
@@ -52,11 +55,18 @@ public class OrderDAO implements IOrderDAO {
                 Order order = new Order(set.getInt(1),
                         set.getDouble(2),
                         set.getDate(3).toLocalDate(),
-                        set.getInt(4),
-                        set.getInt(5),
-                        set.getInt(6));
-                order.setPaymentType(new Order.PaymentType(set.getInt(7), set.getString(8)));
-                order.setStatus(new Order.Status(set.getInt(9), set.getString(10)));
+                        new User(set.getLong(7),
+                                set.getString(8),
+                                set.getString(9),
+                                set.getString(10),
+                                set.getString(11),
+                                set.getString(12),
+                                set.getBoolean(13),
+                                set.getBoolean(14)),
+                        new Order.PaymentType(set.getInt(15),
+                                set.getString(16)),
+                        new Order.Status(set.getInt(17),
+                                 set.getString(18)));
                 orders.add(order);
             }
         }

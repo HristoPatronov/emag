@@ -1,10 +1,9 @@
 package com.example.emag.controller;
 
-import com.example.emag.dao.CategoryDAO;
-import com.example.emag.dao.SubCategoryDAO;
-import com.example.emag.model.Category;
-import com.example.emag.model.SubCategory;
-import org.springframework.stereotype.Controller;
+import com.example.emag.model.dao.CategoryDAO;
+import com.example.emag.model.dao.SubCategoryDAO;
+import com.example.emag.model.pojo.Category;
+import com.example.emag.model.pojo.SubCategory;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;

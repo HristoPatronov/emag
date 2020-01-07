@@ -1,4 +1,4 @@
-package com.example.emag.dao;
+package com.example.emag.model.dao;
 
 import java.sql.SQLException;
 import java.util.HashMap;

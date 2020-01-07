@@ -1,6 +1,6 @@
-package com.example.emag.dao;
+package com.example.emag.model.dao;
 
-import com.example.emag.model.Review;
+import com.example.emag.model.pojo.Review;
 import java.sql.SQLException;
 import java.util.List;
 

@@ -1,10 +1,11 @@
 package com.example.emag.controller;
 
-import com.example.emag.dao.*;
-import com.example.emag.model.Address;
-import com.example.emag.model.Order;
-import com.example.emag.model.Product;
-import com.example.emag.model.User;
+import com.example.emag.model.dao.*;
+import com.example.emag.model.dto.RegisterUserDto;
+import com.example.emag.model.pojo.Address;
+import com.example.emag.model.pojo.Order;
+import com.example.emag.model.pojo.Product;
+import com.example.emag.model.pojo.User;
 import com.example.emag.utils.UserUtil;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -73,63 +74,49 @@ public class UserController {
 
     //register
     @PostMapping("/register")
-    public String register(@RequestParam String firstName,
-                           @RequestParam String lastName,
-                           @RequestParam String username,
-                           @RequestParam String email,
-                           @RequestParam String password,
-                           @RequestParam String password2,
-                           @RequestParam(defaultValue="false") boolean subscribed,
-                            Model model) {
+    public String register(@RequestBody RegisterUserDto userDto, HttpSession session) {
 
-        if(!UserUtil.isFirstNameValid(firstName)){
-            model.addAttribute("error", "First name should be at least 2 characters long " +
-                    "and start with upper case caracter!");
+        if(!UserUtil.isFirstNameValid(userDto.getFirst_name())){
+
             return "register";
         }
 
-        if(!UserUtil.isLastNameValid(lastName)){
-            model.addAttribute("error", "Last name should be at least 2 characters long " +
-                    "and start with upper case caracter!");
+        if(!UserUtil.isLastNameValid(userDto.getLast_name())){
+
             return "register";
         }
 
-        if(!UserUtil.isUsernameValid(username)){
-            model.addAttribute("error", "Username should be at least 4 characters long");
+        if(!UserUtil.isUsernameValid(userDto.getUserName())){
+
             return "register";
         }
 
-        if(!UserUtil.isEMailValid(email)){
-            model.addAttribute("error", "E-mail address should be a valid one!");
+        if(!UserUtil.isEMailValid(userDto.getEMail())){
+
             return "register";
         }
 
-        if(!UserUtil.isPasswordValid(password)) {
-            model.addAttribute("error", "Password should contains at least one digit, " +
-                    "at least one lower case character, at least one upper case character and " +
-                    "at least one special character from [@ # $ % ! .]");
+        if(!UserUtil.isPasswordValid(userDto.getPassword())) {
+
             return "register";
         }
 
-        if (!password.equals(password2)) {
-            model.addAttribute("error", "The passwords does not match each other!");
+        if (!userDto.getPassword().equals(userDto.getConfirmPassword())) {
+
             return "register";
         }
 
         try {
-            if (!UserDAO.getInstance().checkIfUserExists(email)) {
-                User user = new User(firstName, lastName, username, password, email, subscribed);
+            if (!UserDAO.getInstance().checkIfUserExists(userDto.getEMail())) {
+                User user = new User(userDto.getFirst_name(), userDto.getLast_name(), userDto.getUserName(), userDto.getPassword(), userDto.getEMail(), userDto.isSubscribed());
                 UserDAO.getInstance().registerUser(user);
-                model.addAttribute("msg", "success");
                 return "login";
             } else {
-                model.addAttribute("error", "User with that e-mail already exists");
                 return "register";
             }
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
-        model.addAttribute("error", "Error");
         return "register";
     }
 
@@ -398,7 +385,7 @@ public class UserController {
             products = ProductDAO.getInstance().getFavouriteProducts(userId);
             product = ProductDAO.getInstance().getProductById(id);
             for (Product p : products) {
-                if (p.getId().equals(product.getId())) {
+                if (p.getId() == (product.getId())) {
                     model.addAttribute("error", "this product already present in favourite list");
                     return;
                 }

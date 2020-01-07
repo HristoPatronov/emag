@@ -1,4 +1,4 @@
-package com.example.emag.model;
+package com.example.emag.model.pojo;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
