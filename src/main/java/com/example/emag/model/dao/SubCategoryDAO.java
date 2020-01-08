@@ -33,4 +33,22 @@ public class SubCategoryDAO implements ISubCategoryDAO {
         }
         return subCategories;
     }
+
+    @Override
+    public SubCategory getSubcategoryById(long subCategoryId) throws SQLException {
+        Connection connection = DBManager.getInstance().getConnection();
+        String url = "SELECT sc.*, c.* FROM sub_categories AS sc JOIN categories AS c ON sc.category_id = c.id WHERE sc.id = ?;";
+        SubCategory subCategory = null;
+        try (PreparedStatement statement = connection.prepareStatement(url)) {
+            statement.setLong(1, subCategoryId);
+            ResultSet set = statement.executeQuery();
+            set.next();
+            subCategory = new SubCategory(set.getLong(1),
+                    set.getString(2),
+                    set.getBoolean(3),
+                    new Category(set.getLong(5),
+                            set.getString(6)));
+        }
+        return subCategory;
+    }
 }

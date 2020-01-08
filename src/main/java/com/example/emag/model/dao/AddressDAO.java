@@ -81,7 +81,9 @@ public class AddressDAO implements IAddressDAO {
         try(PreparedStatement statement = connection.prepareStatement(url)) {
             statement.setLong(1, addressId);
             ResultSet set = statement.executeQuery();
-            set.next();
+            if (!set.next()) {
+                return null;
+            }
             address = new Address(set.getInt(1),
                     set.getString(2),
                     set.getString(3),

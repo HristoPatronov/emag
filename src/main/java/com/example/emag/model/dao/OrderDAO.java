@@ -30,7 +30,7 @@ public class OrderDAO implements IOrderDAO {
     }
 
     @Override
-    public List<Order> getOrdersByUserId(Integer userId) throws SQLException {
+    public List<Order> getOrdersByUserId(long userId) throws SQLException {
         List<Order> orders = new ArrayList<>();
         Connection connection = DBManager.getInstance().getConnection();
         String url = "SELECT o.*,u.* ,pt.*, s.* FROM orders AS o " +
@@ -38,7 +38,7 @@ public class OrderDAO implements IOrderDAO {
                 "JOIN statuses AS s ON o.status_id = s.id " +
                 "JOIN users AS u ON o.user_id = u.id WHERE o.user_id = ?;";
         try(PreparedStatement statement = connection.prepareStatement(url)) {
-            statement.setInt(1, userId);
+            statement.setLong(1, userId);
             ResultSet set = statement.executeQuery();
             while (set.next()){
                 Order order = new Order(set.getInt(1),
@@ -59,5 +59,33 @@ public class OrderDAO implements IOrderDAO {
             }
         }
         return orders;
+    }
+
+    @Override
+    public Order.Status getStatusById(long statusId) throws SQLException {
+        Connection connection = DBManager.getInstance().getConnection();
+        String url = "SELECT status_name FROM statuses WHERE id = ?;";
+        Order.Status status = null;
+        try(PreparedStatement statement = connection.prepareStatement(url)) {
+            statement.setLong(1, statusId);
+            ResultSet set = statement.executeQuery();
+            set.next();
+            status = new Order.Status(statusId, set.getString(1));
+        }
+        return status;
+    }
+
+    @Override
+    public Order.PaymentType getPaymentTypeById(long paymentTypeId) throws SQLException {
+        Connection connection = DBManager.getInstance().getConnection();
+        String url = "SELECT payment_name FROM payment_types WHERE id = ?;";
+        Order.PaymentType type = null;
+        try(PreparedStatement statement = connection.prepareStatement(url)) {
+            statement.setLong(1, paymentTypeId);
+            ResultSet set = statement.executeQuery();
+            set.next();
+            type = new Order.PaymentType(paymentTypeId, set.getString(1));
+        }
+        return type;
     }
 }

@@ -7,9 +7,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@NoArgsConstructor
+import java.util.Objects;
+
 @Getter
 @Setter
+@NoArgsConstructor
 @AllArgsConstructor
 public class User {
 
@@ -30,41 +32,16 @@ public class User {
         setSubscribed(dto.isSubscribed());
     }
 
-//    public User(String first_name, String last_name, String userName, String password, String eMail) {
-//        this.first_name = first_name;
-//        this.last_name = last_name;
-//        this.userName = userName;
-//        this.password = password;
-//        this.eMail = eMail;
-//    }
-//
-//    public User(String first_name, String last_name, String userName, String password, String eMail, boolean subscribed) {
-//        this.first_name = first_name;
-//        this.last_name = last_name;
-//        this.userName = userName;
-//        this.password = password;
-//        this.eMail = eMail;
-//        this.subscribed = subscribed;
-//    }
-//
-//    public User(Integer id, String first_name, String last_name, String userName, String password, String eMail, boolean admin) {
-//        this.id = id;
-//        this.first_name = first_name;
-//        this.last_name = last_name;
-//        this.userName = userName;
-//        this.password = password;
-//        this.eMail = eMail;
-//        this.admin = admin;
-//    }
-//
-//    public User(Integer id, String first_name, String last_name, String userName, String password, String eMail, boolean admin, boolean subscribed) {
-//        this.id = id;
-//        this.first_name = first_name;
-//        this.last_name = last_name;
-//        this.userName = userName;
-//        this.password = password;
-//        this.eMail = eMail;
-//        this.admin = admin;
-//        this.subscribed = subscribed;
-//    }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return Objects.equals(eMail, user.eMail);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(eMail);
+    }
 }

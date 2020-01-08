@@ -6,6 +6,7 @@ import com.example.emag.exceptions.NotFoundException;
 import com.example.emag.model.dao.ProductDAO;
 import com.example.emag.model.dto.ProductFilteringDTO;
 import com.example.emag.model.pojo.Product;
+import com.example.emag.model.pojo.Specification;
 import com.example.emag.model.pojo.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -23,25 +24,17 @@ public class ProductController extends AbstractController{
 
     //return product with its information OK
     @GetMapping("/products/{productId}")
-    public Product getProduct(@PathVariable(name = "productId") long productId, HttpSession session) throws SQLException {
-        User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
-        if(user == null){
-            throw new AuthorizationException();
-        }
+    public Product getProduct(@PathVariable(name = "productId") long productId,
+                              HttpSession session) throws SQLException {
         Product product = productDao.getProductById(productId);
-        if (product == null) {
-            throw new NotFoundException("Product not found");
-        }
+        checkForProductExistence(product);
         return product;
     }
 
-    //return products by search TODO
-    @PutMapping("/products/search")
-    public List<Product> productsFromSearch(@RequestBody ProductFilteringDTO productFilteringDTO, HttpSession session) throws SQLException {
-        User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
-        if(user == null){
-            throw new AuthorizationException();
-        }
+    //return products by search
+    @PostMapping("/products/search")
+    public List<Product> productsFromSearch(@RequestBody ProductFilteringDTO productFilteringDTO,
+                                            HttpSession session) throws SQLException {
         //TODO validete input data
         if (productFilteringDTO.getSubCategoryId() == null && productFilteringDTO.getSearchText() == null){
             throw new BadRequestException("You cannot search for products without sub category and search text");
@@ -60,8 +53,10 @@ public class ProductController extends AbstractController{
                                                                 productFilteringDTO.getMaxPrice(),
                                                                 productFilteringDTO.getOrderBy());
         } else {
-            throw new BadRequestException("Can't search without good input information");        }
+            throw new BadRequestException("Can't search without good input information");
+        }
         return currentProducts;
     }
 
+    //TODO specification
 }

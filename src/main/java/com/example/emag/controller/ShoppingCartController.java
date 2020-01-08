@@ -1,6 +1,5 @@
 package com.example.emag.controller;
 
-import com.example.emag.exceptions.AuthorizationException;
 import com.example.emag.exceptions.BadRequestException;
 import com.example.emag.exceptions.NotFoundException;
 import com.example.emag.model.dao.DBManager;
@@ -28,29 +27,22 @@ public class ShoppingCartController extends AbstractController {
     private OrderDAO orderDao;
 
     //get products in cart
-    @GetMapping("/cart")
+    @GetMapping("/users/cart")
     public Map<Product, Integer> getProductsFromCart(HttpSession session) throws SQLException {
         User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
-        if(user == null){
-            throw new AuthorizationException();
+        checkForLoggedUser(user);
+        if (session.getAttribute("cart") == null) {
+            return null;
         }
-        Map<Product, Integer> products;
-        if (session.getAttribute("cart") != null) {
-            products = (Map<Product, Integer>) session.getAttribute("cart");
-        } else {
-            throw new NotFoundException("The cart is empty");
-        }
-        return products;
+        return (Map<Product, Integer>) session.getAttribute("cart");
     }
 
     //add product to cart
-    @PostMapping("/cart/products/{productId}")
-    public void addProductToCart(@PathVariable(name = "productId") long productId,
+    @PostMapping("/users/cart/products/{productId}")
+    public Map<Product, Integer> addProductToCart(@PathVariable(name = "productId") long productId,
                                  HttpSession session) throws SQLException {
         User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
-        if(user == null){
-            throw new AuthorizationException();
-        }
+        checkForLoggedUser(user);
         Map<Product, Integer> products = new HashMap<>();
         if (session.getAttribute("cart") != null) {
             products = (Map<Product, Integer>) session.getAttribute("cart");
@@ -68,18 +60,17 @@ public class ShoppingCartController extends AbstractController {
                 throw new BadRequestException("This product already in cart!");
             }
         } else {
-            throw new NotFoundException("This product doesn't exist");
+            throw new NotFoundException("The product is ot available!");
         }
+        return products;
     }
 
     //remove product from cart
-    @DeleteMapping("/cart/products/{productId}")
-    public void removeProductFromCart(@PathVariable(name = "productId") long productId,
+    @DeleteMapping("/users/cart/products/{productId}")
+    public Map<Product, Integer> removeProductFromCart(@PathVariable(name = "productId") long productId,
                                       HttpSession session) throws SQLException {
         User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
-        if(user == null){
-            throw new AuthorizationException();
-        }
+        checkForLoggedUser(user);
         Map<Product, Integer> products;
         if (session.getAttribute("cart") != null){
             products = (Map<Product, Integer>) session.getAttribute("cart");
@@ -102,17 +93,16 @@ public class ShoppingCartController extends AbstractController {
         } else {
             throw new NotFoundException("This product is not in cart!");
         }
+        return products;
     }
 
     //edit quantities in cart
-    @PutMapping("/cart/products/{productId}/pieces/{quantity}")
-    public void editProductsInCart(@PathVariable(name = "productId") long productId,
+    @PutMapping("/users/cart/products/{productId}/pieces/{quantity}")
+    public Map<Product, Integer> editProductsInCart(@PathVariable(name = "productId") long productId,
                                    @PathVariable(name = "quantity") int quantity,
                                    HttpSession session) throws SQLException {
         User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
-        if(user == null){
-            throw new AuthorizationException();
-        }
+        checkForLoggedUser(user);
         Map<Product, Integer> products;
         if (session.getAttribute("cart") != null){
             products = (Map<Product, Integer>) session.getAttribute("cart");
@@ -144,18 +134,15 @@ public class ShoppingCartController extends AbstractController {
         } else {
             throw new NotFoundException("This product is not in cart!");
         }
-
+        return products;
     }
 
     //checkout
-    @GetMapping("/checkout/{paymentType}")
-    public void checkout(@PathVariable long paymentType,
+    @PostMapping("/users/cart/checkout/{paymentType}")
+    public Order checkout(@PathVariable long paymentType,
                          HttpSession session) throws SQLException {
-        //TODO check quantity sold and remove product quantity from DB
         User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
-        if(user == null){
-            throw new AuthorizationException();
-        }
+        checkForLoggedUser(user);
         Map<Product, Integer> products;
         if (session.getAttribute("cart") != null){
             products = (Map<Product, Integer>) session.getAttribute("cart");
@@ -167,15 +154,13 @@ public class ShoppingCartController extends AbstractController {
             double discount = (double) product.getDiscount()/ 100;
             totalPrice += product.getPrice()*(1 - discount)*products.get(product);
         }
-        int userId = (int) session.getAttribute("userId");
-        Order order = new Order(totalPrice, LocalDate.now(), user, new Order.PaymentType(paymentType));
+        Order order = new Order(totalPrice, LocalDate.now(), user, new Order.PaymentType(paymentType),
+                new Order.Status(1));
         try {
             DBManager.getInstance().getConnection().setAutoCommit(false);
             orderDao.addOrder(order);
             productDao.addProductsToOrder(products, order.getId());
-            // remove products from stock
             productDao.removeProducts(products);
-            //remove reserved quantities
             productDao.removeReservedQuantities(products);
             DBManager.getInstance().getConnection().commit();
             session.setAttribute("cart", null);
@@ -193,5 +178,8 @@ public class ShoppingCartController extends AbstractController {
                 System.out.println(e.getMessage());
             }
         }
+        order.setPaymentType(orderDao.getPaymentTypeById(paymentType));
+        order.setStatus(orderDao.getStatusById(order.getStatus().getId()));
+        return order;
     }
 }

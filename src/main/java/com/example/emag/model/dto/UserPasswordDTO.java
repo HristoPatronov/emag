@@ -9,12 +9,9 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class EditProductDTO {
+public class UserPasswordDTO {
 
-    private long id;
-    private String name;
-    private String description;
-    private Double price;
-    private int discount;
-    private int stock;
+    String oldPassword;
+    String newPassword;
+    String confirmPassword;
 }

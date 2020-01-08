@@ -8,5 +8,7 @@ import java.util.List;
 public interface IOrderDAO {
 
     void addOrder(Order order) throws SQLException;
-    List<Order> getOrdersByUserId(Integer userId) throws SQLException;
+    List<Order> getOrdersByUserId(long userId) throws SQLException;
+    Order.Status getStatusById(long statusId) throws SQLException;
+    Order.PaymentType getPaymentTypeById(long paymentTypeId) throws SQLException;
 }

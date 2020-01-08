@@ -2,6 +2,7 @@ package com.example.emag.model.dao;
 
 import com.example.emag.model.pojo.Category;
 import com.example.emag.model.pojo.Product;
+import com.example.emag.model.pojo.Specification;
 import com.example.emag.model.pojo.SubCategory;
 import org.springframework.stereotype.Component;
 
@@ -199,14 +200,14 @@ public class ProductDAO implements IProductDAO {
     }
 
     @Override
-    public List<Product> getFavouriteProducts(Integer userId) throws SQLException {
+    public List<Product> getFavouriteProducts(long userId) throws SQLException {
         List<Product> products = new ArrayList<>();
         Connection connection = DBManager.getInstance().getConnection();
         String url = "SELECT p.*, sc.*, c.* FROM products AS p JOIN sub_categories AS sc ON p.sub_category_id = sc.id JOIN categories AS c ON sc.category_id = c.id " +
                 " JOIN users_have_favourite_products AS uhfp " +
                 "ON p.id = uhfp.product_id JOIN users AS u ON uhfp.user_id = u.id WHERE u.id = ?;";
         try(PreparedStatement statement = connection.prepareStatement(url)) {
-            statement.setInt(1, userId);
+            statement.setLong(1, userId);
             ResultSet set = statement.executeQuery();
             while (set.next()){
                 Product product = new Product(set.getLong(1),
@@ -227,13 +228,13 @@ public class ProductDAO implements IProductDAO {
     }
 
     @Override
-    public Map<Product, Integer> getProductsByOrder(Integer orderId) throws SQLException {
+    public Map<Product, Integer> getProductsByOrder(long orderId) throws SQLException {
         Map<Product, Integer> products = new HashMap<>();
         Connection connection = DBManager.getInstance().getConnection();
         String url = "SELECT p.*, sc.*, c.*, ohp.quantity FROM products AS p JOIN sub_categories AS sc ON p.sub_category_id = sc.id JOIN categories AS c ON sc.category_id = c.id JOIN orders_have_products AS ohp ON p.id = ohp.product_id " +
                 "JOIN orders AS o ON ohp.order_id = o.id WHERE o.id = ?;";
         try(PreparedStatement statement = connection.prepareStatement(url)) {
-            statement.setInt(1, orderId);
+            statement.setLong(1, orderId);
             ResultSet set = statement.executeQuery();
             while (set.next()){
                 Product product = new Product(set.getLong(1),
@@ -275,23 +276,23 @@ public class ProductDAO implements IProductDAO {
 //    }
 
     @Override
-    public void addFavouriteProduct(Integer userId, Integer productId) throws SQLException {
+    public void addFavouriteProduct(long userId, long productId) throws SQLException {
         Connection connection = DBManager.getInstance().getConnection();
         String url = "INSERT INTO users_have_favourite_products (user_id, product_id) VALUES (?, ?);";
         try(PreparedStatement statement = connection.prepareStatement(url)) {
-            statement.setInt(1, userId);
-            statement.setInt(2, productId);
+            statement.setLong(1, userId);
+            statement.setLong(2, productId);
             statement.executeUpdate();
         }
     }
 
     @Override
-    public void removeFavouriteProduct(Integer userId, Integer productId) throws SQLException {
+    public void removeFavouriteProduct(long userId, long productId) throws SQLException {
         Connection connection = DBManager.getInstance().getConnection();
         String url = "DELETE FROM users_have_favourite_products WHERE user_id = ? AND product_id = ?";
         try(PreparedStatement statement = connection.prepareStatement(url)) {
-            statement.setInt(1, userId);
-            statement.setInt(2, productId);
+            statement.setLong(1, userId);
+            statement.setLong(2, productId);
             statement.executeUpdate();
         }
     }

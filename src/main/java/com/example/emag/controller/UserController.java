@@ -4,29 +4,22 @@ import com.example.emag.exceptions.AuthorizationException;
 import com.example.emag.exceptions.BadRequestException;
 import com.example.emag.exceptions.NotFoundException;
 import com.example.emag.model.dao.*;
-import com.example.emag.model.dto.LoginUserDTO;
-import com.example.emag.model.dto.RegisterUserDTO;
-import com.example.emag.model.dto.UserWithoutPasswordDTO;
+import com.example.emag.model.dto.*;
 import com.example.emag.model.pojo.Address;
 import com.example.emag.model.pojo.Order;
 import com.example.emag.model.pojo.Product;
 import com.example.emag.model.pojo.User;
-import com.example.emag.utils.UserUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 @RestController
 public class UserController extends AbstractController {
@@ -35,11 +28,17 @@ public class UserController extends AbstractController {
 
     @Autowired
     private UserDAO userDao;
+
     @Autowired
     private AddressDAO addressDao;
+
     @Autowired
     private ProductDAO productDao;
 
+    @Autowired
+    private OrderDAO orderDao;
+
+    //register
     @PostMapping("/users")
     public UserWithoutPasswordDTO register(@RequestBody RegisterUserDTO userDto,
                                            HttpSession session) throws SQLException{
@@ -50,21 +49,18 @@ public class UserController extends AbstractController {
         return new UserWithoutPasswordDTO(user);
     }
 
+    //login
     @PostMapping("/users/login")
     public UserWithoutPasswordDTO login(@RequestBody LoginUserDTO userDto,
                                         HttpSession session) throws SQLException {
         //TODO validate data in userDto
         User user = userDao.getUserByEmail(userDto.getEMail());
-        if(user == null){
+        checkForLoggedUser(user);
+        if(!passwordValid(user, userDto)) {
             throw new AuthorizationException("Invalid credentials");
         }
-        if(passwordValid(user, userDto)) {
-            session.setAttribute(SESSION_KEY_LOGGED_USER, user);
-            return new UserWithoutPasswordDTO(user);
-        }
-        else{
-            throw new AuthorizationException("Invalid credentials");
-        }
+        session.setAttribute(SESSION_KEY_LOGGED_USER, user);
+        return new UserWithoutPasswordDTO(user);
     }
 
     private boolean passwordValid(User user, LoginUserDTO userDTO) {
@@ -74,6 +70,7 @@ public class UserController extends AbstractController {
         return false;
     }
 
+    //logout
     @PostMapping("/users/logout")
     public void logout(HttpSession session) throws SQLException{
         if (session.getAttribute("cart") == null) {
@@ -84,35 +81,31 @@ public class UserController extends AbstractController {
         session.invalidate();
     }
 
+    //change subscription
     @PutMapping("/users/subscription")
-    public void unsubscribe(HttpSession session) throws SQLException {
+    public UserWithoutPasswordDTO unsubscribe(HttpSession session) throws SQLException {
         User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
-        if(user == null){
-            throw new AuthorizationException();
-        }
+        checkForLoggedUser(user);
         user.setSubscribed(!user.isSubscribed());
         userDao.changeSubscriptionStatus(user.getId(), user.isSubscribed());
         session.setAttribute(SESSION_KEY_LOGGED_USER, user);
-        //TODO return UserWithoutPasswordDTO
-    }
-
-    @GetMapping("/users")
-    public UserWithoutPasswordDTO getInfo(HttpSession session) throws SQLException {
-        User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
-        if(user == null){
-            throw new AuthorizationException();
-        }
         return new UserWithoutPasswordDTO(user);
     }
 
-    //update Personal info
+    //get user info
+    @GetMapping("/users")
+    public UserWithoutPasswordDTO getInfo(HttpSession session) throws SQLException {
+        User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
+        checkForLoggedUser(user);
+        return new UserWithoutPasswordDTO(user);
+    }
+
+    //update user info
     @PutMapping("/users")
     public UserWithoutPasswordDTO updateUserInfo(@RequestBody UserWithoutPasswordDTO userDto,
                                                  HttpSession session) throws SQLException {
         User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
-        if (user == null) {
-            throw new AuthorizationException();
-        }
+        checkForLoggedUser(user);
         //TODO validate input data
         user.setFirst_name(userDto.getFirst_name());
         user.setLast_name(userDto.getLast_name());
@@ -120,199 +113,177 @@ public class UserController extends AbstractController {
         userDao.updateUserInfo(user);
         return new UserWithoutPasswordDTO(user);
     }
-//
-//    @PutMapping("/user/changePassword")
-//    public String userChangePassword(@RequestParam String oldPassword, @RequestParam String newPassword, HttpSession session, Model model, HttpServletResponse response){
-//        if(session.getAttribute("userId") == null) {
-//            model.addAttribute("error", "you should be logged in");
-//            response.setStatus(405);
-//            return "login";
-//        }
-//        int userId = (int) session.getAttribute("userId");
-//        try {
-//            User user = UserDAO.getInstance().getUserById(userId);
-//            if (user.getPassword().equals(oldPassword)){
-//                UserDAO.getInstance().changePassword(userId, newPassword);
-//                return "user/info";
-//            } else {
-//                model.addAttribute("error", " old password does not match");
-//                return "user/changePassword";
-//            }
-//        } catch (SQLException e) {
-//            System.out.println(e.getMessage());
-//        }
-//        return "home";
-//    }
-//
+
+    //change password
+    @PutMapping("/users/password")
+    public UserWithoutPasswordDTO userChangePassword(@RequestBody UserPasswordDTO userPasswordDto,
+                                     HttpSession session) throws SQLException {
+        User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
+        checkForLoggedUser(user);
+        if (!userPasswordDto.getOldPassword().equals(user.getPassword())) {
+            throw new AuthorizationException("The old password does not match to the current password");
+        }
+        if (!userPasswordDto.getNewPassword().equals(userPasswordDto.getConfirmPassword())) {
+            throw new BadRequestException("The new password does not match to confirm password");
+        }
+        user.setPassword(userPasswordDto.getNewPassword());
+        userDao.changePassword(user.getId(), userPasswordDto.getNewPassword());
+        return new UserWithoutPasswordDTO(user);
+    }
+
    //get all addresses
     @GetMapping("/users/addresses")
-    public List<Address> allAdressesByUserId(HttpSession session) throws SQLException {
+    public List<AddressDTO> allAdressesByUserId(HttpSession session) throws SQLException {
         User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
-        if(user == null){
-            throw new AuthorizationException();
+        checkForLoggedUser(user);
+        List<Address> addresses = addressDao.getAllAddresses(user.getId());
+        if (addresses == null) {
+            throw new NotFoundException("There are no addresses found!");
         }
-        return addressDao.getAllAddresses(user.getId());
+        List<AddressDTO> addressesDto = new ArrayList<>();
+        for (Address address : addresses) {
+            addressesDto.add(new AddressDTO(address));
+        }
+        return addressesDto;
     }
 
     //add address
     @PostMapping("/users/addresses")
-    public Address addAddress(@RequestBody Address address, HttpSession session) throws SQLException {
+    public AddressDTO addAddress(@RequestBody Address address, HttpSession session) throws SQLException {
         User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
-        if(user == null){
-            throw new AuthorizationException();
-        }
+        checkForLoggedUser(user);
         //TODO validete input info
         address.setUser(user);
         addressDao.addAddress(user.getId(), address);
-        return address;
+        return new AddressDTO(address);
     }
 
     //remove address
     @DeleteMapping("/users/addresses/{addressId}")
-    public Address deleteAddress(@PathVariable(name="addressId") long addressId, HttpSession session) throws SQLException {
+    public AddressDTO deleteAddress(@PathVariable(name="addressId") long addressId, HttpSession session) throws SQLException {
         User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
-        if(user == null){
-            throw new AuthorizationException();
-        }
+        checkForLoggedUser(user);
         Address address = addressDao.getAddress(addressId);
-        if (address == null) {
-            throw new NotFoundException("Address not found!");
+        checkForAddressExistence(address);
+        List<Address> addresses = addressDao.getAllAddresses(user.getId());
+        if (!addresses.contains(address)) {
+            throw new AuthorizationException("This address does not belong to this user!");
         }
         addressDao.deleteAddress(addressId);
-        return address;
+        return new AddressDTO(address);
     }
 
     //edit address
-    @PutMapping("/users/addresses/{addressId}")
-    public Address editAddress(@PathVariable(name="addressId") long addressId,
-                            @RequestBody Address address,
+    @PutMapping("/users/addresses")
+    public AddressDTO editAddress(@RequestBody Address address,
                             HttpSession session) throws SQLException {
         User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
-        if(user == null){
-            throw new AuthorizationException();
-        }
-        Address currentAddress = addressDao.getAddress(addressId);
-        if (address == null) {
-            throw new NotFoundException("Address not found!");
-        }
+        checkForLoggedUser(user);
+        Address currentAddress = addressDao.getAddress(address.getId());
+        checkForAddressExistence(currentAddress);
         //TODO validate input address
         if (currentAddress.getUser().getId() != user.getId()) {
-            throw new AuthorizationException("This address belongs to other user!");
+            throw new AuthorizationException("This address does not belong to this user!");
         }
-        currentAddress.setCity(address.getCity());
-        currentAddress.setDistrict(address.getDistrict());
-        currentAddress.setStreet(address.getStreet());
-        currentAddress.setZip(address.getZip());
-        currentAddress.setPhoneNumber(address.getPhoneNumber());
+        editAddressInfo(currentAddress, address);
         addressDao.updateAddress(currentAddress, currentAddress.getId());
-        return currentAddress;
+        return new AddressDTO(currentAddress);
     }
-//
-//    //get orders
-//    @GetMapping("/user/order")
-//    public List<Order> allOrders(HttpSession session, HttpServletResponse response, Model model){
-//        if(session.getAttribute("userId") == null) {
-//            model.addAttribute("error", "you should be logged in");
-//            response.setStatus(405);
-//            return null;
-//        }
-//        int userId = (int) session.getAttribute("userId");
-//        List<Order> list = new ArrayList<>();
-//        try {
-//            list = OrderDAO.getInstance().getOrdersByUserId(userId);
-//        } catch (SQLException e) {
-//            System.out.println(e.getMessage());
-//        }
-//        return list;
-//    }
-//
-//    //get products by order
-//    @GetMapping("/user/order/products")
-//    public Map<Product, Integer> productsByOrder(@RequestParam int id, HttpSession session, HttpServletResponse response, Model model){
-//        if(session.getAttribute("userId") == null) {
-//            model.addAttribute("error", "you should be logged in");
-//            response.setStatus(405);
-//            return null;
-//        }
-//        Map<Product, Integer> products = new HashMap<>();
-//        try {
-//            products = ProductDAO.getInstance().getProductsByOrder(id);
-//        } catch (SQLException e) {
-//            System.out.println(e.getMessage());
-//        }
-//        return products;
-//    }
-//
-//
-//    //tested OK
-//    //get favourite products
-//    @GetMapping("/user/favouriteProducts")
-//    public List<Product> getFavouriteProducts(HttpSession session, HttpServletResponse response, Model model) {
-//        if (session.getAttribute("userId") == null) {
-//            model.addAttribute("error", "you should be logged in");
-//            response.setStatus(405);
-//            return null;
-//        }
-//        List<Product> products = new ArrayList<>();
-//        try {
-//            products = ProductDAO.getInstance().getFavouriteProducts((Integer) session.getAttribute("userId"));
-//        } catch (SQLException e) {
-//            System.out.println(e.getMessage());
-//        }
-//        return products;
-//    }
-//
-//    //tested OK
-//    //add to favourite
-//    @PostMapping("/user/favouriteProducts/add")
-//    public void addProductToFavourite(@RequestParam int id, HttpSession session, HttpServletResponse response, Model model){   //id = productId
-//        if (session.getAttribute("userId") == null) {
-//            model.addAttribute("error", "you should be logged in");
-//            response.setStatus(405);
-//            return;
-//        }
-//        List<Product> products;
-//        int userId = (int) session.getAttribute("userId");
-//        Product product = null;
-//        try {
-//            products = ProductDAO.getInstance().getFavouriteProducts(userId);
-//            product = ProductDAO.getInstance().getProductById(id);
-//            for (Product p : products) {
-//                if (p.getId() == (product.getId())) {
-//                    model.addAttribute("error", "this product already present in favourite list");
-//                    return;
-//                }
-//            }
-//            if (product != null){
-//                ProductDAO.getInstance().addFavouriteProduct(userId, product.getId());
-//            } else {
-//                model.addAttribute("error", "this item doesn't exists");
-//            }
-//        } catch (SQLException e) {
-//            System.out.println(e.getMessage());
-//        }
-//    }
-//
-//    //tested OK
-//    //remove favourite product
-//    @DeleteMapping("/user/favouriteProducts/delete")
-//    public void deleteFavouriteProduct(@RequestParam int id, HttpSession session, HttpServletResponse response, Model model) {  //productId
-//        if (session.getAttribute("userId") == null) {
-//            model.addAttribute("error", "you should be logged in");
-//            response.setStatus(405);
-//            return;
-//        }
-//        List<Product> products;
-//        int userId = (int) session.getAttribute("userId");
-//        try {
-//            products = ProductDAO.getInstance().getFavouriteProducts(userId);
-//            for (Product p : products) {
-//                if(p.getId() == id) {
-//                    ProductDAO.getInstance().removeFavouriteProduct(userId, id);
-//                }
-//            }
-//        } catch (SQLException e) {
-//            System.out.println(e.getMessage());
-//        }
-//    }
+
+    private void editAddressInfo(Address currentAddress, Address updatedAddress) {
+        currentAddress.setCity(updatedAddress.getCity());
+        currentAddress.setDistrict(updatedAddress.getDistrict());
+        currentAddress.setStreet(updatedAddress.getStreet());
+        currentAddress.setZip(updatedAddress.getZip());
+        currentAddress.setPhoneNumber(updatedAddress.getPhoneNumber());
+    }
+
+    //get orders
+    @GetMapping("/users/orders")
+    public List<Order> allOrders(HttpSession session) throws SQLException {
+        User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
+        checkForLoggedUser(user);
+        List<Order> orders = orderDao.getOrdersByUserId(user.getId());
+        if (orders.isEmpty()) {
+            throw new NotFoundException("No orders found!");
+        }
+        return orders;
+    }
+
+    //get products by order
+    @GetMapping("/users/orders/{orderId}")
+    public Map<Product, Integer> productsByOrder(@PathVariable(name="orderId") long orderId,
+                                                 HttpSession session) throws SQLException {
+        User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
+        checkForLoggedUser(user);
+        List<Order> orders = orderDao.getOrdersByUserId(user.getId());
+        if (orders.isEmpty()) {
+            throw new NotFoundException("No orders found!");
+        }
+        if (!checkIfOrderExist(orders, orderId)) {
+            throw new NotFoundException("This order does not belong to the user!");
+        }
+        Map<Product, Integer> products = productDao.getProductsByOrder(orderId);
+        return products;
+    }
+
+    private boolean checkIfOrderExist(List<Order> orders, long orderId) {
+        for (Order order : orders) {
+            if (order.getId() == orderId) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    //get favourite products
+    @GetMapping("/users/favourites")
+    public List<ProductDTO> getFavouriteProducts(HttpSession session) throws SQLException {
+        User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
+        checkForLoggedUser(user);
+        List<Product> products = productDao.getFavouriteProducts(user.getId());
+        if (products.isEmpty()) {
+            throw new NotFoundException("No favourite products found!");
+        }
+        List<ProductDTO> productDto = new ArrayList<>();
+        for (Product product : products) {
+            productDto.add(new ProductDTO(product));
+        }
+        return productDto;
+    }
+
+    //add to favourite
+    @PostMapping("/users/favourites/{productId}")
+    public ProductDTO addFavouriteProduct(@PathVariable(name="productId") long productId,
+                                            HttpSession session) throws SQLException {
+        User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
+        checkForLoggedUser(user);
+        Product product = productDao.getProductById(productId);
+        checkForProductExistence(product);
+        List<Product> products = productDao.getFavouriteProducts(user.getId());
+        if (products.contains(product)) {
+            throw new BadRequestException("Product is already added to favourites!");
+        }
+        productDao.addFavouriteProduct(user.getId(), productId);
+        return new ProductDTO(product);
+    }
+
+    //delete from favourite
+    @DeleteMapping("/users/favourites/{productId}")
+    public ProductDTO deleteFavouriteProduct(@PathVariable(name="productId") long productId,
+                                            HttpSession session) throws SQLException {
+        User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
+        checkForLoggedUser(user);
+        List<Product> products = productDao.getFavouriteProducts(user.getId());
+        if (products.isEmpty()) {
+            throw new NotFoundException("No favourite products found!");
+        }
+        Product product = productDao.getProductById(productId);
+        checkForProductExistence(product);
+        if (!products.contains(product)) {
+            throw new BadRequestException("This product is not added to favourite products!");
+        }
+        productDao.removeFavouriteProduct(user.getId(), productId);
+        return new ProductDTO(product);
+    }
 }

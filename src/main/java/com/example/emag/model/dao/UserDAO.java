@@ -88,12 +88,12 @@ public class UserDAO implements IUserDAO {
     }
 
     @Override
-    public void changePassword(Integer id, String newPassword) throws SQLException {
+    public void changePassword(long id, String newPassword) throws SQLException {
         Connection connection = DBManager.getInstance().getConnection();
         String url = "UPDATE users SET password = ? WHERE id = ?;";
         try(PreparedStatement statement = connection.prepareStatement(url)) {
             statement.setString(1, newPassword);
-            statement.setInt(2, id);
+            statement.setLong(2, id);
             statement.executeUpdate();
         }
     }

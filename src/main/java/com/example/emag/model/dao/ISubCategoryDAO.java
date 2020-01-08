@@ -8,4 +8,5 @@ import java.util.List;
 public interface ISubCategoryDAO {
 
     List<SubCategory> getSubCategoryByCategory(long categoryId) throws SQLException;
+    SubCategory getSubcategoryById(long subCategoryId) throws SQLException;
 }

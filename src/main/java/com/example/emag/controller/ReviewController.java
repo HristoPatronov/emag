@@ -1,6 +1,5 @@
 package com.example.emag.controller;
 
-import com.example.emag.exceptions.AuthorizationException;
 import com.example.emag.exceptions.NotFoundException;
 import com.example.emag.model.dao.ProductDAO;
 import com.example.emag.model.dao.ReviewDAO;
@@ -22,8 +21,6 @@ import java.util.List;
 @RestController
 public class ReviewController extends AbstractController{
 
-
-
     @Autowired
     private ReviewDAO reviewDao;
 
@@ -36,13 +33,9 @@ public class ReviewController extends AbstractController{
                                                   @RequestBody AddReviewDTO addReviewDto,
                                                   HttpSession session) throws SQLException {
         User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
-        if(user == null){
-            throw new AuthorizationException();
-        }
+        checkForLoggedUser(user);
         Product product = productDao.getProductById(productId);
-        if (product == null) {
-            throw new NotFoundException("Product not found");
-        }
+        checkForProductExistence(product);
         //TODO validete review info
         Review review = new Review(addReviewDto);
         review.setDate(LocalDate.now());
@@ -52,13 +45,15 @@ public class ReviewController extends AbstractController{
         return new GetProductReviewDTO(review);
     }
 
+    //get all reviews for product
     @GetMapping("/products/{productId}/reviews")
     public List<GetProductReviewDTO> getAllReviewsForProduct(@PathVariable(name = "productId") long productId) throws SQLException{
         Product product = productDao.getProductById(productId);
-        if (product == null) {
-            throw new NotFoundException("Product not found");
-        }
+        checkForProductExistence(product);
         List<Review> reviews = reviewDao.getAllReviewsForProduct(product.getId());
+        if (reviews.isEmpty()) {
+            throw new NotFoundException("This product has no reviews!");
+        }
         List<GetProductReviewDTO> responseDto = new ArrayList<>();
         for (Review review : reviews) {
             responseDto.add(new GetProductReviewDTO(review));
@@ -66,75 +61,19 @@ public class ReviewController extends AbstractController{
         return responseDto;
     }
 
+    //get all reviews by user
     @GetMapping("/users/reviews")
     public List<GetUserReviewDTO> getAllReviewsForUser(HttpSession session) throws SQLException {
         User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
-        if(user == null){
-            throw new AuthorizationException();
-        }
+        checkForLoggedUser(user);
         List<Review> reviews = reviewDao.getAllReviewsForUser(user.getId());
+        if (reviews.isEmpty()) {
+            throw new NotFoundException("You have no reviews");
+        }
         List<GetUserReviewDTO> responseDto = new ArrayList<>();
         for (Review review : reviews) {
             responseDto.add(new GetUserReviewDTO(review));
         }
         return responseDto;
     }
-
-
-//    //add review to product
-//    @PostMapping("/addReview")
-//    public String addReview(@RequestParam String title,
-//                          @RequestParam String text,
-//                          @RequestParam int rating,
-//                          @RequestParam int productId,
-//                          HttpSession session,
-//                          HttpServletResponse response,
-//                          Model model) {
-//        if(session.getAttribute("userId") == null) {
-//            model.addAttribute("error", "you should be logged in");
-//            response.setStatus(405);
-//            return "login";
-//        }
-//        int userId = (int) session.getAttribute("userId");
-//        Review review = new Review(title, text, rating, LocalDate.now(), userId, productId);
-//        try {
-//            ReviewDAO.getInstance().addReview(review);
-//            model.addAttribute("msg", "success");
-//        } catch (SQLException e) {
-//            System.out.println(e.getMessage());
-//        }
-//        return "product";
-//    }
-
-//    //return reviews by product ID
-//    @GetMapping("/review")
-//    public List<Review> getReviewsByProductId(@RequestParam int productId) {
-//        List<Review> list = new ArrayList<>();
-//        try {
-//            list = ReviewDAO.getInstance().getAllReviewsForProduct(productId);
-//        } catch (SQLException e) {
-//            System.out.println(e.getMessage());
-//        }
-//        return list;
-//    }
-
-    //return reviews by user ID
-//    @GetMapping("/user/reviews")
-//    public List<Review> getReviewsByUserId(HttpSession session,
-//                                           HttpServletResponse response,
-//                                           Model model) {
-//        if(session.getAttribute("userId") == null) {
-//            model.addAttribute("error", "you should be logged in");
-//            response.setStatus(405);
-//            return null;
-//        }
-//        int userId = (int) session.getAttribute("userId");
-//        List<Review> list = new ArrayList<>();
-//        try {
-//            list = ReviewDAO.getInstance().getAllReviewsForUser(userId);
-//        } catch (SQLException e) {
-//            System.out.println(e.getMessage());
-//        }
-//        return list;
-//    }
 }

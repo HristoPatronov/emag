@@ -6,10 +6,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@NoArgsConstructor
-@AllArgsConstructor
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class UserWithoutPasswordDTO {
 
     private long id;
@@ -25,5 +25,4 @@ public class UserWithoutPasswordDTO {
         setEMail(user.getEMail());
         setSubscribed(user.isSubscribed());
     }
-
 }

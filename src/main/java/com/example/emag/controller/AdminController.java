@@ -1,17 +1,12 @@
 package com.example.emag.controller;
 
-import com.example.emag.exceptions.AuthorizationException;
-import com.example.emag.exceptions.NotFoundException;
 import com.example.emag.model.dao.ProductDAO;
 import com.example.emag.model.dao.SubCategoryDAO;
 import com.example.emag.model.dao.UserDAO;
 import com.example.emag.model.dto.EditProductDTO;
-import com.example.emag.model.dto.ProductFilteringDTO;
 import com.example.emag.model.pojo.Product;
-import com.example.emag.model.pojo.SubCategory;
 import com.example.emag.model.pojo.User;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
@@ -23,8 +18,10 @@ public class AdminController extends AbstractController{
 
     @Autowired
     private ProductDAO productDao;
+
     @Autowired
     private UserDAO userDao;
+
     @Autowired
     private SubCategoryDAO subCategoryDao;
 
@@ -32,53 +29,62 @@ public class AdminController extends AbstractController{
     @PostMapping("/admin/products")
     public Product addProduct(@RequestBody Product product, HttpSession session) throws SQLException {
         User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
-        if(user == null){
-            throw new AuthorizationException();
-        }
-        if(!user.isAdmin()) {
-            throw new AuthorizationException("You need to be admin to perform this!");
-        }
+        checkForLoggedUser(user);
+        checkForAdminRights(user);
         //TODO validate product
         productDao.addProduct(product);
-        //product.setSubCategory(subCategoryDao.getSubCategoryById(product.getSubCategory().getId()));
+        product.setSubCategory(subCategoryDao.getSubcategoryById(product.getSubCategory().getId()));
         return product;
     }
 
-    //remove product by ID
+    //remove product by ID TODO how to delete it from DB
     @DeleteMapping("/admin/products/{productId}")
     public Product removeProduct(@PathVariable(name="productId") long productId, HttpSession session) throws SQLException {
         User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
-        if(user == null){
-            throw new AuthorizationException();
-        }
-        if(!user.isAdmin()) {
-            throw new AuthorizationException("You need to be admin to perform this!");
-        }
+        checkForLoggedUser(user);
+        checkForAdminRights(user);
         Product product = productDao.getProductById(productId);
-        if (product == null) {
-            throw new NotFoundException("Product not found!");
-        }
+        checkForProductExistence(product);
         productDao.removeProduct(productId);
         return product;
     }
 
-    @PutMapping("admin/products/edit/{productId}")
-    public Product editProduct(@PathVariable(name = "productId")long productId, @RequestBody EditProductDTO editProductDTO, HttpSession session) throws SQLException {
+    //edit product
+    @PutMapping("admin/products")
+    public Product editProduct(@RequestBody EditProductDTO editProductDTO, HttpSession session) throws SQLException {
         User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
-        if(user == null){
-            throw new AuthorizationException();
+        checkForLoggedUser(user);
+        checkForAdminRights(user);
+        //TODO validate editProductDTO
+        Product fetchedProduct = productDao.getProductById(editProductDTO.getId());
+        checkForProductExistence(fetchedProduct);
+        if (editProductDTO.getDiscount() > fetchedProduct.getDiscount()) {
+            sendEmailToSubscribedUsers(editProductDTO.getDiscount(), editProductDTO);
         }
-        if(!user.isAdmin()) {
-            throw new AuthorizationException("You need to be admin to perform this!");
-        }
-        //TODO validate
-        Product fetchedProduct = productDao.getProductById(productId);
-        fetchedProduct.setName(editProductDTO.getName());
-        fetchedProduct.setDescription(editProductDTO.getDescription());
-        fetchedProduct.setPrice(editProductDTO.getPrice());
-        fetchedProduct.setDiscount(editProductDTO.getDiscount());
-        fetchedProduct.setStock(editProductDTO.getStock());
-        productDao.editProduct(fetchedProduct);
+        productDao.editProduct(editProductInfo(fetchedProduct, editProductDTO));
         return fetchedProduct;
+    }
+
+    private Product editProductInfo(Product currentProduct, EditProductDTO updatedProduct) {
+        currentProduct.setName(updatedProduct.getName());
+        currentProduct.setDescription(updatedProduct.getDescription());
+        currentProduct.setPrice(updatedProduct.getPrice());
+        currentProduct.setDiscount(updatedProduct.getDiscount());
+        currentProduct.setStock(updatedProduct.getStock());
+        return currentProduct;
+    }
+
+    //send e-mail to all subscribed users when discount is setted
+    private void sendEmailToSubscribedUsers(Integer discount, EditProductDTO product) throws SQLException {
+        List<String> emails = userDao.getAllSubscribedUsers();
+        double newPrice = product.getPrice()* (1 - (double)product.getDiscount()/100);
+        String subject = "Discount";
+        String body = String.format("Dear Mr./Ms., \n\nWe have a special discount of %d%s for our Product - %s" +
+                "\n\nYou can buy it now only for %.2f lv. instead of regular price of %.2f lv." +
+                "\n\nThe product is waiting for you" +
+                "\n\nYour Emag Team", discount, "%", product.getName(), newPrice, product.getPrice());
+        for (String email : emails) {
+            SendEmailController.sendMail(email, subject, body);
+        }
     }
 }
