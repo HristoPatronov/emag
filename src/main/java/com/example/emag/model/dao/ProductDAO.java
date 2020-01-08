@@ -43,19 +43,16 @@ public class ProductDAO implements IProductDAO {
     }
 
     @Override
-    public List<Product> getProductsBySubCategory(Integer subCategoryId, Double minPrice, Double maxPrice, String orderBy) throws SQLException {
+    public List<Product> getProductsBySubCategory(Long subCategoryId, String column, Double minPrice, Double maxPrice, String orderBy) throws SQLException {
         minPrice = minPrice == null ? MIN_PRICE_OF_PRODUCT : minPrice;
         maxPrice = maxPrice == null ? MAX_PRICE_OF_PRODUCT : maxPrice;
+        column = column == null ? "id" : column;
+        orderBy = orderBy == null ? "ASC":  orderBy;
         List<Product> products = new ArrayList<>();
         Connection connection = DBManager.getInstance().getConnection();
-        String url;
-        if (orderBy == null) {
-            url = "SELECT p.*, sc.*, c.* FROM products AS p JOIN sub_categories AS sc ON p.sub_category_id = sc.id JOIN categories AS c ON sc.category_id = c.id WHERE sc.sub_category_id = ? AND price BETWEEN ? AND ?;";
-        } else {
-            url = "SELECT p.*, sc.*, c.* FROM products AS p JOIN sub_categories AS sc ON p.sub_category_id = sc.id JOIN categories AS c ON sc.category_id = c.id WHERE sc.sub_category_id = ? AND price BETWEEN ? AND ? ORDER BY price " + orderBy + ";";
-        }
+        String url = "SELECT p.*, sc.*, c.* FROM products AS p JOIN sub_categories AS sc ON p.sub_category_id = sc.id JOIN categories AS c ON sc.category_id = c.id WHERE p.sub_category_id = ? AND price BETWEEN ? AND ? ORDER BY p."+ column + " " + orderBy + ";";
         try(PreparedStatement statement = connection.prepareStatement(url)) {
-            statement.setInt(1, subCategoryId);
+            statement.setLong(1, subCategoryId);
             statement.setDouble(2, minPrice);
             statement.setDouble(3, maxPrice);
             ResultSet set = statement.executeQuery();
@@ -105,17 +102,14 @@ public class ProductDAO implements IProductDAO {
     }
 
     @Override
-    public List<Product> getProductsFromSearch(String searchInput, Double minPrice, Double maxPrice, String orderBy) throws SQLException {
+    public List<Product> getProductsFromSearch(String searchInput, String column, Double minPrice, Double maxPrice, String orderBy) throws SQLException {
         minPrice = minPrice == null ? MIN_PRICE_OF_PRODUCT : minPrice;
         maxPrice = maxPrice == null ? MAX_PRICE_OF_PRODUCT : maxPrice;
+        column = column == null ? "id" : column;
+        orderBy = orderBy == null ? "ASC" : orderBy;
         List<Product> products = new ArrayList<>();
         Connection connection = DBManager.getInstance().getConnection();
-        String url;
-        if (orderBy == null) {
-            url = "SELECT p.*, sc.*, c.* FROM products AS p JOIN sub_categories AS sc ON p.sub_category_id = sc.id JOIN categories AS c ON sc.category_id = c.id WHERE p.name LIKE ? AND p.price BETWEEN ? AND ?;";
-        } else {
-            url = "SELECT p.*, sc.*, c.* FROM products AS p JOIN sub_categories AS sc ON p.sub_category_id = sc.id JOIN categories AS c ON sc.category_id = c.id WHERE p.name LIKE ? AND p.price BETWEEN ? AND ? ORDER BY p.price " + orderBy + ";";
-        }
+        String url = "SELECT p.*, sc.*, c.* FROM products AS p JOIN sub_categories AS sc ON p.sub_category_id = sc.id JOIN categories AS c ON sc.category_id = c.id WHERE p.name LIKE ? AND p.price BETWEEN ? AND ? ORDER BY p."+ column + " " + orderBy +";";
         try(PreparedStatement statement = connection.prepareStatement(url)) {
             statement.setString(1, "%" + searchInput + "%");
             statement.setDouble(2, minPrice);
@@ -163,6 +157,21 @@ public class ProductDAO implements IProductDAO {
         String url = "DELETE FROM products WHERE id = ?;";
         try(PreparedStatement statement = connection.prepareStatement(url)) {
             statement.setLong(1, productId);
+            statement.executeUpdate();
+        }
+    }
+
+    @Override
+    public void editProduct(Product product) throws SQLException {
+        Connection connection = DBManager.getInstance().getConnection();
+        String url = "UPDATE products SET name = ?, description = ?, price = ?, discount = ?, stock = ?  WHERE id = ?;";
+        try(PreparedStatement statement = connection.prepareStatement(url)) {
+            statement.setString(1, product.getName());
+            statement.setString(2, product.getDescription());
+            statement.setDouble(3, product.getPrice());
+            statement.setInt(4, product.getDiscount());
+            statement.setInt(5, product.getStock());
+            statement.setLong(6, product.getId());
             statement.executeUpdate();
         }
     }

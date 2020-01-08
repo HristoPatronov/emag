@@ -5,6 +5,8 @@ import com.example.emag.exceptions.NotFoundException;
 import com.example.emag.model.dao.ProductDAO;
 import com.example.emag.model.dao.SubCategoryDAO;
 import com.example.emag.model.dao.UserDAO;
+import com.example.emag.model.dto.EditProductDTO;
+import com.example.emag.model.dto.ProductFilteringDTO;
 import com.example.emag.model.pojo.Product;
 import com.example.emag.model.pojo.SubCategory;
 import com.example.emag.model.pojo.User;
@@ -60,41 +62,23 @@ public class AdminController extends AbstractController{
         return product;
     }
 
-    //set discount
-    @PutMapping("/setDiscount")
-    public Product setDiscountAtProduct(@RequestParam int Productid, @RequestParam int discount, Model model, HttpSession session) throws SQLException {
-        int id = (int) session.getAttribute("userId");
-            if (!userDao.isAdminByUserId(id)){
-                throw new AuthorizationException("You need to be admin to perform this");
-            }
-            Product product = productDao.getProductById(Productid);
-            if (product == null) {
-                throw new NotFoundException("The product doesn't exist");
-            }
-        productDao.setDiscount(Productid, discount);
-        model.addAttribute("discount", "Discount was set successfully");
-        //send email to subscribers
-        List<String> email = userDao.getAllSubscribedUsers();
-        for (String string : email){
-            SendEmailController.sendMail(string, "discount",
-                    discount + "% discount was setted to product " + product.getName() + " " +
-                            product.getDescription() + " available pcs: " + product.getStock());
+    @PutMapping("admin/products/edit/{productId}")
+    public Product editProduct(@PathVariable(name = "productId")long productId, @RequestBody EditProductDTO editProductDTO, HttpSession session) throws SQLException {
+        User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
+        if(user == null){
+            throw new AuthorizationException();
         }
-        return product;
-    }
-
-    //update quantity
-    @PutMapping("/updateQuantity")
-    public Product updateQuantity(@RequestParam int id, @RequestParam int newQuantity, Model model, HttpSession session) throws SQLException {
-        int userId = (Integer) session.getAttribute("userId");
-            if (!userDao.isAdminByUserId(userId)){
-                throw new AuthorizationException("You need to be admin to perform this");
-            }
-            Product product = productDao.getProductById(id);
-            if (product == null) {
-                throw new NotFoundException("Product doesn't exist");
-            }
-        productDao.updateQuantity(id, newQuantity);
-        return product;
+        if(!user.isAdmin()) {
+            throw new AuthorizationException("You need to be admin to perform this!");
+        }
+        //TODO validate
+        Product fetchedProduct = productDao.getProductById(productId);
+        fetchedProduct.setName(editProductDTO.getName());
+        fetchedProduct.setDescription(editProductDTO.getDescription());
+        fetchedProduct.setPrice(editProductDTO.getPrice());
+        fetchedProduct.setDiscount(editProductDTO.getDiscount());
+        fetchedProduct.setStock(editProductDTO.getStock());
+        productDao.editProduct(fetchedProduct);
+        return fetchedProduct;
     }
 }
