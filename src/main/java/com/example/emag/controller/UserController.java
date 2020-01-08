@@ -1,6 +1,8 @@
 package com.example.emag.controller;
 
 import com.example.emag.exceptions.AuthorizationException;
+import com.example.emag.exceptions.BadRequestException;
+import com.example.emag.exceptions.NotFoundException;
 import com.example.emag.model.dao.*;
 import com.example.emag.model.dto.LoginUserDTO;
 import com.example.emag.model.dto.RegisterUserDTO;
@@ -33,6 +35,10 @@ public class UserController extends AbstractController {
 
     @Autowired
     private UserDAO userDao;
+    @Autowired
+    private AddressDAO addressDao;
+    @Autowired
+    private ProductDAO productDao;
 
     @PostMapping("/users")
     public UserWithoutPasswordDTO register(@RequestBody RegisterUserDTO userDto,
@@ -69,7 +75,12 @@ public class UserController extends AbstractController {
     }
 
     @PostMapping("/users/logout")
-    public void login(HttpSession session){
+    public void logout(HttpSession session) throws SQLException{
+        if (session.getAttribute("cart") == null) {
+            throw new NotFoundException("The cart is empty");
+        }
+        Map<Product, Integer> products = (Map<Product, Integer>) session.getAttribute("cart");
+        productDao.removeReservedQuantities(products);
         session.invalidate();
     }
 
@@ -82,6 +93,7 @@ public class UserController extends AbstractController {
         user.setSubscribed(!user.isSubscribed());
         userDao.changeSubscriptionStatus(user.getId(), user.isSubscribed());
         session.setAttribute(SESSION_KEY_LOGGED_USER, user);
+        //TODO return UserWithoutPasswordDTO
     }
 
     @GetMapping("/users")
@@ -93,176 +105,21 @@ public class UserController extends AbstractController {
         return new UserWithoutPasswordDTO(user);
     }
 
-//    @GetMapping("/index")
-//    public String index() {
-//        return "home";
-//    }
-//
-//    @GetMapping("/login")
-//    public String login(Model model) {
-//        return "login";
-//    }
-//
-//    //login
-//    @PostMapping("/login")
-//    public String login(@RequestParam String email,
-//                        @RequestParam String password,
-//                        Model model,
-//                        HttpSession session) {
-//
-//        if(!UserUtil.isEMailValid(email)){
-//            model.addAttribute("error", "E-mail address should be a valid one!");
-//            return "login";
-//        }
-//        try {
-//                User user = UserDAO.getInstance().getUserByEmail(email);
-//                if (user != null && user.getPassword().equals(password)) {
-//                    session.setAttribute("userId", user.getId());
-//                    model.addAttribute("msg", "success");
-//                    if(user.isAdmin()) {
-//                        return "admin";
-//                    }
-//                    return "home";
-//                } else {
-//                    model.addAttribute("error", "Invalid credentials!"); //password does not match
-//                    return "login";
-//                }
-//        } catch (SQLException e) {
-//            System.out.println(e.getMessage());
-//        }
-//
-//        model.addAttribute("error", "Error");
-//        return "login";
-//    }
-//
-//    @GetMapping("/register")
-//    public String register(Model model) {
-//        return "register";
-//    }
-//
-//    //register
-//    @PostMapping("/register")
-//    public String register(@RequestBody RegisterUserDTO userDto, HttpSession session) {
-//
-//        if(!UserUtil.isFirstNameValid(userDto.getFirst_name())){
-//
-//            return "register";
-//        }
-//
-//        if(!UserUtil.isLastNameValid(userDto.getLast_name())){
-//
-//            return "register";
-//        }
-//
-//        if(!UserUtil.isUsernameValid(userDto.getUserName())){
-//
-//            return "register";
-//        }
-//
-//        if(!UserUtil.isEMailValid(userDto.getEMail())){
-//
-//            return "register";
-//        }
-//
-//        if(!UserUtil.isPasswordValid(userDto.getPassword())) {
-//
-//            return "register";
-//        }
-//
-//        if (!userDto.getPassword().equals(userDto.getConfirmPassword())) {
-//
-//            return "register";
-//        }
-//
-//        try {
-//            if (!UserDAO.getInstance().checkIfUserExists(userDto.getEMail())) {
-//                User user = new User(userDto.getFirst_name(), userDto.getLast_name(), userDto.getUserName(), userDto.getPassword(), userDto.getEMail(), userDto.isSubscribed());
-//                UserDAO.getInstance().registerUser(user);
-//                return "login";
-//            } else {
-//                return "register";
-//            }
-//        } catch (SQLException e) {
-//            System.out.println(e.getMessage());
-//        }
-//        return "register";
-//    }
-//
-//    //logout
-//    @GetMapping("/logout")
-//    public String logout(HttpSession session, HttpServletResponse response, Model model) {
-//        if(session.getAttribute("userId") == null) {
-//            model.addAttribute("error", "you should be logged in");
-//            response.setStatus(405);
-//            return "login";
-//        }
-//        if (session.getAttribute("cart") != null){
-//            Map<Product, Integer> products = (Map<Product, Integer>) session.getAttribute("cart");
-//            try {
-//                ProductDAO.getInstance().removeReservedQuantities(products);
-//            } catch (SQLException e) {
-//                System.out.println(e.getMessage());
-//            }
-//            session.setAttribute("cart", null);
-//        }
-//        session.setAttribute("userId", null);
-//        model.addAttribute("msg", "success");
-//        return "login";
-//    }
-//
-//    //unsubscribe
-//    @PutMapping("user/subscription")
-//    public String unsubscribe(@RequestParam(defaultValue = "false") boolean subscribed,
-//                              HttpSession session,
-//                              HttpServletResponse response,
-//                              Model model) {
-//        if(session.getAttribute("userId") == null) {
-//            model.addAttribute("error", "you should be logged in");
-//            response.setStatus(405);
-//            return "login";
-//        }
-//        int userId = (int) session.getAttribute("userId");
-//        try {
-//            UserDAO.getInstance().changeSubscriptionStatus(userId, subscribed);
-//        } catch (SQLException e) {
-//            System.out.println(e.getMessage());
-//        }
-//        return "home";
-//    }
-//
-//    //get Personal info
-//    @GetMapping("/user/info")
-//    public User getUserInfoById(HttpSession session, HttpServletResponse response, Model model){
-//        if(session.getAttribute("userId") == null) {
-//            model.addAttribute("error", "you should be logged in");
-//            response.setStatus(405);
-//            return null;
-//        }
-//        int userId = (int) session.getAttribute("userId");
-//        User user = null;
-//        try {
-//            user = UserDAO.getInstance().getUserById(userId);
-//        } catch (SQLException e) {
-//            System.out.println(e.getMessage());
-//        }
-//        return user;
-//    }
-//
-//    //update Personal info
-//    @PutMapping("/user/info/edit")
-//    public void updateUserInfo(@RequestBody User user, HttpSession session, HttpServletResponse response, Model model){
-//        if(session.getAttribute("userId") == null) {
-//            model.addAttribute("error", "you should be logged in");
-//            response.setStatus(405);
-//            return;
-//        }
-//        user.setId((int) session.getAttribute("userId"));
-//        try {
-//            UserDAO.getInstance().updateUserInfo(user);
-//        } catch (SQLException e) {
-//            System.out.println(e.getMessage());
-//        }
-//    }
+    //update Personal info
+    @PutMapping("/users")
+    public UserWithoutPasswordDTO updateUserInfo(@RequestBody UserWithoutPasswordDTO userDto,
+                                                 HttpSession session) throws SQLException {
+        User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
+        if (user == null) {
+            throw new AuthorizationException();
+        }
+        //TODO validate input data
+        user.setFirst_name(userDto.getFirst_name());
+        user.setLast_name(userDto.getLast_name());
+        user.setEMail(userDto.getEMail());
+        userDao.updateUserInfo(user);
+        return new UserWithoutPasswordDTO(user);
+    }
 //
 //    @PutMapping("/user/changePassword")
 //    public String userChangePassword(@RequestParam String oldPassword, @RequestParam String newPassword, HttpSession session, Model model, HttpServletResponse response){
@@ -287,101 +144,69 @@ public class UserController extends AbstractController {
 //        return "home";
 //    }
 //
-//    //get all addresses
-//    @GetMapping("/user/address")
-//    public List<Address> allAdressesByUserId(HttpSession session, HttpServletResponse response, Model model){
-//        if(session.getAttribute("userId") == null) {
-//            model.addAttribute("error", "you should be logged in");
-//            response.setStatus(405);
-//            return null;
-//        }
-//        int userId = (int) session.getAttribute("userId");
-//        List<Address> list = new ArrayList<>();
-//        try {
-//            list = AddressDAO.getInstance().getAllAddresses(userId);
-//        } catch (SQLException e) {
-//            System.out.println(e.getMessage());
-//        }
-//        return list;
-//    }
-//
-//    //add address
-//    @PostMapping("/user/address/add")
-//    public void addAddress(@RequestBody Address address,
-//                           HttpServletResponse response,
-//                           HttpSession session,
-//                           Model model) {
-//        if(session.getAttribute("userId") == null) {
-//            model.addAttribute("error", "you should be logged in");
-//            response.setStatus(405);
-//            return;
-//        }
-//        int userId = (int) session.getAttribute("userId");
-//        try {
-//            AddressDAO.getInstance().addAddress(userId, address);
-//            model.addAttribute("msg", "success");
-//        } catch (SQLException e) {
-//            System.out.println(e.getMessage());
-//        }
-//    }
-//
-//    //remove address TODO
-//    @DeleteMapping("/user/address/delete")
-//    public void deleteAddress(@RequestParam int addressId,
-//                              HttpServletResponse response,
-//                              HttpSession session,
-//                              Model model) {
-//        if(session.getAttribute("userId") == null) {
-//            model.addAttribute("error", "you should be logged in");
-//            response.setStatus(405);
-//            return;
-//        }
-//        int userId = (int) session.getAttribute("userId");
-//        try {
-//            List<Address> addresses = AddressDAO.getInstance().getAllAddresses(userId);
-//            for (Address address : addresses) {
-//                if (addressId == address.getId()) {
-//                    AddressDAO.getInstance().deleteAddress(addressId);
-//                    model.addAttribute("msg", "success");
-//                    return;
-//                }
-//            }
-//            model.addAttribute("error", "no such address");
-//            response.setStatus(405);
-//        } catch (SQLException e) {
-//            System.out.println(e.getMessage());
-//        }
-//    }
-//
-//    //edit address TODO
-//    @PutMapping("/user/address/edit")
-//    public void editAddress(@RequestBody Address address,
-//                            @RequestParam int addressId,
-//                            HttpServletResponse response,
-//                            HttpSession session,
-//                            Model model) {
-//        if(session.getAttribute("userId") == null) {
-//            model.addAttribute("error", "you should be logged in");
-//            response.setStatus(405);
-//            return;
-//        }
-//        int userId = (int) session.getAttribute("userId");
-//
-//        try {
-//            List<Address> addresses = AddressDAO.getInstance().getAllAddresses(userId);
-//            for (Address currentAddress : addresses) {
-//                if (addressId == currentAddress.getId()) {
-//                    AddressDAO.getInstance().updateAddress(address, addressId);
-//                    model.addAttribute("msg", "success");
-//                    return;
-//                }
-//            }
-//            model.addAttribute("error", "no such address");
-//            response.setStatus(405);
-//        } catch (SQLException e) {
-//            System.out.println(e.getMessage());
-//        }
-//    }
+   //get all addresses
+    @GetMapping("/users/addresses")
+    public List<Address> allAdressesByUserId(HttpSession session) throws SQLException {
+        User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
+        if(user == null){
+            throw new AuthorizationException();
+        }
+        return addressDao.getAllAddresses(user.getId());
+    }
+
+    //add address
+    @PostMapping("/users/addresses")
+    public Address addAddress(@RequestBody Address address, HttpSession session) throws SQLException {
+        User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
+        if(user == null){
+            throw new AuthorizationException();
+        }
+        //TODO validete input info
+        address.setUser(user);
+        addressDao.addAddress(user.getId(), address);
+        return address;
+    }
+
+    //remove address
+    @DeleteMapping("/users/addresses/{addressId}")
+    public Address deleteAddress(@PathVariable(name="addressId") long addressId, HttpSession session) throws SQLException {
+        User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
+        if(user == null){
+            throw new AuthorizationException();
+        }
+        Address address = addressDao.getAddress(addressId);
+        if (address == null) {
+            throw new NotFoundException("Address not found!");
+        }
+        addressDao.deleteAddress(addressId);
+        return address;
+    }
+
+    //edit address
+    @PutMapping("/users/addresses/{addressId}")
+    public Address editAddress(@PathVariable(name="addressId") long addressId,
+                            @RequestBody Address address,
+                            HttpSession session) throws SQLException {
+        User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
+        if(user == null){
+            throw new AuthorizationException();
+        }
+        Address currentAddress = addressDao.getAddress(addressId);
+        if (address == null) {
+            throw new NotFoundException("Address not found!");
+        }
+        //TODO validate input address
+        if (currentAddress.getUser().getId() != user.getId()) {
+            throw new AuthorizationException("This address belongs to other user!");
+        }
+        currentAddress.setCity(address.getCity());
+        currentAddress.setDistrict(address.getDistrict());
+        currentAddress.setStreet(address.getStreet());
+        currentAddress.setZip(address.getZip());
+        currentAddress.setPhoneNumber(address.getPhoneNumber());
+        addressDao.updateAddress(currentAddress, currentAddress.getId());
+        return currentAddress;
+    }
 //
 //    //get orders
 //    @GetMapping("/user/order")

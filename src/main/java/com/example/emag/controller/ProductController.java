@@ -18,7 +18,7 @@ public class ProductController extends AbstractController{
     @Autowired
     private ProductDAO productDao;
 
-    //return product with its information
+    //return product with its information OK
     @GetMapping("/products/{productId}")
     public Product getProduct(@PathVariable(name = "productId") long productId) throws SQLException {
         Product product = productDao.getProductById(productId);
@@ -28,14 +28,26 @@ public class ProductController extends AbstractController{
         return product;
     }
 
-//    //return products by search TODO
-//    @GetMapping("/products/{text}")
-//    public List<Product> productsFromSearch(@RequestParam String text, Double min, Double max, String orderBy) throws SQLException {
-//        //check orderBy == ASC/DESC
-//        //check min/max
-//        List<Product> currentProducts = productDao.getProductsFromSearch(text, min, max, orderBy);
-//        return currentProducts;
-//    }
+    //return products by search TODO
+    @GetMapping("/products/search/{text}/min/{min}/max/{max}/order/{orderBy}")
+    public List<Product> productsFromSearch(@PathVariable(name="text") String text,
+                                            @PathVariable(name="min") double min,
+                                            @PathVariable(name="max") double max,
+                                            @PathVariable(name="orderBy") String orderBy) throws SQLException {
+        //TODO validete input data
+        List<Product> currentProducts = productDao.getProductsFromSearch(text, min, max, orderBy);
+        return currentProducts;
+    }
+
+    //@GetMapping("/products/search/{text}
+    //@GetMapping("/products/search/{text}/order/{orderBy}")
+    //@GetMapping("/products/search/{text}/min/{min}/max/{max}/
+    //@GetMapping("/products/search/{text}/min/{min}/max/{max}/order/{orderBy}")
+
+    //@GetMapping("/products/subcategory/{subcategory}")
+    //@GetMapping("/products/subcategory/{subcategory}/order/{orderBy}")
+    //@GetMapping("/products/subcategory/{subcategory}/min/{min}/max/{max}")
+    //@GetMapping("/products/subcategory/{subcategory}/min/{min}/max/{max}/order/{orderBy}")
 //
 //    //TODO
 //    @GetMapping("/products/{subcategory}")

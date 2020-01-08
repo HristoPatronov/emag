@@ -13,7 +13,7 @@ public interface IProductDAO {
     Product getProductById(long id) throws SQLException;
     List<Product> getProductsFromSearch(String searchInput, Double minPrice, Double maxPrice, String orderBy) throws SQLException;
     void addProduct(Product product) throws SQLException;  //ADMIN STUFF
-    void removeProduct(Integer productId) throws SQLException; //ADMIN STUFF
+    void removeProduct(long productId) throws SQLException; //ADMIN STUFF
     void updateQuantity(Integer productId, Integer quantity) throws SQLException; //ADMIN STUFF
     void setDiscount(Integer productId, Integer discount) throws SQLException; //ADMIN STUFF
     List<Product> getFavouriteProducts(Integer userId) throws SQLException;

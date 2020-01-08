@@ -43,17 +43,21 @@ public class AdminController extends AbstractController{
     }
 
     //remove product by ID
-    @DeleteMapping("/removeProduct")
-    public void removeProduct(@RequestParam int idProduct, Model model, HttpSession session) throws SQLException {
-        int id = (Integer) session.getAttribute("userId");
-            if (!userDao.isAdminByUserId(id)){
-                throw new AuthorizationException("You need to be admin to perform this");
-            }
-            Product product = productDao.getProductById(idProduct);
-            if (product == null) {
-                throw new NotFoundException("Product doesn't exist");
-            }
-        productDao.removeProduct(idProduct);
+    @DeleteMapping("/admin/products/{productId}")
+    public Product removeProduct(@PathVariable(name="productId") long productId, HttpSession session) throws SQLException {
+        User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
+        if(user == null){
+            throw new AuthorizationException();
+        }
+        if(!user.isAdmin()) {
+            throw new AuthorizationException("You need to be admin to perform this!");
+        }
+        Product product = productDao.getProductById(productId);
+        if (product == null) {
+            throw new NotFoundException("Product not found!");
+        }
+        productDao.removeProduct(productId);
+        return product;
     }
 
     //set discount

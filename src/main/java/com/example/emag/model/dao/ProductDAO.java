@@ -112,9 +112,9 @@ public class ProductDAO implements IProductDAO {
         Connection connection = DBManager.getInstance().getConnection();
         String url;
         if (orderBy == null) {
-            url = "SELECT p.*, sc.*, c.* FROM products AS p JOIN sub_categories AS sc ON p.sub_category_id = sc.id JOIN categories AS c ON sc.category_id = c.id WHERE name LIKE ? AND price BETWEEN ? AND ?;";
+            url = "SELECT p.*, sc.*, c.* FROM products AS p JOIN sub_categories AS sc ON p.sub_category_id = sc.id JOIN categories AS c ON sc.category_id = c.id WHERE p.name LIKE ? AND p.price BETWEEN ? AND ?;";
         } else {
-            url = "SELECT p.*, sc.*, c.* FROM products AS p JOIN sub_categories AS sc ON p.sub_category_id = sc.id JOIN categories AS c ON sc.category_id = c.id WHERE name LIKE ? AND price BETWEEN ? AND ? ORDER BY price " + orderBy + ";";
+            url = "SELECT p.*, sc.*, c.* FROM products AS p JOIN sub_categories AS sc ON p.sub_category_id = sc.id JOIN categories AS c ON sc.category_id = c.id WHERE p.name LIKE ? AND p.price BETWEEN ? AND ? ORDER BY p.price " + orderBy + ";";
         }
         try(PreparedStatement statement = connection.prepareStatement(url)) {
             statement.setString(1, "%" + searchInput + "%");
@@ -158,11 +158,11 @@ public class ProductDAO implements IProductDAO {
     }
 
     @Override
-    public void removeProduct(Integer productId) throws SQLException {
+    public void removeProduct(long productId) throws SQLException {
         Connection connection = DBManager.getInstance().getConnection();
         String url = "DELETE FROM products WHERE id = ?;";
         try(PreparedStatement statement = connection.prepareStatement(url)) {
-            statement.setInt(1, productId);
+            statement.setLong(1, productId);
             statement.executeUpdate();
         }
     }
