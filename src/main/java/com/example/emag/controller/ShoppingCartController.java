@@ -54,6 +54,9 @@ public class ShoppingCartController extends AbstractController {
         if (fetchedProduct == null) {
             throw new NotFoundException("No such product found");
         }
+        if (fetchedProduct.isDeleted()) {
+            throw new BadRequestException("The product is not active!");
+        }
         if ((fetchedProduct.getStock() - fetchedProduct.getReservedQuantity()) > 0) {
             if (!products.containsKey(fetchedProduct)) {
                 products.put(fetchedProduct, 1);

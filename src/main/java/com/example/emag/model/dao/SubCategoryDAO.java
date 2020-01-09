@@ -18,7 +18,8 @@ public class SubCategoryDAO implements ISubCategoryDAO {
     public List<SubCategory> getSubCategoryByCategory(long categoryId) throws SQLException {
         List<SubCategory> subCategories = new ArrayList<>();
         Connection connection = DBManager.getInstance().getConnection();
-        String url = "SELECT sc.*, c.* FROM sub_categories AS sc JOIN categories AS c ON sc.category_id = c.id WHERE sc.category_id = ?;";
+        String url = "SELECT sc.*, c.* FROM sub_categories AS sc " +
+                "JOIN categories AS c ON sc.category_id = c.id WHERE sc.category_id = ?;";
         SubCategory subCategory = null;
         try(PreparedStatement statement = connection.prepareStatement(url)) {
             statement.setLong(1, categoryId);
@@ -37,7 +38,8 @@ public class SubCategoryDAO implements ISubCategoryDAO {
     @Override
     public SubCategory getSubcategoryById(long subCategoryId) throws SQLException {
         Connection connection = DBManager.getInstance().getConnection();
-        String url = "SELECT sc.*, c.* FROM sub_categories AS sc JOIN categories AS c ON sc.category_id = c.id WHERE sc.id = ?;";
+        String url = "SELECT sc.*, c.* FROM sub_categories AS sc " +
+                "JOIN categories AS c ON sc.category_id = c.id WHERE sc.id = ?;";
         SubCategory subCategory = null;
         try (PreparedStatement statement = connection.prepareStatement(url)) {
             statement.setLong(1, subCategoryId);

@@ -32,37 +32,43 @@ public class ReviewDAO implements IReviewDAO {
     public List<Review> getAllReviewsForProduct(long productId) throws SQLException {
         List<Review> reviews = new ArrayList<>();
         Connection connection = DBManager.getInstance().getConnection();
-        String url = "SELECT r.*, u.*, p.*, sc.*, c.* FROM reviews AS r JOIN users AS u ON r.user_id = u.id JOIN products AS p ON r.product_id = p.id JOIN sub_categories AS sc ON p.sub_category_id = sc.id JOIN categories AS c ON sc.category_id = c.id WHERE r.product_id = ?;";
+        String url = "SELECT r.*, u.*, p.*, sc.*, c.* FROM reviews AS r " +
+                "JOIN users AS u ON r.user_id = u.id " +
+                "JOIN products AS p ON r.product_id = p.id " +
+                "JOIN sub_categories AS sc ON p.sub_category_id = sc.id " +
+                "JOIN categories AS c ON sc.category_id = c.id WHERE r.product_id = ?;";
         Review review = null;
         try(PreparedStatement statement = connection.prepareStatement(url)) {
             statement.setLong(1, productId);
             ResultSet set = statement.executeQuery();
-            set.next();
-            review = new Review(set.getLong(1),
-                    set.getString(2),
-                    set.getString(3),
-                    set.getInt(4),
-                    set.getDate(5).toLocalDate(),
-                    new User(set.getLong(8),
-                            set.getString(9),
-                            set.getString(10),
-                            set.getString(11),
-                            set.getString(12),
-                            set.getBoolean(13),
-                            set.getBoolean(14)),
-                    new Product(set.getLong(15),
-                            set.getString(16),
-                            set.getString(17),
-                            set.getDouble(18),
-                            set.getInt(19),
-                            set.getInt(20),
-                            set.getInt(21),
-                            new SubCategory(set.getLong(23),
-                                    set.getString(24),
-                                    set.getBoolean(25),
-                                    new Category(set.getLong(27),
-                                            set.getString(28)))));
-            reviews.add(review);
+            while(set.next()) {
+                review = new Review(set.getLong(1),
+                        set.getString(2),
+                        set.getString(3),
+                        set.getInt(4),
+                        set.getDate(5).toLocalDate(),
+                        new User(set.getLong(8),
+                                set.getString(9),
+                                set.getString(10),
+                                set.getString(11),
+                                set.getString(12),
+                                set.getBoolean(13),
+                                set.getBoolean(14)),
+                        new Product(set.getLong(15),
+                                set.getString(16),
+                                set.getString(17),
+                                set.getDouble(18),
+                                set.getInt(19),
+                                set.getInt(20),
+                                set.getInt(21),
+                                new SubCategory(set.getLong(24),
+                                        set.getString(25),
+                                        set.getBoolean(26),
+                                        new Category(set.getLong(28),
+                                                set.getString(29))),
+                                set.getBoolean(23)));
+                reviews.add(review);
+            }
         }
         return reviews;
     }
@@ -71,37 +77,43 @@ public class ReviewDAO implements IReviewDAO {
     public List<Review> getAllReviewsForUser(long userId) throws SQLException {
         List<Review> reviews = new ArrayList<>();
         Connection connection = DBManager.getInstance().getConnection();
-        String url = "SELECT r.*, u.*, p.*, sc.*, c.* FROM reviews AS r JOIN users AS u ON r.user_id = u.id JOIN products AS p ON r.product_id = p.id JOIN sub_categories AS sc ON p.sub_category_id = sc.id JOIN categories AS c ON sc.category_id = c.id WHERE r.user_id = ?;";
+        String url = "SELECT r.*, u.*, p.*, sc.*, c.* FROM reviews AS r " +
+                "JOIN users AS u ON r.user_id = u.id " +
+                "JOIN products AS p ON r.product_id = p.id " +
+                "JOIN sub_categories AS sc ON p.sub_category_id = sc.id " +
+                "JOIN categories AS c ON sc.category_id = c.id WHERE r.user_id = ?;";
         Review review = null;
         try(PreparedStatement statement = connection.prepareStatement(url)) {
             statement.setLong(1, userId);
             ResultSet set = statement.executeQuery();
-            set.next();
-            review = new Review(set.getLong(1),
-                    set.getString(2),
-                    set.getString(3),
-                    set.getInt(4),
-                    set.getDate(5).toLocalDate(),
-                    new User(set.getLong(8),
-                            set.getString(9),
-                            set.getString(10),
-                            set.getString(11),
-                            set.getString(12),
-                            set.getBoolean(13),
-                            set.getBoolean(14)),
-                    new Product(set.getLong(15),
-                            set.getString(16),
-                            set.getString(17),
-                            set.getDouble(18),
-                            set.getInt(19),
-                            set.getInt(20),
-                            set.getInt(21),
-                            new SubCategory(set.getLong(23),
-                                    set.getString(24),
-                                    set.getBoolean(25),
-                                    new Category(set.getLong(27),
-                                            set.getString(28)))));
-            reviews.add(review);
+            while (set.next()) {
+                review = new Review(set.getLong(1),
+                        set.getString(2),
+                        set.getString(3),
+                        set.getInt(4),
+                        set.getDate(5).toLocalDate(),
+                        new User(set.getLong(8),
+                                set.getString(9),
+                                set.getString(10),
+                                set.getString(11),
+                                set.getString(12),
+                                set.getBoolean(13),
+                                set.getBoolean(14)),
+                        new Product(set.getLong(15),
+                                set.getString(16),
+                                set.getString(17),
+                                set.getDouble(18),
+                                set.getInt(19),
+                                set.getInt(20),
+                                set.getInt(21),
+                                new SubCategory(set.getLong(24),
+                                        set.getString(25),
+                                        set.getBoolean(26),
+                                        new Category(set.getLong(28),
+                                                set.getString(29))),
+                                set.getBoolean(23)));
+                reviews.add(review);
+            }
         }
         return reviews;
     }

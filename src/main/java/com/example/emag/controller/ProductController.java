@@ -30,6 +30,9 @@ public class ProductController extends AbstractController{
                               HttpSession session) {
         Product product = productDao.getProductById(productId);
         checkForProductExistence(product);
+        if (product.isDeleted()) {
+            throw new BadRequestException("The product is not active!");
+        }
         return product;
     }
 

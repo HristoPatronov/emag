@@ -271,6 +271,9 @@ public class UserController extends AbstractController {
         }
         List<ProductDTO> productDto = new ArrayList<>();
         for (Product product : products) {
+            if (!product.isDeleted()) {
+                continue;
+            }
             productDto.add(new ProductDTO(product));
         }
         return productDto;
@@ -285,6 +288,9 @@ public class UserController extends AbstractController {
         checkForLoggedUser(user);
         Product product = productDao.getProductById(productId);
         checkForProductExistence(product);
+        if (!product.isDeleted()) {
+            throw new BadRequestException("The product is not active!");
+        }
         List<Product> products = productDao.getFavouriteProducts(user.getId());
         if (products.contains(product)) {
             throw new BadRequestException("Product is already added to favourites!");

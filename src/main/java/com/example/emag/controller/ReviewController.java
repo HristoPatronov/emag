@@ -1,5 +1,6 @@
 package com.example.emag.controller;
 
+import com.example.emag.exceptions.BadRequestException;
 import com.example.emag.exceptions.NotFoundException;
 import com.example.emag.model.dao.ProductDAO;
 import com.example.emag.model.dao.ReviewDAO;
@@ -14,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
-import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,6 +39,9 @@ public class ReviewController extends AbstractController{
         Product product = productDao.getProductById(productId);
         checkForProductExistence(product);
         //TODO validete review info
+        if (product.isDeleted()) {
+            throw new BadRequestException("The product is not active!");
+        }
         Review review = new Review(addReviewDto);
         review.setDate(LocalDate.now());
         review.setProduct(product);
@@ -53,6 +56,9 @@ public class ReviewController extends AbstractController{
     public List<GetProductReviewDTO> getAllReviewsForProduct(@PathVariable(name="productId") long productId) {
         Product product = productDao.getProductById(productId);
         checkForProductExistence(product);
+        if (product.isDeleted()) {
+            throw new BadRequestException("The product is not active!");
+        }
         List<Review> reviews = reviewDao.getAllReviewsForProduct(product.getId());
         if (reviews.isEmpty()) {
             throw new NotFoundException("This product has no reviews!");

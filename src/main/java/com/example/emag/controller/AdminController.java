@@ -1,5 +1,6 @@
 package com.example.emag.controller;
 
+import com.example.emag.exceptions.BadRequestException;
 import com.example.emag.model.dao.ProductDAO;
 import com.example.emag.model.dao.SubCategoryDAO;
 import com.example.emag.model.dao.UserDAO;
@@ -10,9 +11,7 @@ import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import javax.mail.MessagingException;
 import javax.servlet.http.HttpSession;
-import java.sql.SQLException;
 import java.util.List;
 
 @RestController
@@ -41,7 +40,7 @@ public class AdminController extends AbstractController{
         return product;
     }
 
-    //remove product by ID TODO how to delete it from DB
+    //remove product by ID
     @SneakyThrows
     @DeleteMapping("/admin/products/{productId}")
     public Product removeProduct(@PathVariable(name="productId") long productId,
@@ -52,6 +51,7 @@ public class AdminController extends AbstractController{
         Product product = productDao.getProductById(productId);
         checkForProductExistence(product);
         productDao.removeProduct(productId);
+        product.setDeleted(true);
         return product;
     }
 
@@ -66,6 +66,9 @@ public class AdminController extends AbstractController{
         //TODO validate editProductDTO
         Product fetchedProduct = productDao.getProductById(editProductDTO.getId());
         checkForProductExistence(fetchedProduct);
+        if (fetchedProduct.isDeleted()) {
+            throw new BadRequestException("The product is not active!");
+        }
         if (editProductDTO.getDiscount() > fetchedProduct.getDiscount()) {
             startMailThread(editProductDTO);
         }
@@ -84,13 +87,7 @@ public class AdminController extends AbstractController{
 
     //make a thread for e-mail
     private void startMailThread(EditProductDTO product) {
-        Thread email = new Thread() {
-            @SneakyThrows
-            @Override
-            public void run() {
-                sendEmailToSubscribedUsers(product.getDiscount(), product);
-            }
-        };
+        Thread email = new Thread(() -> sendEmailToSubscribedUsers(product.getDiscount(), product));
         email.start();
     }
 

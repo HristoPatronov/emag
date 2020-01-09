@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.util.Objects;
 
 @Getter
@@ -23,6 +24,7 @@ public class Product {
     @JsonIgnore
     private int reservedQuantity;
     private SubCategory subCategory;
+    private boolean deleted;
 
     @Override
     public boolean equals(Object o) {
@@ -37,14 +39,4 @@ public class Product {
         return Objects.hash(id);
     }
 
-    @Override
-    public String toString() {
-        return "Product{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", description='" + description + '\'' +
-                ", price=" + price +
-                ", discount=" + discount +
-                '}';
-    }
 }

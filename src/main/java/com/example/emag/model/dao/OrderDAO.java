@@ -32,7 +32,7 @@ public class OrderDAO implements IOrderDAO {
     public List<Order> getOrdersByUserId(long userId) throws SQLException {
         List<Order> orders = new ArrayList<>();
         Connection connection = DBManager.getInstance().getConnection();
-        String url = "SELECT o.*,u.* ,pt.*, s.* FROM orders AS o " +
+        String url = "SELECT o.*, u.*, pt.*, s.* FROM orders AS o " +
                 "JOIN payment_types AS pt ON o.payment_type_id = pt.id " +
                 "JOIN statuses AS s ON o.status_id = s.id " +
                 "JOIN users AS u ON o.user_id = u.id WHERE o.user_id = ?;";
