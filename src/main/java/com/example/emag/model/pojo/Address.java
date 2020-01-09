@@ -22,19 +22,6 @@ public class Address {
     private User user;
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Address address = (Address) o;
-        return Objects.equals(city, address.city) &&
-                Objects.equals(district, address.district) &&
-                Objects.equals(street, address.street) &&
-                Objects.equals(zip, address.zip) &&
-                Objects.equals(phoneNumber, address.phoneNumber) &&
-                Objects.equals(user, address.user);
-    }
-
-    @Override
     public int hashCode() {
         return Objects.hash(city, district, street, zip, phoneNumber, user);
     }

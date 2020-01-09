@@ -43,6 +43,9 @@ public class UserController extends AbstractController {
     public UserWithoutPasswordDTO register(@RequestBody RegisterUserDTO userDto,
                                            HttpSession session) throws SQLException{
         //TODO validate data in userDto
+        if (userDao.getUserByEmail(userDto.getEMail()) != null) {
+            throw new AuthorizationException("User with same e-mail already exist!");
+        }
         User user = new User(userDto);
         userDao.registerUser(user);
         session.setAttribute(SESSION_KEY_LOGGED_USER, user);
