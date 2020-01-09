@@ -1,0 +1,816 @@
+{
+	"variables": [],
+	"info": {
+		"name": "emag",
+		"_postman_id": "20ebde97-faaf-2b53-334d-a3669c83dea2",
+		"description": "",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "user",
+			"description": "",
+			"item": [
+				{
+					"name": "register user",
+					"request": {
+						"url": "localhost:8080/users",
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic aHJpc3RvcGF0cm9ub3ZAZ21haWwuY29tOmhwYXRyb25vdg==",
+								"description": ""
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"first_name\": \"Hristo\",\n    \"last_name\": \"Patronov\",\n    \"password\": \"Asdf@89\",\n    \"confirmPassword\" : \"Asdf@89\",\n    \"email\": \"hristopatronov1@gmail.com\",\n    \"subscribed\" : true\n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "logout",
+					"request": {
+						"url": "localhost:8080/users/logout",
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic aHJpc3RvcGF0cm9ub3ZAZ21haWwuY29tOmhwYXRyb25vdg==",
+								"description": ""
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"first_name\": \"Hristo\",\n    \"last_name\": \"Patronov\",\n    \"password\": \"Asdf@89\",\n    \"confirmPassword\" : \"Asdf@89\",\n    \"email\": \"hristopatronov1@gmail.com\",\n    \"subscribed\" : true\n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "login",
+					"request": {
+						"url": "localhost:8080/users/login",
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic aHJpc3RvcGF0cm9ub3ZAZ21haWwuY29tOmhwYXRyb25vdg==",
+								"description": ""
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\" : \"sadhaskd@av.bg\",\n    \"password\" : \"Asdf@89\"\n   \n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "subscribe/unsubscribe",
+					"request": {
+						"url": "localhost:8080/users/subscription",
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic aHJpc3RvcGF0cm9ub3ZAZ21haWwuY29tOmhwYXRyb25vdg==",
+								"description": ""
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"hristopatronov1@gmail.com\",\n    \"password\" : \"Asdf@89\"\n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "get userf info",
+					"request": {
+						"url": "localhost:8080/users",
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic aHJpc3RvcGF0cm9ub3ZAZ21haWwuY29tOmhwYXRyb25vdg==",
+								"description": ""
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"hristopatronov1@gmail.com\",\n    \"password\" : \"Asdf@89\"\n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "get all addresses",
+					"request": {
+						"url": "localhost:8080/users/addresses",
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic aHJpc3RvcGF0cm9ub3ZAZ21haWwuY29tOmhwYXRyb25vdg==",
+								"description": ""
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\" : \"hristopatronov1@gmail.com\",\n    \"password\" : \"Asdf@89\"\n   \n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "add new address",
+					"request": {
+						"url": "localhost:8080/users/addresses",
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic aHJpc3RvcGF0cm9ub3ZAZ21haWwuY29tOmhwYXRyb25vdg==",
+								"description": ""
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"city\" : \"Sofia\",\n    \"district\" : \"Mladost\",\n    \"street\" : \"Andrei Lqpchev 45\",\n    \"zip\" : \"1756\",\n    \"phoneNumber\" : \"02546456543\"\n   \n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "delete address by Id",
+					"request": {
+						"url": "localhost:8080/users/addresses/7",
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic aHJpc3RvcGF0cm9ub3ZAZ21haWwuY29tOmhwYXRyb25vdg==",
+								"description": ""
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\" : \"hristopatronov1@gmail.com\",\n    \"password\" : \"Asdf@89\"\n   \n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "edit address",
+					"request": {
+						"url": "localhost:8080/users/addresses",
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic aHJpc3RvcGF0cm9ub3ZAZ21haWwuY29tOmhwYXRyb25vdg==",
+								"description": ""
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"id\" : 6,\n    \"city\": \"Sofia\",\n    \"district\": \"Nadejda\",\n    \"street\": \"Andrei Lqpchev 45\",\n    \"zip\": \"1756\",\n    \"phoneNumber\": \"02546456543\"\n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "edit user info",
+					"request": {
+						"url": "localhost:8080/users",
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic aHJpc3RvcGF0cm9ub3ZAZ21haWwuY29tOmhwYXRyb25vdg==",
+								"description": ""
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\" : \"hristopatronov1@gmail.com\",\n    \"password\" : \"Asdf@89\"\n   \n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "change password",
+					"request": {
+						"url": "localhost:8080/users/password",
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic aHJpc3RvcGF0cm9ub3ZAZ21haWwuY29tOmhwYXRyb25vdg==",
+								"description": ""
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\" : \"sadhaskd@av.bg\",\n    \"password\" : \"Asdf@89\"\n   \n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "get favourite products",
+					"request": {
+						"url": "localhost:8080/users/favourites",
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic aHJpc3RvcGF0cm9ub3ZAZ21haWwuY29tOmhwYXRyb25vdg==",
+								"description": ""
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\" : \"sadhaskd@av.bg\",\n    \"password\" : \"Asdf@89\"\n   \n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "add favourite product",
+					"request": {
+						"url": "localhost:8080/users/favourites/4",
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic aHJpc3RvcGF0cm9ub3ZAZ21haWwuY29tOmhwYXRyb25vdg==",
+								"description": ""
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\" : \"sadhaskd@av.bg\",\n    \"password\" : \"Asdf@89\"\n   \n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "delete favourite product",
+					"request": {
+						"url": "localhost:8080/users/favourites/4",
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic aHJpc3RvcGF0cm9ub3ZAZ21haWwuY29tOmhwYXRyb25vdg==",
+								"description": ""
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\" : \"sadhaskd@av.bg\",\n    \"password\" : \"Asdf@89\"\n   \n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "get all orders",
+					"request": {
+						"url": "localhost:8080/users/orders",
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic aHJpc3RvcGF0cm9ub3ZAZ21haWwuY29tOmhwYXRyb25vdg==",
+								"description": ""
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\" : \"sadhaskd@av.bg\",\n    \"password\" : \"Asdf@89\"\n   \n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "get all products in cart",
+					"request": {
+						"url": "localhost:8080/users/cart",
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic aHJpc3RvcGF0cm9ub3ZAZ21haWwuY29tOmhwYXRyb25vdg==",
+								"description": ""
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\" : \"sadhaskd@av.bg\",\n    \"password\" : \"Asdf@89\"\n   \n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "add product to cart",
+					"request": {
+						"url": "localhost:8080/users/cart/products/1",
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic aHJpc3RvcGF0cm9ub3ZAZ21haWwuY29tOmhwYXRyb25vdg==",
+								"description": ""
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\" : \"sadhaskd@av.bg\",\n    \"password\" : \"Asdf@89\"\n   \n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "delete product from cart",
+					"request": {
+						"url": "localhost:8080/users/cart/products/1",
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic aHJpc3RvcGF0cm9ub3ZAZ21haWwuY29tOmhwYXRyb25vdg==",
+								"description": ""
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\" : \"sadhaskd@av.bg\",\n    \"password\" : \"Asdf@89\"\n   \n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "update quantity for product in cart",
+					"request": {
+						"url": "localhost:8080/users/cart/products/1/pieces/3",
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic aHJpc3RvcGF0cm9ub3ZAZ21haWwuY29tOmhwYXRyb25vdg==",
+								"description": ""
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\" : \"sadhaskd@av.bg\",\n    \"password\" : \"Asdf@89\"\n   \n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "cart checkout",
+					"request": {
+						"url": "localhost:8080/users/cart/checkout/1",
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic aHJpc3RvcGF0cm9ub3ZAZ21haWwuY29tOmhwYXRyb25vdg==",
+								"description": ""
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\" : \"sadhaskd@av.bg\",\n    \"password\" : \"Asdf@89\"\n   \n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "get products by orderId",
+					"request": {
+						"url": "localhost:8080/users/orders/1",
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic aHJpc3RvcGF0cm9ub3ZAZ21haWwuY29tOmhwYXRyb25vdg==",
+								"description": ""
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\" : \"sadhaskd@av.bg\",\n    \"password\" : \"Asdf@89\"\n   \n}"
+						},
+						"description": ""
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "categories and sub categories",
+			"description": "",
+			"item": [
+				{
+					"name": "get all categories",
+					"request": {
+						"url": "localhost:8080/categories",
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic aHJpc3RvcGF0cm9ub3ZAZ21haWwuY29tOmhwYXRyb25vdg==",
+								"description": ""
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"hristopatronov1@gmail.com\",\n    \"password\" : \"Asdf@89\"\n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "get sub categories by categoryId",
+					"request": {
+						"url": "localhost:8080/subcategories/1",
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic aHJpc3RvcGF0cm9ub3ZAZ21haWwuY29tOmhwYXRyb25vdg==",
+								"description": ""
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"hristopatronov1@gmail.com\",\n    \"password\" : \"Asdf@89\"\n}"
+						},
+						"description": ""
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "product",
+			"description": "",
+			"item": [
+				{
+					"name": "get product by id",
+					"request": {
+						"url": "localhost:8080/products/3",
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic aHJpc3RvcGF0cm9ub3ZAZ21haWwuY29tOmhwYXRyb25vdg==",
+								"description": ""
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\" : \"Bateriq\",\n    \"description\" : \"10 000 mAh\", \n    \"price\" : 20.99,\n    \"discount\" : 0,\n    \"stock\" : 10,\n    \"subCategory\" : {\n    \t\"id\" : 1\n    }\n   \n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "search product by name",
+					"request": {
+						"url": "localhost:8080/products/search",
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic aHJpc3RvcGF0cm9ub3ZAZ21haWwuY29tOmhwYXRyb25vdg==",
+								"description": ""
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\" : \"Bateriq\",\n    \"description\" : \"10 000 mAh\", \n    \"price\" : 20.99,\n    \"discount\" : 0,\n    \"stock\" : 10,\n    \"subCategory\" : {\n    \t\"id\" : 1\n    }\n   \n}"
+						},
+						"description": ""
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "reviews",
+			"description": "",
+			"item": [
+				{
+					"name": "add review to product",
+					"request": {
+						"url": "localhost:8080/products/3/reviews",
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic aHJpc3RvcGF0cm9ub3ZAZ21haWwuY29tOmhwYXRyb25vdg==",
+								"description": ""
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\" : \"Very good\",\n    \"text\" : \"super quality product\",\n    \"rating\" : 5\n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "get reviews from user",
+					"request": {
+						"url": "localhost:8080/users/reviews",
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic aHJpc3RvcGF0cm9ub3ZAZ21haWwuY29tOmhwYXRyb25vdg==",
+								"description": ""
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\" : \"Very good\",\n    \"text\" : \"super quality product\",\n    \"rating\" : 5\n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "get review for product",
+					"request": {
+						"url": "localhost:8080/products/3/reviews",
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic aHJpc3RvcGF0cm9ub3ZAZ21haWwuY29tOmhwYXRyb25vdg==",
+								"description": ""
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\" : \"Very good\",\n    \"text\" : \"super quality product\",\n    \"rating\" : 5\n}"
+						},
+						"description": ""
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "admin",
+			"description": "",
+			"item": [
+				{
+					"name": "add product",
+					"request": {
+						"url": "localhost:8080/admin/products",
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic aHJpc3RvcGF0cm9ub3ZAZ21haWwuY29tOmhwYXRyb25vdg==",
+								"description": ""
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\" : \"Bateriq\",\n    \"description\" : \"10 000 mAh\", \n    \"price\" : 20.99,\n    \"discount\" : 0,\n    \"stock\" : 10,\n    \"subCategory\" : {\n    \t\"id\" : 1\n    }\n   \n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "delete product by Id",
+					"request": {
+						"url": "localhost:8080/admin/products/7",
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic aHJpc3RvcGF0cm9ub3ZAZ21haWwuY29tOmhwYXRyb25vdg==",
+								"description": ""
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\" : \"hristopatronov1@gmail.com\",\n    \"password\" : \"Asdf@89\"\n   \n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "edit product",
+					"request": {
+						"url": "localhost:8080/admin/products",
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic aHJpc3RvcGF0cm9ub3ZAZ21haWwuY29tOmhwYXRyb25vdg==",
+								"description": ""
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"id\" : 6,\n    \"name\" : \"Bateriq\",\n    \"description\" : \"10 000 mAh\", \n    \"price\" : 20.99,\n    \"discount\" : 0,\n    \"stock\" : 100\n \n}"
+						},
+						"description": ""
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
