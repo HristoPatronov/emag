@@ -117,7 +117,7 @@ public class UserDAO implements IUserDAO {
         try(PreparedStatement statement = connection.prepareStatement(url)) {
             statement.setString(1, email);
             ResultSet set = statement.executeQuery();
-            if (!set.next()){
+            if (!set.next()) {
                 return null;
             }
             user = new User(set.getInt(1),

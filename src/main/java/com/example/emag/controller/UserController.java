@@ -10,6 +10,9 @@ import com.example.emag.model.pojo.Order;
 import com.example.emag.model.pojo.Product;
 import com.example.emag.model.pojo.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCrypt;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
@@ -41,15 +44,21 @@ public class UserController extends AbstractController {
     //register
     @PostMapping("/users")
     public UserWithoutPasswordDTO register(@RequestBody RegisterUserDTO userDto,
-                                           HttpSession session) throws SQLException{
+                                           HttpSession session) throws SQLException {
         //TODO validate data in userDto
         if (userDao.getUserByEmail(userDto.getEMail()) != null) {
             throw new AuthorizationException("User with same e-mail already exist!");
         }
         User user = new User(userDto);
+        user.setPassword(encryptPassword(userDto.getPassword()));
         userDao.registerUser(user);
         session.setAttribute(SESSION_KEY_LOGGED_USER, user);
         return new UserWithoutPasswordDTO(user);
+    }
+
+    private String encryptPassword(String password) {
+        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        return passwordEncoder.encode(password);
     }
 
     //login
@@ -58,25 +67,23 @@ public class UserController extends AbstractController {
                                         HttpSession session) throws SQLException {
         //TODO validate data in userDto
         User user = userDao.getUserByEmail(userDto.getEMail());
-        if(user == null || !passwordValid(user, userDto)) {
+        if(user == null || userDto.getPassword().isEmpty()) {
             throw new AuthorizationException("Invalid credentials");
+        }
+        if (!BCrypt.checkpw(userDto.getPassword(), user.getPassword())) {
+            throw new BadRequestException("Invalid email or password!");
         }
         session.setAttribute(SESSION_KEY_LOGGED_USER, user);
         return new UserWithoutPasswordDTO(user);
     }
 
-    private boolean passwordValid(User user, LoginUserDTO userDTO) {
-        return user.getPassword().equals(userDTO.getPassword());
-    }
-
     //logout
     @PostMapping("/users/logout")
     public void logout(HttpSession session) throws SQLException{
-        if (session.getAttribute("cart") == null) {
-            throw new NotFoundException("The cart is empty");
+        if (session.getAttribute("cart") != null) {
+            Map<Product, Integer> products = (Map<Product, Integer>) session.getAttribute("cart");
+            productDao.removeReservedQuantities(products);
         }
-        Map<Product, Integer> products = (Map<Product, Integer>) session.getAttribute("cart");
-        productDao.removeReservedQuantities(products);
         session.invalidate();
     }
 
@@ -110,6 +117,7 @@ public class UserController extends AbstractController {
         user.setLast_name(userDto.getLast_name());
         user.setEMail(userDto.getEMail());
         userDao.updateUserInfo(user);
+        session.setAttribute(SESSION_KEY_LOGGED_USER, user);
         return new UserWithoutPasswordDTO(user);
     }
 
@@ -119,14 +127,16 @@ public class UserController extends AbstractController {
                                      HttpSession session) throws SQLException {
         User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
         checkForLoggedUser(user);
-        if (!userPasswordDto.getOldPassword().equals(user.getPassword())) {
+        if (!BCrypt.checkpw(userPasswordDto.getOldPassword(), user.getPassword())) {
             throw new AuthorizationException("The old password does not match to the current password");
         }
         if (!userPasswordDto.getNewPassword().equals(userPasswordDto.getConfirmPassword())) {
             throw new BadRequestException("The new password does not match to confirm password");
         }
-        user.setPassword(userPasswordDto.getNewPassword());
-        userDao.changePassword(user.getId(), userPasswordDto.getNewPassword());
+        String hashedPassword = encryptPassword(userPasswordDto.getNewPassword());
+        user.setPassword(hashedPassword);
+        userDao.changePassword(user.getId(), hashedPassword);
+        session.setAttribute(SESSION_KEY_LOGGED_USER, user);
         return new UserWithoutPasswordDTO(user);
     }
 

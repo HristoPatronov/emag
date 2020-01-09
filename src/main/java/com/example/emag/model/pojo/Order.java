@@ -20,7 +20,7 @@ public class Order {
     private LocalDate date;
     @JsonIgnore
     private User user;
-    List<Product> products;
+    //List<Product> products;
     private PaymentType paymentType;
     private Status status;
 
