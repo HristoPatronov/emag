@@ -8,6 +8,7 @@ import com.example.emag.model.dao.ProductDAO;
 import com.example.emag.model.pojo.Order;
 import com.example.emag.model.pojo.Product;
 import com.example.emag.model.pojo.User;
+import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,8 +28,9 @@ public class ShoppingCartController extends AbstractController {
     private OrderDAO orderDao;
 
     //get products in cart
+    @SneakyThrows
     @GetMapping("/users/cart")
-    public Map<Product, Integer> getProductsFromCart(HttpSession session) throws SQLException {
+    public Map<Product, Integer> getProductsFromCart(HttpSession session) {
         User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
         checkForLoggedUser(user);
         if (session.getAttribute("cart") == null) {
@@ -38,9 +40,10 @@ public class ShoppingCartController extends AbstractController {
     }
 
     //add product to cart
+    @SneakyThrows
     @PostMapping("/users/cart/products/{productId}")
     public Map<Product, Integer> addProductToCart(@PathVariable(name = "productId") long productId,
-                                 HttpSession session) throws SQLException {
+                                 HttpSession session) {
         User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
         checkForLoggedUser(user);
         Map<Product, Integer> products = new HashMap<>();
@@ -66,9 +69,10 @@ public class ShoppingCartController extends AbstractController {
     }
 
     //remove product from cart
+    @SneakyThrows
     @DeleteMapping("/users/cart/products/{productId}")
     public Map<Product, Integer> removeProductFromCart(@PathVariable(name = "productId") long productId,
-                                      HttpSession session) throws SQLException {
+                                      HttpSession session) {
         User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
         checkForLoggedUser(user);
         Map<Product, Integer> products;
@@ -97,10 +101,11 @@ public class ShoppingCartController extends AbstractController {
     }
 
     //edit quantities in cart
+    @SneakyThrows
     @PutMapping("/users/cart/products/{productId}/pieces/{quantity}")
     public Map<Product, Integer> editProductsInCart(@PathVariable(name = "productId") long productId,
                                    @PathVariable(name = "quantity") int quantity,
-                                   HttpSession session) throws SQLException {
+                                   HttpSession session) {
         User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
         checkForLoggedUser(user);
         Map<Product, Integer> products;
@@ -138,9 +143,10 @@ public class ShoppingCartController extends AbstractController {
     }
 
     //checkout
+    @SneakyThrows
     @PostMapping("/users/cart/checkout/{paymentType}")
     public Order checkout(@PathVariable long paymentType,
-                         HttpSession session) throws SQLException {
+                         HttpSession session) {
         User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
         checkForLoggedUser(user);
         Map<Product, Integer> products;

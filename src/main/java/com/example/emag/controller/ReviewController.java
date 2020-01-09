@@ -9,6 +9,7 @@ import com.example.emag.model.dto.GetUserReviewDTO;
 import com.example.emag.model.pojo.Product;
 import com.example.emag.model.pojo.Review;
 import com.example.emag.model.pojo.User;
+import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,10 +29,11 @@ public class ReviewController extends AbstractController{
     private ProductDAO productDao;
 
     //add review to product
+    @SneakyThrows
     @PostMapping("/products/{productId}/reviews")
     public GetProductReviewDTO addReviewToProduct(@PathVariable(name = "productId") long productId,
                                                   @RequestBody AddReviewDTO addReviewDto,
-                                                  HttpSession session) throws SQLException {
+                                                  HttpSession session) {
         User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
         checkForLoggedUser(user);
         Product product = productDao.getProductById(productId);
@@ -46,8 +48,9 @@ public class ReviewController extends AbstractController{
     }
 
     //get all reviews for product
+    @SneakyThrows
     @GetMapping("/products/{productId}/reviews")
-    public List<GetProductReviewDTO> getAllReviewsForProduct(@PathVariable(name="productId") long productId) throws SQLException{
+    public List<GetProductReviewDTO> getAllReviewsForProduct(@PathVariable(name="productId") long productId) {
         Product product = productDao.getProductById(productId);
         checkForProductExistence(product);
         List<Review> reviews = reviewDao.getAllReviewsForProduct(product.getId());
@@ -62,8 +65,9 @@ public class ReviewController extends AbstractController{
     }
 
     //get all reviews by user
+    @SneakyThrows
     @GetMapping("/users/reviews")
-    public List<GetUserReviewDTO> getAllReviewsForUser(HttpSession session) throws SQLException {
+    public List<GetUserReviewDTO> getAllReviewsForUser(HttpSession session) {
         User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
         checkForLoggedUser(user);
         List<Review> reviews = reviewDao.getAllReviewsForUser(user.getId());

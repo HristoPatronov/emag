@@ -1,5 +1,7 @@
 package com.example.emag.controller;
 
+import lombok.SneakyThrows;
+
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
@@ -10,7 +12,8 @@ public class SendEmailController {
     //send email if discount or quantity update are made
     private static final String SENDER = "emag.no.reply@gmail.com";
 
-    public static void sendMail(String to, String subject, String body) throws MessagingException {
+    @SneakyThrows
+    public static void sendMail(String to, String subject, String body) {
 
         final String username = "emag.no.reply@gmail.com";
         final String password = "emag2020";

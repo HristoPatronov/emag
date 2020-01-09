@@ -6,6 +6,7 @@ import com.example.emag.model.dao.UserDAO;
 import com.example.emag.model.dto.EditProductDTO;
 import com.example.emag.model.pojo.Product;
 import com.example.emag.model.pojo.User;
+import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,9 +28,10 @@ public class AdminController extends AbstractController{
     private SubCategoryDAO subCategoryDao;
 
     //add product
+    @SneakyThrows
     @PostMapping("/admin/products")
     public Product addProduct(@RequestBody Product product,
-                              HttpSession session) throws SQLException {
+                              HttpSession session) {
         User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
         checkForLoggedUser(user);
         checkForAdminRights(user);
@@ -40,9 +42,10 @@ public class AdminController extends AbstractController{
     }
 
     //remove product by ID TODO how to delete it from DB
+    @SneakyThrows
     @DeleteMapping("/admin/products/{productId}")
     public Product removeProduct(@PathVariable(name="productId") long productId,
-                                 HttpSession session) throws SQLException {
+                                 HttpSession session) {
         User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
         checkForLoggedUser(user);
         checkForAdminRights(user);
@@ -53,9 +56,10 @@ public class AdminController extends AbstractController{
     }
 
     //edit product
+    @SneakyThrows
     @PutMapping("admin/products")
     public Product editProduct(@RequestBody EditProductDTO editProductDTO,
-                               HttpSession session) throws SQLException, MessagingException {
+                               HttpSession session) {
         User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
         checkForLoggedUser(user);
         checkForAdminRights(user);
@@ -63,7 +67,7 @@ public class AdminController extends AbstractController{
         Product fetchedProduct = productDao.getProductById(editProductDTO.getId());
         checkForProductExistence(fetchedProduct);
         if (editProductDTO.getDiscount() > fetchedProduct.getDiscount()) {
-            sendEmailToSubscribedUsers(editProductDTO.getDiscount(), editProductDTO);
+            startMailThread(editProductDTO);
         }
         productDao.editProduct(editProductInfo(fetchedProduct, editProductDTO));
         return fetchedProduct;
@@ -78,9 +82,22 @@ public class AdminController extends AbstractController{
         return currentProduct;
     }
 
+    //make a thread for e-mail
+    private void startMailThread(EditProductDTO product) {
+        Thread email = new Thread() {
+            @SneakyThrows
+            @Override
+            public void run() {
+                sendEmailToSubscribedUsers(product.getDiscount(), product);
+            }
+        };
+        email.start();
+    }
+
     //send e-mail to all subscribed users when discount is setted
+    @SneakyThrows
     private void sendEmailToSubscribedUsers(Integer discount,
-                                            EditProductDTO product) throws SQLException, MessagingException {
+                                            EditProductDTO product) {
         List<String> emails = userDao.getAllSubscribedUsers();
         double newPrice = product.getPrice()* (1 - (double)product.getDiscount()/100);
         String subject = "Special offer";

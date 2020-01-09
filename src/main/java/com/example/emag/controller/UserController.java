@@ -9,6 +9,7 @@ import com.example.emag.model.pojo.Address;
 import com.example.emag.model.pojo.Order;
 import com.example.emag.model.pojo.Product;
 import com.example.emag.model.pojo.User;
+import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -42,9 +43,10 @@ public class UserController extends AbstractController {
     private OrderDAO orderDao;
 
     //register
+    @SneakyThrows
     @PostMapping("/users")
     public UserWithoutPasswordDTO register(@RequestBody RegisterUserDTO userDto,
-                                           HttpSession session) throws SQLException {
+                                           HttpSession session) {
         //TODO validate data in userDto
         if (userDao.getUserByEmail(userDto.getEMail()) != null) {
             throw new AuthorizationException("User with same e-mail already exist!");
@@ -62,9 +64,10 @@ public class UserController extends AbstractController {
     }
 
     //login
+    @SneakyThrows
     @PostMapping("/users/login")
     public UserWithoutPasswordDTO login(@RequestBody LoginUserDTO userDto,
-                                        HttpSession session) throws SQLException {
+                                        HttpSession session) {
         //TODO validate data in userDto
         User user = userDao.getUserByEmail(userDto.getEMail());
         if(user == null || userDto.getPassword().isEmpty()) {
@@ -78,8 +81,9 @@ public class UserController extends AbstractController {
     }
 
     //logout
+    @SneakyThrows
     @PostMapping("/users/logout")
-    public void logout(HttpSession session) throws SQLException{
+    public void logout(HttpSession session) {
         if (session.getAttribute("cart") != null) {
             Map<Product, Integer> products = (Map<Product, Integer>) session.getAttribute("cart");
             productDao.removeReservedQuantities(products);
@@ -88,8 +92,9 @@ public class UserController extends AbstractController {
     }
 
     //change subscription
+    @SneakyThrows
     @PutMapping("/users/subscription")
-    public UserWithoutPasswordDTO unsubscribe(HttpSession session) throws SQLException {
+    public UserWithoutPasswordDTO unsubscribe(HttpSession session) {
         User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
         checkForLoggedUser(user);
         user.setSubscribed(!user.isSubscribed());
@@ -99,17 +104,19 @@ public class UserController extends AbstractController {
     }
 
     //get user info
+    @SneakyThrows
     @GetMapping("/users")
-    public UserWithoutPasswordDTO getInfo(HttpSession session) throws SQLException {
+    public UserWithoutPasswordDTO getInfo(HttpSession session) {
         User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
         checkForLoggedUser(user);
         return new UserWithoutPasswordDTO(user);
     }
 
     //update user info
+    @SneakyThrows
     @PutMapping("/users")
     public UserWithoutPasswordDTO updateUserInfo(@RequestBody UserWithoutPasswordDTO userDto,
-                                                 HttpSession session) throws SQLException {
+                                                 HttpSession session) {
         User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
         checkForLoggedUser(user);
         //TODO validate input data
@@ -122,9 +129,10 @@ public class UserController extends AbstractController {
     }
 
     //change password
+    @SneakyThrows
     @PutMapping("/users/password")
     public UserWithoutPasswordDTO userChangePassword(@RequestBody UserPasswordDTO userPasswordDto,
-                                     HttpSession session) throws SQLException {
+                                     HttpSession session) {
         User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
         checkForLoggedUser(user);
         if (!BCrypt.checkpw(userPasswordDto.getOldPassword(), user.getPassword())) {
@@ -140,9 +148,10 @@ public class UserController extends AbstractController {
         return new UserWithoutPasswordDTO(user);
     }
 
-   //get all addresses
+    //get all addresses
+    @SneakyThrows
     @GetMapping("/users/addresses")
-    public List<AddressDTO> allAdressesByUserId(HttpSession session) throws SQLException {
+    public List<AddressDTO> allAdressesByUserId(HttpSession session) {
         User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
         checkForLoggedUser(user);
         List<Address> addresses = addressDao.getAllAddresses(user.getId());
@@ -157,8 +166,9 @@ public class UserController extends AbstractController {
     }
 
     //add address
+    @SneakyThrows
     @PostMapping("/users/addresses")
-    public AddressDTO addAddress(@RequestBody Address address, HttpSession session) throws SQLException {
+    public AddressDTO addAddress(@RequestBody Address address, HttpSession session) {
         User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
         checkForLoggedUser(user);
         //TODO validete input info
@@ -168,9 +178,10 @@ public class UserController extends AbstractController {
     }
 
     //remove address
+    @SneakyThrows
     @DeleteMapping("/users/addresses/{addressId}")
     public AddressDTO deleteAddress(@PathVariable(name="addressId") long addressId,
-                                    HttpSession session) throws SQLException {
+                                    HttpSession session) {
         User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
         checkForLoggedUser(user);
         Address address = addressDao.getAddress(addressId);
@@ -184,9 +195,10 @@ public class UserController extends AbstractController {
     }
 
     //edit address
+    @SneakyThrows
     @PutMapping("/users/addresses")
     public AddressDTO editAddress(@RequestBody Address address,
-                            HttpSession session) throws SQLException {
+                            HttpSession session) {
         User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
         checkForLoggedUser(user);
         Address currentAddress = addressDao.getAddress(address.getId());
@@ -209,8 +221,9 @@ public class UserController extends AbstractController {
     }
 
     //get orders
+    @SneakyThrows
     @GetMapping("/users/orders")
-    public List<Order> allOrders(HttpSession session) throws SQLException {
+    public List<Order> allOrders(HttpSession session) {
         User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
         checkForLoggedUser(user);
         List<Order> orders = orderDao.getOrdersByUserId(user.getId());
@@ -221,9 +234,10 @@ public class UserController extends AbstractController {
     }
 
     //get products by order
+    @SneakyThrows
     @GetMapping("/users/orders/{orderId}")
     public Map<Product, Integer> productsByOrder(@PathVariable(name="orderId") long orderId,
-                                                 HttpSession session) throws SQLException {
+                                                 HttpSession session) {
         User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
         checkForLoggedUser(user);
         List<Order> orders = orderDao.getOrdersByUserId(user.getId());
@@ -246,8 +260,9 @@ public class UserController extends AbstractController {
     }
 
     //get favourite products
+    @SneakyThrows
     @GetMapping("/users/favourites")
-    public List<ProductDTO> getFavouriteProducts(HttpSession session) throws SQLException {
+    public List<ProductDTO> getFavouriteProducts(HttpSession session) {
         User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
         checkForLoggedUser(user);
         List<Product> products = productDao.getFavouriteProducts(user.getId());
@@ -262,9 +277,10 @@ public class UserController extends AbstractController {
     }
 
     //add to favourite
+    @SneakyThrows
     @PostMapping("/users/favourites/{productId}")
     public ProductDTO addFavouriteProduct(@PathVariable(name="productId") long productId,
-                                            HttpSession session) throws SQLException {
+                                            HttpSession session) {
         User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
         checkForLoggedUser(user);
         Product product = productDao.getProductById(productId);
@@ -278,9 +294,10 @@ public class UserController extends AbstractController {
     }
 
     //delete from favourite
+    @SneakyThrows
     @DeleteMapping("/users/favourites/{productId}")
     public ProductDTO deleteFavouriteProduct(@PathVariable(name="productId") long productId,
-                                            HttpSession session) throws SQLException {
+                                            HttpSession session) {
         User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
         checkForLoggedUser(user);
         List<Product> products = productDao.getFavouriteProducts(user.getId());

@@ -8,6 +8,7 @@ import com.example.emag.model.dto.ProductFilteringDTO;
 import com.example.emag.model.pojo.Product;
 import com.example.emag.model.pojo.Specification;
 import com.example.emag.model.pojo.User;
+import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,18 +24,20 @@ public class ProductController extends AbstractController{
     private ProductDAO productDao;
 
     //return product with its information OK
+    @SneakyThrows
     @GetMapping("/products/{productId}")
     public Product getProduct(@PathVariable(name = "productId") long productId,
-                              HttpSession session) throws SQLException {
+                              HttpSession session) {
         Product product = productDao.getProductById(productId);
         checkForProductExistence(product);
         return product;
     }
 
     //return products by search
+    @SneakyThrows
     @PostMapping("/products/search")
     public List<Product> productsFromSearch(@RequestBody ProductFilteringDTO productFilteringDTO,
-                                            HttpSession session) throws SQLException {
+                                            HttpSession session) {
         //TODO validete input data
         if (productFilteringDTO.getSubCategoryId() == null && productFilteringDTO.getSearchText() == null){
             throw new BadRequestException("You cannot search for products without sub category and search text");

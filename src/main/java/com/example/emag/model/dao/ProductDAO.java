@@ -94,10 +94,10 @@ public class ProductDAO implements IProductDAO {
                     set.getInt(5),
                     set.getInt(6),
                     set.getInt(7),
-                    new SubCategory(set.getLong(9),
-                            set.getString(10),
-                            set.getBoolean(11),
-                            new Category(set.getLong(13), set.getString(14))));
+                    new SubCategory(set.getLong(10),
+                            set.getString(11),
+                            set.getBoolean(12),
+                            new Category(set.getLong(14), set.getString(15))));
         }
         return product;
     }
@@ -254,27 +254,6 @@ public class ProductDAO implements IProductDAO {
         return products;
     }
 
-//    @Override
-//    public List<Order> getOrdersByUserId(Integer userId) throws SQLException {
-//        List<Order> orders = new ArrayList<>();
-//        Connection connection = DBManager.getInstance().getConnection();
-//        String url = "SELECT * FROM orders WHERE user_id = ?;";
-//        try(PreparedStatement statement = connection.prepareStatement(url)) {
-//            statement.setInt(1, userId);
-//            ResultSet set = statement.executeQuery();
-//            while (set.next()) {
-//                Order order = new Order(set.getInt(1),
-//                        set.getDouble(2),
-//                        set.getDate(3).toLocalDate(),
-//                        set.getInt(4),
-//                        set.getInt(5),
-//                        set.getInt(6));
-//                orders.add(order);
-//            }
-//        }
-//        return orders;
-//    }
-
     @Override
     public void addFavouriteProduct(long userId, long productId) throws SQLException {
         Connection connection = DBManager.getInstance().getConnection();
@@ -319,8 +298,7 @@ public class ProductDAO implements IProductDAO {
             try (PreparedStatement statement = connection.prepareStatement(url)) {
                 statement.setLong(1, product.getId());
                 ResultSet set = statement.executeQuery();
-                set.next();
-                if (set.getInt(1) < products.get(product)) {
+                if (!set.next()){
                     return false;
                 }
             }
