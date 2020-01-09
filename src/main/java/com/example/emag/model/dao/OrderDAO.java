@@ -15,7 +15,6 @@ public class OrderDAO implements IOrderDAO {
     public void addOrder(Order order) throws SQLException {
         Connection connection = DBManager.getInstance().getConnection();
         String url = "INSERT INTO orders (total_price, date, user_id, payment_type_id, status_id) VALUES (?,?,?,?,?);";
-        int id = 0;
         try(PreparedStatement statement = connection.prepareStatement(url, Statement.RETURN_GENERATED_KEYS)) {
             statement.setDouble(1, order.getTotalPrice());
             statement.setDate(2, Date.valueOf(order.getDate()));

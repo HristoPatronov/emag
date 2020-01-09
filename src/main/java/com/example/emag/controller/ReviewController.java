@@ -47,7 +47,7 @@ public class ReviewController extends AbstractController{
 
     //get all reviews for product
     @GetMapping("/products/{productId}/reviews")
-    public List<GetProductReviewDTO> getAllReviewsForProduct(@PathVariable(name = "productId") long productId) throws SQLException{
+    public List<GetProductReviewDTO> getAllReviewsForProduct(@PathVariable(name="productId") long productId) throws SQLException{
         Product product = productDao.getProductById(productId);
         checkForProductExistence(product);
         List<Review> reviews = reviewDao.getAllReviewsForProduct(product.getId());

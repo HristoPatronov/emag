@@ -9,6 +9,7 @@ import com.example.emag.model.pojo.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.mail.MessagingException;
 import javax.servlet.http.HttpSession;
 import java.sql.SQLException;
 import java.util.List;
@@ -27,7 +28,8 @@ public class AdminController extends AbstractController{
 
     //add product
     @PostMapping("/admin/products")
-    public Product addProduct(@RequestBody Product product, HttpSession session) throws SQLException {
+    public Product addProduct(@RequestBody Product product,
+                              HttpSession session) throws SQLException {
         User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
         checkForLoggedUser(user);
         checkForAdminRights(user);
@@ -39,7 +41,8 @@ public class AdminController extends AbstractController{
 
     //remove product by ID TODO how to delete it from DB
     @DeleteMapping("/admin/products/{productId}")
-    public Product removeProduct(@PathVariable(name="productId") long productId, HttpSession session) throws SQLException {
+    public Product removeProduct(@PathVariable(name="productId") long productId,
+                                 HttpSession session) throws SQLException {
         User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
         checkForLoggedUser(user);
         checkForAdminRights(user);
@@ -51,7 +54,8 @@ public class AdminController extends AbstractController{
 
     //edit product
     @PutMapping("admin/products")
-    public Product editProduct(@RequestBody EditProductDTO editProductDTO, HttpSession session) throws SQLException {
+    public Product editProduct(@RequestBody EditProductDTO editProductDTO,
+                               HttpSession session) throws SQLException, MessagingException {
         User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
         checkForLoggedUser(user);
         checkForAdminRights(user);
@@ -75,10 +79,11 @@ public class AdminController extends AbstractController{
     }
 
     //send e-mail to all subscribed users when discount is setted
-    private void sendEmailToSubscribedUsers(Integer discount, EditProductDTO product) throws SQLException {
+    private void sendEmailToSubscribedUsers(Integer discount,
+                                            EditProductDTO product) throws SQLException, MessagingException {
         List<String> emails = userDao.getAllSubscribedUsers();
         double newPrice = product.getPrice()* (1 - (double)product.getDiscount()/100);
-        String subject = "Discount";
+        String subject = "Special offer";
         String body = String.format("Dear Mr./Ms., \n\nWe have a special discount of %d%s for our Product - %s" +
                 "\n\nYou can buy it now only for %.2f lv. instead of regular price of %.2f lv." +
                 "\n\nThe product is waiting for you" +

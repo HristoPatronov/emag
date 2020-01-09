@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Getter
 @Setter
@@ -19,6 +20,7 @@ public class Order {
     private LocalDate date;
     @JsonIgnore
     private User user;
+    List<Product> products;
     private PaymentType paymentType;
     private Status status;
 

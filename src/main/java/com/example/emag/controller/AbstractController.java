@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+import javax.mail.MessagingException;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 
@@ -73,6 +74,17 @@ public abstract class AbstractController {
         ErrorDTO errorDTO = new ErrorDTO(
                 e.getMessage(),
                 HttpStatus.BAD_REQUEST.value(),
+                LocalDateTime.now(),
+                e.getClass().getName());
+        return errorDTO;
+    }
+
+    @ExceptionHandler(MessagingException.class)
+    @ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)
+    public ErrorDTO handleEmailException(Exception e){
+        ErrorDTO errorDTO = new ErrorDTO(
+                e.getMessage(),
+                HttpStatus.SERVICE_UNAVAILABLE.value(),
                 LocalDateTime.now(),
                 e.getClass().getName());
         return errorDTO;

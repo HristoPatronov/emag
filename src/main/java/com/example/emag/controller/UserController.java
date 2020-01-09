@@ -58,8 +58,7 @@ public class UserController extends AbstractController {
                                         HttpSession session) throws SQLException {
         //TODO validate data in userDto
         User user = userDao.getUserByEmail(userDto.getEMail());
-        checkForLoggedUser(user);
-        if(!passwordValid(user, userDto)) {
+        if(user == null || !passwordValid(user, userDto)) {
             throw new AuthorizationException("Invalid credentials");
         }
         session.setAttribute(SESSION_KEY_LOGGED_USER, user);
@@ -67,10 +66,7 @@ public class UserController extends AbstractController {
     }
 
     private boolean passwordValid(User user, LoginUserDTO userDTO) {
-        if (user.getPassword().equals(userDTO.getPassword())) {
-            return true;
-        }
-        return false;
+        return user.getPassword().equals(userDTO.getPassword());
     }
 
     //logout
@@ -163,7 +159,8 @@ public class UserController extends AbstractController {
 
     //remove address
     @DeleteMapping("/users/addresses/{addressId}")
-    public AddressDTO deleteAddress(@PathVariable(name="addressId") long addressId, HttpSession session) throws SQLException {
+    public AddressDTO deleteAddress(@PathVariable(name="addressId") long addressId,
+                                    HttpSession session) throws SQLException {
         User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
         checkForLoggedUser(user);
         Address address = addressDao.getAddress(addressId);
@@ -226,8 +223,7 @@ public class UserController extends AbstractController {
         if (!checkIfOrderExist(orders, orderId)) {
             throw new NotFoundException("This order does not belong to the user!");
         }
-        Map<Product, Integer> products = productDao.getProductsByOrder(orderId);
-        return products;
+        return productDao.getProductsByOrder(orderId);
     }
 
     private boolean checkIfOrderExist(List<Order> orders, long orderId) {

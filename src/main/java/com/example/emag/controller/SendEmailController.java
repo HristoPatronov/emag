@@ -10,7 +10,8 @@ public class SendEmailController {
     //send email if discount or quantity update are made
     private static final String SENDER = "emag.no.reply@gmail.com";
 
-    public static void sendMail(String to, String subject, String body){
+    public static void sendMail(String to, String subject, String body) throws MessagingException {
+
         final String username = "emag.no.reply@gmail.com";
         final String password = "emag2020";
 
@@ -28,19 +29,14 @@ public class SendEmailController {
                     }
                 });
 
-        try {
-            Message message = new MimeMessage(session);
-            message.setFrom(new InternetAddress(SENDER));
-            message.setRecipients(
-                    Message.RecipientType.TO,
-                    InternetAddress.parse(to)
-            );
-            message.setSubject(subject);
-            message.setText(body);
-            Transport.send(message);
-            System.out.println("Done");
-        } catch (MessagingException e) {
-            e.printStackTrace();
-        }
+        Message message = new MimeMessage(session);
+        message.setFrom(new InternetAddress(SENDER));
+        message.setRecipients(
+                Message.RecipientType.TO,
+                InternetAddress.parse(to));
+        message.setSubject(subject);
+        message.setText(body);
+        Transport.send(message);
+        System.out.println("Done");
     }
 }
