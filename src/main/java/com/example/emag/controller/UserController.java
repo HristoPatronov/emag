@@ -12,12 +12,9 @@ import com.example.emag.model.pojo.User;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCrypt;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -52,15 +49,10 @@ public class UserController extends AbstractController {
             throw new AuthorizationException("User with same e-mail already exist!");
         }
         User user = new User(userDto);
-        user.setPassword(encryptPassword(userDto.getPassword()));
+        user.setPassword(BCrypt.hashpw(userDto.getPassword(), BCrypt.gensalt()));
         userDao.registerUser(user);
         session.setAttribute(SESSION_KEY_LOGGED_USER, user);
         return new UserWithoutPasswordDTO(user);
-    }
-
-    private String encryptPassword(String password) {
-        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-        return passwordEncoder.encode(password);
     }
 
     //login
@@ -141,7 +133,7 @@ public class UserController extends AbstractController {
         if (!userPasswordDto.getNewPassword().equals(userPasswordDto.getConfirmPassword())) {
             throw new BadRequestException("The new password does not match to confirm password");
         }
-        String hashedPassword = encryptPassword(userPasswordDto.getNewPassword());
+        String hashedPassword = BCrypt.hashpw(userPasswordDto.getNewPassword(), BCrypt.gensalt());
         user.setPassword(hashedPassword);
         userDao.changePassword(user.getId(), hashedPassword);
         session.setAttribute(SESSION_KEY_LOGGED_USER, user);
