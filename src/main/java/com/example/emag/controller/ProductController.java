@@ -40,7 +40,7 @@ public class ProductController extends AbstractController{
         List<Specification> specifications = specificationDAO.getSpecificationsForProduct(productId);
         List<Review> reviews = reviewDAO.getAllReviewsForProduct(productId);
         ProductWithAllDTO productWithAllDTO = new ProductWithAllDTO(product, specifications, reviews);
-        checkForProductExistence(product);
+        //checkForProductExistence(product);
         if (product.isDeleted()) {
             throw new BadRequestException("The product is not active!");
         }

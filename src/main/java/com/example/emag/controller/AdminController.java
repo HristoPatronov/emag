@@ -39,7 +39,7 @@ public class AdminController extends AbstractController{
     public ProductWithSpecsDTO addProduct(@RequestBody ProductWithSpecsDTO productDto,
                               HttpSession session) {
         User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
-        checkForLoggedUser(user);
+        //checkForLoggedUser(user);
         checkForAdminRights(user);
         //TODO validate product
         productDao.addProduct(productDto.getProduct());
@@ -59,10 +59,10 @@ public class AdminController extends AbstractController{
     public Product removeProduct(@PathVariable(name="productId") long productId,
                                  HttpSession session) {
         User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
-        checkForLoggedUser(user);
+        //checkForLoggedUser(user);
         checkForAdminRights(user);
         Product product = productDao.getProductById(productId);
-        checkForProductExistence(product);
+        //checkForProductExistence(product);
         productDao.removeProduct(productId);
         product.setDeleted(true);
         return product;
@@ -74,11 +74,11 @@ public class AdminController extends AbstractController{
     public Product editProduct(@RequestBody EditProductDTO editProductDTO,
                                HttpSession session) {
         User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
-        checkForLoggedUser(user);
+        //checkForLoggedUser(user);
         checkForAdminRights(user);
         //TODO validate editProductDTO
         Product fetchedProduct = productDao.getProductById(editProductDTO.getId());
-        checkForProductExistence(fetchedProduct);
+        //checkForProductExistence(fetchedProduct);
         if (fetchedProduct.isDeleted()) {
             throw new BadRequestException("The product is not active!");
         }

@@ -37,7 +37,7 @@ public class ShoppingCartController extends AbstractController {
     @GetMapping("/users/cart")
     public ProductsWithPriceDTO getProductsFromCart(HttpSession session) {
         User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
-        checkForLoggedUser(user);
+        //checkForLoggedUser(user);
         if (session.getAttribute("cart") == null) {
             return null;
         }
@@ -50,7 +50,7 @@ public class ShoppingCartController extends AbstractController {
     public ProductsWithPriceDTO addProductToCart(@PathVariable(name = "productId") long productId,
                                                  HttpSession session) {
         User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
-        checkForLoggedUser(user);
+        //checkForLoggedUser(user);
         Map<Product, Integer> products = new HashMap<>();
         if (session.getAttribute("cart") != null) {
             products = (Map<Product, Integer>) session.getAttribute("cart");
@@ -83,7 +83,7 @@ public class ShoppingCartController extends AbstractController {
     public ProductsWithPriceDTO removeProductFromCart(@PathVariable(name = "productId") long productId,
                                       HttpSession session) {
         User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
-        checkForLoggedUser(user);
+        //checkForLoggedUser(user);
         Map<Product, Integer> products;
         if (session.getAttribute("cart") != null){
             products = (Map<Product, Integer>) session.getAttribute("cart");
@@ -116,7 +116,7 @@ public class ShoppingCartController extends AbstractController {
                                    @PathVariable(name = "quantity") int quantity,
                                    HttpSession session) {
         User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
-        checkForLoggedUser(user);
+        //checkForLoggedUser(user);
         Map<Product, Integer> products;
         if (session.getAttribute("cart") != null){
             products = (Map<Product, Integer>) session.getAttribute("cart");
@@ -157,7 +157,7 @@ public class ShoppingCartController extends AbstractController {
     public Order checkout(@PathVariable long paymentType,
                          HttpSession session) {
         User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
-        checkForLoggedUser(user);
+        //checkForLoggedUser(user);
         Map<Product, Integer> products;
         if (session.getAttribute("cart") != null){
             products = (Map<Product, Integer>) session.getAttribute("cart");

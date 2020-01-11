@@ -35,9 +35,9 @@ public class ReviewController extends AbstractController{
                                                   @RequestBody AddReviewDTO addReviewDto,
                                                   HttpSession session) {
         User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
-        checkForLoggedUser(user);
+        //checkForLoggedUser(user);
         Product product = productDao.getProductById(productId);
-        checkForProductExistence(product);
+        //checkForProductExistence(product);
         //TODO validete review info
         if (product.isDeleted()) {
             throw new BadRequestException("The product is not active!");
@@ -55,7 +55,7 @@ public class ReviewController extends AbstractController{
     @GetMapping("/products/{productId}/reviews")
     public List<GetProductReviewDTO> getAllReviewsForProduct(@PathVariable(name="productId") long productId) {
         Product product = productDao.getProductById(productId);
-        checkForProductExistence(product);
+        //checkForProductExistence(product);
         if (product.isDeleted()) {
             throw new BadRequestException("The product is not active!");
         }
@@ -75,7 +75,7 @@ public class ReviewController extends AbstractController{
     @GetMapping("/users/reviews")
     public List<GetUserReviewDTO> getAllReviewsForUser(HttpSession session) {
         User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
-        checkForLoggedUser(user);
+        //checkForLoggedUser(user);
         List<Review> reviews = reviewDao.getAllReviewsForUser(user.getId());
         if (reviews.isEmpty()) {
             throw new NotFoundException("You have no reviews");
