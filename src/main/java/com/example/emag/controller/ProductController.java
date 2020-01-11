@@ -4,8 +4,12 @@ import com.example.emag.exceptions.AuthorizationException;
 import com.example.emag.exceptions.BadRequestException;
 import com.example.emag.exceptions.NotFoundException;
 import com.example.emag.model.dao.ProductDAO;
+import com.example.emag.model.dao.ReviewDAO;
+import com.example.emag.model.dao.SpecificationDAO;
 import com.example.emag.model.dto.ProductFilteringDTO;
+import com.example.emag.model.dto.ProductWithAllDTO;
 import com.example.emag.model.pojo.Product;
+import com.example.emag.model.pojo.Review;
 import com.example.emag.model.pojo.Specification;
 import com.example.emag.model.pojo.User;
 import lombok.SneakyThrows;
@@ -22,18 +26,25 @@ public class ProductController extends AbstractController{
 
     @Autowired
     private ProductDAO productDao;
+    @Autowired
+    private SpecificationDAO specificationDAO;
+    @Autowired
+    private ReviewDAO reviewDAO;
 
     //return product with its information OK
     @SneakyThrows
     @GetMapping("/products/{productId}")
-    public Product getProduct(@PathVariable(name = "productId") long productId,
-                              HttpSession session) {
+    public ProductWithAllDTO getProduct(@PathVariable(name = "productId") long productId,
+                                           HttpSession session) {
         Product product = productDao.getProductById(productId);
+        List<Specification> specifications = specificationDAO.getSpecificationsForProduct(productId);
+        List<Review> reviews = reviewDAO.getAllReviewsForProduct(productId);
+        ProductWithAllDTO productWithAllDTO = new ProductWithAllDTO(product, specifications, reviews);
         checkForProductExistence(product);
         if (product.isDeleted()) {
             throw new BadRequestException("The product is not active!");
         }
-        return product;
+        return productWithAllDTO;
     }
 
     //return products by search

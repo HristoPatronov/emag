@@ -228,7 +228,7 @@ public class UserController extends AbstractController {
     //get products by order
     @SneakyThrows
     @GetMapping("/users/orders/{orderId}")
-    public Map<Product, Integer> productsByOrder(@PathVariable(name="orderId") long orderId,
+    public OrderWithProductsDTO productsByOrder(@PathVariable(name="orderId") long orderId,
                                                  HttpSession session) {
         User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
         checkForLoggedUser(user);
@@ -239,7 +239,22 @@ public class UserController extends AbstractController {
         if (!checkIfOrderExist(orders, orderId)) {
             throw new NotFoundException("This order does not belong to the user!");
         }
-        return productDao.getProductsByOrder(orderId);
+        OrderWithProductsDTO orderWithProductsDTO = new OrderWithProductsDTO();
+        for (Order order : orders){
+            if (order.getId() == orderId){
+                orderWithProductsDTO.setOrder(order);
+                break;
+            }
+        }
+        List<ProductWithQuantityDTO> productsWithQuantity = new ArrayList<>();
+        for (Map.Entry<Product, Integer> entry : productDao.getProductsByOrder(orderId).entrySet()){
+            ProductWithQuantityDTO productWithQuantityDTO = new ProductWithQuantityDTO();
+            productWithQuantityDTO.setProduct(entry.getKey());
+            productWithQuantityDTO.setQuantity(entry.getValue());
+            productsWithQuantity.add(productWithQuantityDTO);
+        }
+        orderWithProductsDTO.setProducts(productsWithQuantity);
+        return orderWithProductsDTO;
     }
 
     private boolean checkIfOrderExist(List<Order> orders, long orderId) {

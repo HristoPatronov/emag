@@ -2,16 +2,22 @@ package com.example.emag.controller;
 
 import com.example.emag.exceptions.BadRequestException;
 import com.example.emag.model.dao.ProductDAO;
+import com.example.emag.model.dao.SpecificationDAO;
 import com.example.emag.model.dao.SubCategoryDAO;
 import com.example.emag.model.dao.UserDAO;
 import com.example.emag.model.dto.EditProductDTO;
+import com.example.emag.model.dto.ProductDTO;
+import com.example.emag.model.dto.ProductWithSpecsDTO;
+import com.example.emag.model.dto.SpecificationWithProductIdDTO;
 import com.example.emag.model.pojo.Product;
+import com.example.emag.model.pojo.Specification;
 import com.example.emag.model.pojo.User;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -25,19 +31,26 @@ public class AdminController extends AbstractController{
 
     @Autowired
     private SubCategoryDAO subCategoryDao;
-
+    @Autowired
+    private SpecificationDAO specificationDao;
     //add product
     @SneakyThrows
     @PostMapping("/admin/products")
-    public Product addProduct(@RequestBody Product product,
+    public ProductWithSpecsDTO addProduct(@RequestBody ProductWithSpecsDTO productDto,
                               HttpSession session) {
         User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
         checkForLoggedUser(user);
         checkForAdminRights(user);
         //TODO validate product
-        productDao.addProduct(product);
-        product.setSubCategory(subCategoryDao.getSubcategoryById(product.getSubCategory().getId()));
-        return product;
+        productDao.addProduct(productDto.getProduct());
+        productDto.getProduct().setSubCategory(subCategoryDao.getSubcategoryById(productDto.getProduct().getSubCategory().getId()));
+        List<Specification> specifications = new ArrayList<>();
+        for (SpecificationWithProductIdDTO specificationWithProductIdDTO : productDto.getSpecifications()){
+            specificationWithProductIdDTO.setProductId(productDto.getProduct().getId());
+            specifications.add(new Specification(specificationWithProductIdDTO));
+        }
+        specificationDao.addSpecification(specifications);
+        return productDto;
     }
 
     //remove product by ID

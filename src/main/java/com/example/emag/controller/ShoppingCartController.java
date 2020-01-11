@@ -5,9 +5,12 @@ import com.example.emag.exceptions.NotFoundException;
 import com.example.emag.model.dao.DBManager;
 import com.example.emag.model.dao.OrderDAO;
 import com.example.emag.model.dao.ProductDAO;
+import com.example.emag.model.dto.ProductWithQuantityDTO;
+import com.example.emag.model.dto.ProductsWithPriceDTO;
 import com.example.emag.model.pojo.Order;
 import com.example.emag.model.pojo.Product;
 import com.example.emag.model.pojo.User;
+import com.example.emag.utils.TransformationUtil;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -15,7 +18,9 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpSession;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -30,20 +35,20 @@ public class ShoppingCartController extends AbstractController {
     //get products in cart
     @SneakyThrows
     @GetMapping("/users/cart")
-    public Map<Product, Integer> getProductsFromCart(HttpSession session) {
+    public ProductsWithPriceDTO getProductsFromCart(HttpSession session) {
         User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
         checkForLoggedUser(user);
         if (session.getAttribute("cart") == null) {
             return null;
         }
-        return (Map<Product, Integer>) session.getAttribute("cart");
+        return TransformationUtil.transformMap((Map<Product, Integer>) session.getAttribute("cart"));
     }
 
     //add product to cart
     @SneakyThrows
     @PostMapping("/users/cart/products/{productId}")
-    public Map<Product, Integer> addProductToCart(@PathVariable(name = "productId") long productId,
-                                 HttpSession session) {
+    public ProductsWithPriceDTO addProductToCart(@PathVariable(name = "productId") long productId,
+                                                 HttpSession session) {
         User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
         checkForLoggedUser(user);
         Map<Product, Integer> products = new HashMap<>();
@@ -68,13 +73,14 @@ public class ShoppingCartController extends AbstractController {
         } else {
             throw new NotFoundException("The product is ot available!");
         }
-        return products;
+
+        return TransformationUtil.transformMap(products);
     }
 
     //remove product from cart
     @SneakyThrows
     @DeleteMapping("/users/cart/products/{productId}")
-    public Map<Product, Integer> removeProductFromCart(@PathVariable(name = "productId") long productId,
+    public ProductsWithPriceDTO removeProductFromCart(@PathVariable(name = "productId") long productId,
                                       HttpSession session) {
         User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
         checkForLoggedUser(user);
@@ -100,13 +106,13 @@ public class ShoppingCartController extends AbstractController {
         } else {
             throw new NotFoundException("This product is not in cart!");
         }
-        return products;
+        return TransformationUtil.transformMap(products);
     }
 
     //edit quantities in cart
     @SneakyThrows
     @PutMapping("/users/cart/products/{productId}/pieces/{quantity}")
-    public Map<Product, Integer> editProductsInCart(@PathVariable(name = "productId") long productId,
+    public ProductsWithPriceDTO editProductsInCart(@PathVariable(name = "productId") long productId,
                                    @PathVariable(name = "quantity") int quantity,
                                    HttpSession session) {
         User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
@@ -142,7 +148,7 @@ public class ShoppingCartController extends AbstractController {
         } else {
             throw new NotFoundException("This product is not in cart!");
         }
-        return products;
+        return TransformationUtil.transformMap(products);
     }
 
     //checkout

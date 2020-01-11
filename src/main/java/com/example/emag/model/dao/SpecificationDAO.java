@@ -1,29 +1,33 @@
 package com.example.emag.model.dao;
 
+import com.example.emag.model.dto.SpecificationWithProductIdDTO;
+import com.example.emag.model.pojo.Specification;
 import org.springframework.stereotype.Component;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 @Component
 public class SpecificationDAO implements ISpecificationDAO {
 
     @Override
-    public void addSpecificationInDb(Integer productId, HashMap<String, HashMap<String, String>> specifications) throws SQLException {
+    public void addSpecification(List<Specification> specifications) throws SQLException {
+        List<Specification.Spec> specs = new ArrayList<>();
         Connection connection = DBManager.getInstance().getConnection();
-        String url = "INSERT INTO specifications (title, desc_title, description, product_id) VALUES (?, ?, ?, ?);";
+        String url = "INSERT INTO specifications (title, desc_title, description, product_id ) VALUES (?, ?, ?, ?);";
         try(PreparedStatement statement = connection.prepareStatement(url)) {
-            for (String title : specifications.keySet()){
-                HashMap<String, String> spec = specifications.get(title);
-                for (Map.Entry<String, String> entry : spec.entrySet()){
-                    statement.setString(1, title);
-                    statement.setString(2, entry.getKey());
-                    statement.setString(3, entry.getValue());
-                    statement.setInt(4, productId);
+            for (Specification specification : specifications){
+                specs = specification.getSpecifications();
+                for (Specification.Spec spec : specs){
+                    statement.setString(1, specification.getTitle());
+                    statement.setString(2, spec.getDescTitle());
+                    statement.setString(3, spec.getDescription());
+                    statement.setLong(4, specification.getProductId());
                     statement.executeUpdate();
                 }
             }
@@ -31,28 +35,31 @@ public class SpecificationDAO implements ISpecificationDAO {
     }
 
     @Override
-    public HashMap<String, HashMap<String, String>> getSpecificationsForProduct(Integer productID) throws SQLException {
+    public List<Specification> getSpecificationsForProduct(Long productID) throws SQLException {
         Connection connection = DBManager.getInstance().getConnection();
         String url = "SELECT * FROM specifications WHERE product_id = ?;";
-        HashMap<String, HashMap<String, String>> specs = new HashMap<>();
+        List<Specification> specs = new ArrayList<>();
         try(PreparedStatement statement = connection.prepareStatement(url)) {
+            statement.setLong(1, productID);
             ResultSet set = statement.executeQuery();
             while (set.next()){
-                if (!specs.containsKey(set.getString("title"))){
-                    specs.put(set.getString("title"), new HashMap<>());
-                }
-                specs.get(set.getString("title")).put(set.getString("desc_title"), set.getString("description"));
+                Specification specification = new Specification();
+                specification.setId(set.getLong(1));
+                specification.setTitle(set.getString(2));
+                specification.getSpecifications().add(new Specification.Spec(set.getString(3), set.getString(4)));
+                specification.setProductId(set.getLong(5));
+                specs.add(specification);
             }
         }
         return  specs;
     }
 
     @Override
-    public void removeSpecification(Integer productId) throws SQLException {
+    public void removeSpecification(Long specificationId) throws SQLException {
         Connection connection = DBManager.getInstance().getConnection();
-        String url = "DELETE FROM specifications WHERE product_id = ?;";
+        String url = "DELETE FROM specifications WHERE id = ?;";
         try(PreparedStatement statement = connection.prepareStatement(url)) {
-            statement.setInt(1, productId);
+            statement.setLong(1, specificationId);
             statement.executeUpdate();
         }
     }
