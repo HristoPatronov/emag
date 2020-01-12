@@ -1,6 +1,5 @@
 package com.example.emag.model.dao;
 
-import com.example.emag.model.dto.SpecificationWithProductIdDTO;
 import com.example.emag.model.pojo.Specification;
 import org.springframework.stereotype.Component;
 
@@ -9,7 +8,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 @Component

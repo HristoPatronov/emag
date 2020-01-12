@@ -5,7 +5,6 @@ import com.example.emag.exceptions.NotFoundException;
 import com.example.emag.model.dao.DBManager;
 import com.example.emag.model.dao.OrderDAO;
 import com.example.emag.model.dao.ProductDAO;
-import com.example.emag.model.dto.ProductWithQuantityDTO;
 import com.example.emag.model.dto.ProductsWithPriceDTO;
 import com.example.emag.model.pojo.Order;
 import com.example.emag.model.pojo.Product;
@@ -18,10 +17,10 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpSession;
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+
+import static com.example.emag.controller.UserController.SESSION_KEY_LOGGED_USER;
 
 @RestController
 public class ShoppingCartController extends AbstractController {

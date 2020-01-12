@@ -4,9 +4,6 @@ import com.example.emag.exceptions.AuthorizationException;
 import com.example.emag.exceptions.BadRequestException;
 import com.example.emag.exceptions.NotFoundException;
 import com.example.emag.model.dto.ErrorDTO;
-import com.example.emag.model.pojo.Address;
-import com.example.emag.model.pojo.Product;
-import com.example.emag.model.pojo.User;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -17,11 +14,6 @@ import java.time.LocalDateTime;
 
 public abstract class AbstractController {
 
-    public static final String SESSION_KEY_LOGGED_USER = "logged_user";
-
-    protected void checkForAdminRights(User user) throws SQLException {
-        if (!user.isAdmin()) throw new AuthorizationException("You need to be admin to perform this!");
-    }
 
     @ExceptionHandler(NotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)

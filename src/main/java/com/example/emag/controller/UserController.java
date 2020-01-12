@@ -3,7 +3,7 @@ package com.example.emag.controller;
 import com.example.emag.model.dto.*;
 import com.example.emag.model.pojo.Address;
 import com.example.emag.model.pojo.Order;
-import com.example.emag.utils.UserUtil;
+import com.example.emag.services.UserService;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -22,7 +22,7 @@ public class UserController extends AbstractController {
     public static final String SESSION_KEY_LOGGED_USER = "logged_user";
 
     @Autowired
-    UserUtil userService;
+    UserService userService;
 
     //register
     @SneakyThrows
