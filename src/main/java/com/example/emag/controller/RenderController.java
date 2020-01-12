@@ -1,6 +1,11 @@
 package com.example.emag.controller;
 
+import com.example.emag.exceptions.AuthorizationException;
+import com.example.emag.exceptions.BadRequestException;
 import com.example.emag.model.dao.PictureDAO;
+import com.example.emag.model.dao.ProductDAO;
+import com.example.emag.model.pojo.Product;
+import com.example.emag.model.pojo.User;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -21,28 +27,42 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.sql.SQLException;
 
-@RestController
-public class RenderController {
+import static com.example.emag.services.UserService.SESSION_KEY_LOGGED_USER;
 
+@RestController
+public class RenderController extends AbstractController {
 
     @Autowired
-    private PictureDAO pictureDAO;
+    private PictureDAO pictureDao;
+
+    @Autowired
+    private ProductDAO productDao;
 
     @Value("${image.path}")
     String pathDir;
 
     @RequestMapping(value = "/render/{productId}", produces = {MediaType.IMAGE_JPEG_VALUE, "application/json"}, method = RequestMethod.GET)
     public void renderImage(@PathVariable(name = "productId") long productId, HttpServletResponse response) throws IOException, SQLException {
-        String pictureUrl = pictureDAO.getPictureUrl(productId);
+        String pictureUrl = pictureDao.getPictureUrl(productId);
         ClassPathResource imgFile = new ClassPathResource("static"+ "\\" + pictureUrl);
         response.setContentType(MediaType.IMAGE_JPEG_VALUE);
         ServletOutputStream outputStream = response.getOutputStream();
         StreamUtils.copy(imgFile.getInputStream(), outputStream);
     }
 
-    @SneakyThrows
-    @PostMapping("/uploadImg")
-    public void uploadImage(MultipartFile file, Long productId) {
+    @PostMapping("/products/uploadImg")
+    public void uploadImage(@RequestParam("file") MultipartFile file,
+                            @RequestParam("productId") Long productId,
+                            HttpSession session) throws SQLException, AuthorizationException {
+        User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
+        checkForAdminRights(user);
+        Product product = productDao.getProductById(productId);
+        if (product == null) {
+            throw new BadRequestException("You cannot upload picture for product, which don't exist!");
+        }
+        if (product.isDeleted()) {
+            throw new BadRequestException("You cannot upload picture for inactive product!");
+        }
         String uploadDir = System.getProperty("user.dir") + pathDir;
         Path copyLocation = null;
         try {
@@ -52,6 +72,11 @@ public class RenderController {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        pictureDAO.addPicture(productId, file.getOriginalFilename());
+        pictureDao.addPicture(productId, file.getOriginalFilename());
+    }
+
+    private void checkForAdminRights(User user) throws AuthorizationException {
+        if (user == null) throw new AuthorizationException();
+        if (!user.isAdmin()) throw new AuthorizationException("You need to be admin to perform this!");
     }
 }

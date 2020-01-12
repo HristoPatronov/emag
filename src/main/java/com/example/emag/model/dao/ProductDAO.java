@@ -59,7 +59,7 @@ public class ProductDAO implements IProductDAO {
         String url = "SELECT p.*, sc.*, c.* FROM products AS p " +
                 "JOIN sub_categories AS sc ON p.sub_category_id = sc.id " +
                 "JOIN categories AS c ON sc.category_id = c.id " +
-                "WHERE p.sub_category_id = ? AND p.deleted = 1 AND price BETWEEN ? AND ? ORDER BY p."+ column + " " + orderBy + ";";
+                "WHERE p.sub_category_id = ? AND p.deleted = 0 AND price BETWEEN ? AND ? ORDER BY p."+ column + " " + orderBy + ";";
         try(PreparedStatement statement = connection.prepareStatement(url)) {
             statement.setLong(1, subCategoryId);
             statement.setDouble(2, minPrice);
@@ -125,7 +125,7 @@ public class ProductDAO implements IProductDAO {
         String url = "SELECT p.*, sc.*, c.* FROM products AS p " +
                 "JOIN sub_categories AS sc ON p.sub_category_id = sc.id " +
                 "JOIN categories AS c ON sc.category_id = c.id " +
-                "WHERE p.name LIKE ? AND p.deleted = 1 AND p.price BETWEEN ? AND ? ORDER BY p."+ column + " " + orderBy +";";
+                "WHERE p.name LIKE ? AND p.deleted = 0 AND p.price BETWEEN ? AND ? ORDER BY p."+ column + " " + orderBy +";";
         try(PreparedStatement statement = connection.prepareStatement(url)) {
             statement.setString(1, "%" + searchInput + "%");
             statement.setDouble(2, minPrice);

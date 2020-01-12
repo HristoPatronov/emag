@@ -12,6 +12,7 @@ import com.example.emag.model.dto.ProductWithSpecsDTO;
 import com.example.emag.model.dto.SpecificationWithProductIdDTO;
 import com.example.emag.model.pojo.Product;
 import com.example.emag.model.pojo.Specification;
+import com.example.emag.model.pojo.SubCategory;
 import com.example.emag.model.pojo.User;
 import com.example.emag.utils.SendEmailUtil;
 import lombok.SneakyThrows;
@@ -36,12 +37,15 @@ public class AdminService extends AbstractService {
     @Autowired
     private SpecificationDAO specificationDao;
 
-    private void checkForAdminRights(User user) throws SQLException {
+    private static final String PRODUCT_NAME_PATTERN = "([A-Za-z0-9'\\.\\-\\s\\,]).{5,225}";
+    private static final String PRODUCT_DESCRIPTION_PATTERN = "([A-Za-z0-9'\\.\\-\\s\\,]).{10,225}";
+
+    private void checkForAdminRights(User user) throws AuthorizationException {
         if (user == null) throw new AuthorizationException();
         if (!user.isAdmin()) throw new AuthorizationException("You need to be admin to perform this!");
     }
 
-    protected void checkForProductExistence(Product product) throws SQLException {
+    protected void checkForProductExistence(Product product) throws NotFoundException {
         if (product == null) throw new NotFoundException("Product not found");
     }
 
@@ -49,9 +53,13 @@ public class AdminService extends AbstractService {
                                           HttpSession session) throws SQLException {
         User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
         checkForAdminRights(user);
-        //TODO validate product
+        validateProductDto(productDto);
+        SubCategory subCategory = subCategoryDao.getSubcategoryById(productDto.getProduct().getSubCategory().getId());
+        if (subCategory == null) {
+            throw new BadRequestException("No such subcategory found!");
+        }
         productDao.addProduct(productDto.getProduct());
-        productDto.getProduct().setSubCategory(subCategoryDao.getSubcategoryById(productDto.getProduct().getSubCategory().getId()));
+        productDto.getProduct().setSubCategory(subCategory);
         List<Specification> specifications = new ArrayList<>();
         for (SpecificationWithProductIdDTO specificationWithProductIdDTO : productDto.getSpecifications()){
             specificationWithProductIdDTO.setProductId(productDto.getProduct().getId());
@@ -59,6 +67,27 @@ public class AdminService extends AbstractService {
         }
         specificationDao.addSpecification(specifications);
         return productDto;
+    }
+
+    private void validateProductDto(ProductWithSpecsDTO productDto) {
+        if (!productDto.getProduct().getName().trim().matches(PRODUCT_NAME_PATTERN)) {
+            throw new BadRequestException("Invalid name!");
+        }
+        if (!productDto.getProduct().getDescription().trim().matches(PRODUCT_DESCRIPTION_PATTERN)) {
+            throw new BadRequestException("Invalid description!");
+        }
+        if (productDto.getProduct().getPrice() <= 0) {
+            throw new BadRequestException("Invalid price!");
+        }
+        if (productDto.getProduct().getDiscount() < 0 && productDto.getProduct().getDiscount() >= 100) {
+            throw new BadRequestException("Invalid discount!");
+        }
+        if (productDto.getProduct().getStock() <= 0) {
+            throw new BadRequestException("Invalid stock!");
+        }
+        if (productDto.getProduct().getSubCategory().getId() <= 0) {
+            throw new BadRequestException("Invalid subcategory id!");
+        }
     }
 
     public Product removeProduct(long productId,

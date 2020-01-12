@@ -27,7 +27,7 @@ public class ProductService extends AbstractService {
     @Autowired
     private ReviewDAO reviewDAO;
 
-    protected void checkForProductExistence(Product product) throws SQLException {
+    protected void checkForProductExistence(Product product) throws NotFoundException {
         if (product == null) throw new NotFoundException("Product not found");
     }
 
@@ -45,15 +45,26 @@ public class ProductService extends AbstractService {
     }
 
     public List<Product> productsFromSearch(ProductFilteringDTO productFilteringDTO, HttpSession session) throws SQLException {
-        if (productFilteringDTO.getMinPrice() < 0
-            || productFilteringDTO.getMaxPrice() < 0
-            || productFilteringDTO.getSubCategoryId() < 1){
-            throw new BadRequestException("You cannot search for products with wrong input information");
+        if (productFilteringDTO.getSubCategoryId() != null && productFilteringDTO.getSubCategoryId() < 1) {
+            throw new BadRequestException("Invalid input for subcategory!");
+        }
+        if (productFilteringDTO.getMinPrice() != null && productFilteringDTO.getMinPrice() < 1) {
+            throw new BadRequestException("Invalid input for min price!");
+        }
+        if (productFilteringDTO.getMaxPrice() != null && productFilteringDTO.getMaxPrice() < 1) {
+            throw new BadRequestException("Invalid input for max price!");
+        }
+        if (productFilteringDTO.getSearchText() != null && productFilteringDTO.getSearchText().trim().isEmpty()) {
+            throw new BadRequestException("Invalid input search");
+        }
+        if (productFilteringDTO.getOrderBy() != null &&
+                (!productFilteringDTO.getOrderBy().equals("ASC") && !productFilteringDTO.getOrderBy().equals("DESC"))) {
+            throw new BadRequestException("Invalid order by field");
         }
         if (productFilteringDTO.getSubCategoryId() == null && productFilteringDTO.getSearchText() == null){
             throw new BadRequestException("You cannot search for products without sub category and search text");
         }
-        List<Product> currentProducts = new ArrayList<>();
+        List<Product> currentProducts;
         if (productFilteringDTO.getSubCategoryId() != null){
             currentProducts = productDao.getProductsBySubCategory(productFilteringDTO.getSubCategoryId(),
                     productFilteringDTO.getColumn(),
@@ -61,7 +72,7 @@ public class ProductService extends AbstractService {
                     productFilteringDTO.getMaxPrice(),
                     productFilteringDTO.getOrderBy());
         } else if (productFilteringDTO.getSearchText() != null && !productFilteringDTO.getSearchText().trim().isEmpty()){
-            currentProducts = productDao.getProductsFromSearch( productFilteringDTO.getSearchText(),
+            currentProducts = productDao.getProductsFromSearch(productFilteringDTO.getSearchText().trim().toLowerCase(),
                     productFilteringDTO.getColumn(),
                     productFilteringDTO.getMinPrice(),
                     productFilteringDTO.getMaxPrice(),

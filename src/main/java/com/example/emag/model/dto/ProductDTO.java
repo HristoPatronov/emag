@@ -14,11 +14,9 @@ public class ProductDTO {
 
     private long id;
     private String name;
-    private String description;
     private Double price;
     private Integer discount;
     private Integer stock;
-    private Long subCategoryId;
 
     public ProductDTO(Product product) {
         setId(product.getId());
@@ -26,6 +24,5 @@ public class ProductDTO {
         setPrice(product.getPrice());
         setDiscount(product.getDiscount());
         setStock(product.getStock());
-        setSubCategoryId(product.getSubCategory().getId());
     }
 }

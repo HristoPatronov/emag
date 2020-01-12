@@ -16,5 +16,5 @@ public class ProductFilteringDTO {
     private String searchText;
     private Double minPrice;
     private Double maxPrice;
-    private String OrderBy;
+    private String orderBy;
 }

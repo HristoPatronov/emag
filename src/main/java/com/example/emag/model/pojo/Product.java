@@ -27,17 +27,6 @@ public class Product {
     private SubCategory subCategory;
     private boolean deleted;
 
-    public Product (ProductDTO productDTO){
-        this.setName(productDTO.getName());
-        this.setDescription(productDTO.getDescription());
-        this.setPrice(productDTO.getPrice());
-        this.setDiscount(productDTO.getDiscount());
-        this.setStock(productDTO.getStock());
-        SubCategory subCategory = new SubCategory();
-        subCategory.setId(productDTO.getSubCategoryId());
-        this.setSubCategory(subCategory);
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

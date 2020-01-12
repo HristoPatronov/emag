@@ -40,12 +40,11 @@ public class UserService extends AbstractService {
     private static final String LAST_NAME_PATTERN = "([a-zA-z]+([ '-][a-zA-Z]+)*).{2,45}";
     private static final String EMAIL_PATTERN = "^[\\w-_\\.+]*[\\w-_\\.]\\@([\\w]+\\.)+[\\w]+[\\w]$";
     private static final String PASSWORD_PATTERN = "((?=.*[a-z])(?=.*\\d)(?=.*[A-Z])(?=.*[@#$%!]).{6,225})";
-    private static final String CITY_PATTERN = "[A-Za-z'\\.\\-\\s\\,]";
-    private static final String DISTRICT_PATTERN = "[A-Za-z0-9'\\.\\-\\s\\,]";
-    private static final String STREET_PATTERN = "[A-Za-z0-9'\\.\\-\\s\\,]";
+    private static final String CITY_PATTERN = "^[a-zA-Z]+(?:[\\s-][a-zA-Z]+)*$";
+    private static final String DISTRICT_PATTERN = "^[0-9a-zA-Z\\s,-]+$";
+    private static final String STREET_PATTERN = "^[#.0-9a-zA-Z\\s,-]+$";
     private static final String ZIP_PATTERN = "^[0-9\\-\\+]{4,4}$";
     private static final String PHONE_NUMBER_PATTERN = "^[0-9\\-\\+]{6,15}$";
-
 
     private static boolean isFirstNameValid(String firstName){
         return firstName.matches(FIRST_NAME_PATTERN);
@@ -303,8 +302,7 @@ public class UserService extends AbstractService {
         checkForLoggedUser(user);
         Address address = addressDao.getAddress(addressId);
         checkForAddressExistence(address);
-        List<Address> addresses = addressDao.getAllAddresses(user.getId());
-        if (!addresses.contains(address)) {
+        if (address.getUser().getId() != user.getId()) {
             throw new AuthorizationException("This address does not belong to this user!");
         }
         addressDao.deleteAddress(addressId);

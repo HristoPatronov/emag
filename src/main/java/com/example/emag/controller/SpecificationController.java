@@ -17,7 +17,7 @@ public class SpecificationController {
     private SpecificationDAO specificationDAO;
 
     @GetMapping("/specifications/{productId}")
-    public List<Specification> asd(@PathVariable(name = "productId") long productId) throws SQLException {
+    public List<Specification> getSpecification(@PathVariable(name = "productId") long productId) throws SQLException {
         return specificationDAO.getSpecificationsForProduct(productId);
     }
 }

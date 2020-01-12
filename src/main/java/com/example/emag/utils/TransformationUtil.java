@@ -4,12 +4,13 @@ import com.example.emag.model.dto.ProductWithQuantityDTO;
 import com.example.emag.model.dto.ProductsWithPriceDTO;
 import com.example.emag.model.pojo.Product;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 public class TransformationUtil {
-
 
     public static ProductsWithPriceDTO transformMap(Map<Product, Integer> products){
         double price = 0;
@@ -21,9 +22,16 @@ public class TransformationUtil {
             productsWithQuantityDTO.add(productWithQuantityDTO);
 
             Product product = productWithQuantityDTO.getProduct();
-            price += (product.getPrice() * (1 -  ((double)product.getDiscount() / 100)))
-                    * productWithQuantityDTO.getQuantity();
+            price += round((product.getPrice() * (1 -  ((double)product.getDiscount() / 100)))
+                    * productWithQuantityDTO.getQuantity(), 2);
         }
         return new ProductsWithPriceDTO(productsWithQuantityDTO, price);
+    }
+
+    private static double round(double value, int places) {
+        if (places < 0) throw new IllegalArgumentException();
+        BigDecimal bd = BigDecimal.valueOf(value);
+        bd = bd.setScale(places, RoundingMode.HALF_UP);
+        return bd.doubleValue();
     }
 }

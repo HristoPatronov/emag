@@ -14,7 +14,6 @@ import java.time.LocalDateTime;
 
 public abstract class AbstractController {
 
-
     @ExceptionHandler(NotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorDTO handleNotFound(Exception e) {
