@@ -1,4 +1,4 @@
-package com.example.emag.controller;
+package com.example.emag.utils;
 
 import lombok.SneakyThrows;
 
@@ -7,7 +7,7 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import java.util.Properties;
 
-public class SendEmailController {
+public class SendEmailUtil {
 
     //send email if discount or quantity update are made
     private static final String SENDER = "emag.no.reply@gmail.com";

@@ -6,12 +6,12 @@ import com.example.emag.model.dao.SpecificationDAO;
 import com.example.emag.model.dao.SubCategoryDAO;
 import com.example.emag.model.dao.UserDAO;
 import com.example.emag.model.dto.EditProductDTO;
-import com.example.emag.model.dto.ProductDTO;
 import com.example.emag.model.dto.ProductWithSpecsDTO;
 import com.example.emag.model.dto.SpecificationWithProductIdDTO;
 import com.example.emag.model.pojo.Product;
 import com.example.emag.model.pojo.Specification;
 import com.example.emag.model.pojo.User;
+import com.example.emag.utils.SendEmailUtil;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -116,7 +116,7 @@ public class AdminController extends AbstractController{
                 "\n\nThe product is waiting for you" +
                 "\n\nYour Emag Team", discount, "%", product.getName(), newPrice, product.getPrice());
         for (String email : emails) {
-            SendEmailController.sendMail(email, subject, body);
+            SendEmailUtil.sendMail(email, subject, body);
         }
     }
 }
