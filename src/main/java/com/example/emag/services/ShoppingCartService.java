@@ -28,6 +28,7 @@ import static com.example.emag.controller.UserController.SESSION_KEY_LOGGED_USER
 @Service
 public class ShoppingCartService extends AbstractService{
 
+    public static final int ORDER_STATUS_NEW = 1;
     @Autowired
     private ProductDAO productDao;
 
@@ -55,9 +56,7 @@ public class ShoppingCartService extends AbstractService{
             products = (Map<Product, Integer>) session.getAttribute("cart");
         }
         Product fetchedProduct = productDao.getProductById(productId);
-        if (fetchedProduct == null) {
-            throw new NotFoundException("No such product found");
-        }
+        checkForProductExistence(fetchedProduct);
         if (fetchedProduct.isDeleted()) {
             throw new BadRequestException("The product is not active!");
         }
@@ -87,9 +86,7 @@ public class ShoppingCartService extends AbstractService{
             throw new BadRequestException("The cart is empty");
         }
         Product fetchedProduct = productDao.getProductById(productId);
-        if (fetchedProduct == null) {
-            throw new NotFoundException("No such product found");
-        }
+        checkForProductExistence(fetchedProduct);
         if (products.containsKey(fetchedProduct)) {
             try {
                 productDao.removeReservedQuantity(fetchedProduct.getId(),
@@ -118,9 +115,7 @@ public class ShoppingCartService extends AbstractService{
             throw new BadRequestException("The cart is empty");
         }
         Product fetchedProduct = productDao.getProductById(productId);
-        if (fetchedProduct == null) {
-            throw new NotFoundException("No such product found");
-        }
+        checkForProductExistence(fetchedProduct);
         if (quantity < 1 || quantity > 10) {
             throw new BadRequestException("Quantity should be in interval between 1 and 10");
         }
@@ -147,7 +142,7 @@ public class ShoppingCartService extends AbstractService{
 
     //checkout
     @SneakyThrows
-    public Order checkout(long paymentType, HttpSession session) {
+    public Order checkout(long paymentTypeId, HttpSession session) {
         User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
         checkForLoggedUser(user);
         Map<Product, Integer> products;
@@ -156,33 +151,15 @@ public class ShoppingCartService extends AbstractService{
         } else {
             throw new BadRequestException("The cart is empty");
         }
-        double totalPrice = TransformationUtil.transformMap(products).getTotalPrice();
-        Order order = new Order(totalPrice, LocalDate.now(), user, new Order.PaymentType(paymentType),
-                new Order.Status(1));
-        try {
-            DBManager.getInstance().getConnection().setAutoCommit(false);
-            orderDao.addOrder(order);
-            productDao.addProductsToOrder(products, order.getId());
-            productDao.removeProducts(products);
-            productDao.removeReservedQuantities(products);
-            DBManager.getInstance().getConnection().commit();
-            session.setAttribute("cart", null);
-            order.setPaymentType(orderDao.getPaymentTypeById(paymentType));
-            order.setStatus(orderDao.getStatusById(order.getStatus().getId()));
-        } catch (SQLException e) {
-            try {
-                DBManager.getInstance().getConnection().rollback();
-            } catch (SQLException ex) {
-                System.out.println(e.getMessage());
-            }
-            System.out.println(e.getMessage());
-        } finally {
-            try {
-                DBManager.getInstance().getConnection().setAutoCommit(true);
-            } catch (SQLException e) {
-                System.out.println(e.getMessage());
-            }
+        Order.PaymentType paymentType = orderDao.getPaymentTypeById(paymentTypeId);
+        if (paymentType == null) {
+            throw new NotFoundException("Payment type not found!");
         }
+        double totalPrice = TransformationUtil.transformMap(products).getTotalPrice();
+        Order order = new Order(totalPrice, LocalDate.now(), user, paymentType,
+                new Order.Status(ORDER_STATUS_NEW));
+        order = orderDao.addOrder(order, products);
+        session.setAttribute("cart", null);
         return order;
     }
 }

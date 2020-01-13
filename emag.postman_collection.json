@@ -69,7 +69,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Basic aHJpc3RvcGF0cm9ub3ZAZ21haWwuY29tOmhwYXRyb25vdg==",
+								"value": "Basic YWRtaW46YWRtaW4=",
 								"description": ""
 							},
 							{
@@ -80,7 +80,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"email\" : \"sadhaskd@av.bg\",\n    \"password\" : \"Asdf@89\"\n   \n}"
+							"raw": "{\n    \"email\" : \"hristopatronov@gmail.com\",\n    \"password\" : \"Asd@8a\"\n   \n}"
 						},
 						"description": ""
 					},
@@ -112,7 +112,7 @@
 					"response": []
 				},
 				{
-					"name": "get userf info",
+					"name": "get user info",
 					"request": {
 						"url": "localhost:8080/users",
 						"method": "GET",
@@ -255,7 +255,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"email\" : \"hristopatronov1@gmail.com\",\n    \"password\" : \"Asdf@89\"\n   \n}"
+							"raw": "{\n    \"first_name\" : \"Hristo\",\n    \"last_name\" : \"Patronov\",\n    \"email\" : \"hristopatronov@gmail.com\"\n   \n}"
 						},
 						"description": ""
 					},
@@ -624,7 +624,7 @@
 					"response": []
 				},
 				{
-					"name": "search product by name",
+					"name": "search product by subcategory",
 					"request": {
 						"url": "localhost:8080/products/search",
 						"method": "POST",
@@ -642,7 +642,59 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\" : \"Bateriq\",\n    \"description\" : \"10 000 mAh\", \n    \"price\" : 20.99,\n    \"discount\" : 0,\n    \"stock\" : 10,\n    \"subCategory\" : {\n    \t\"id\" : 1\n    }\n   \n}"
+							"raw": "{\n\t\"subCategoryId\" : 2,\n\t\"column\" : \"price\",\n\t\"minPrice\" : 100,\n\t\"maxPrice\" : 1000,\n\t\"orderBy\" : \"DESC\"\n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "search product by text",
+					"request": {
+						"url": "localhost:8080/products/search",
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Basic aHJpc3RvcGF0cm9ub3ZAZ21haWwuY29tOmhwYXRyb25vdg==",
+								"description": ""
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"searchText\" : \"PHONE\",\n\t\"column\": \"price\",\n\t\"minPrice\" : 100,\n\t\"maxPrice\" : 1000,\n\t\"orderBy\" : \"ASC\"\n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "get picture of product",
+					"request": {
+						"url": "localhost:8080/render/1",
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"description": "",
+									"type": "file",
+									"src": "res_bd76ee59005f244f6f6520d42577d875_450x450_c9k7.jpg"
+								},
+								{
+									"key": "productId",
+									"value": "1",
+									"description": "",
+									"type": "text"
+								}
+							]
 						},
 						"description": ""
 					},
@@ -754,7 +806,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\" : \"Bateriq\",\n    \"description\" : \"10 000 mAh\", \n    \"price\" : 20.99,\n    \"discount\" : 0,\n    \"stock\" : 10,\n    \"subCategory\" : {\n    \t\"id\" : 1\n    }\n   \n}"
+							"raw": "{\n\t\"product\" : {\n    \t\"name\" : \"Samsung Galaxy A50, Dual SIM, 128GB, 4G, Black\",\n    \t\"description\" : \"Big battery with fast charging\", \n    \t\"price\" : 498.99,\n    \t\"discount\" : 0,\n    \t\"stock\" : 50,\n    \t\"subCategory\" : {\n    \t\"id\" : 2\n    \t}\n\t},\n\t\"specifications\" : [\n\t\t{\n\t\t\"title\" : \"Characteristics\",\n\t\t\"specList\" : [\n\t\t\t{\n\t\t\t\"descTitle\" : \"Sim slots\",\n\t\t\t\"description\" : \"Dual Sim\"\n\t\t\t}\n\t\t]},\n\t\t{\n\t\t\"title\" : \"Main\",\n\t\t\"specList\" : [\n\t\t\t{\n\t\t\t\"descTitle\" : \"Touchscreen\",\n\t\t\t\"description\" : \"Yes\"\n\t\t\t},\n\t\t\t{\n\t\t\t\"descTitle\" : \"Keyboard\",\n\t\t\t\"description\" : \"Standart\"\n\t\t\t},\n\t\t\t{\n\t\t\t\"descTitle\" : \"CPU model\",\n\t\t\t\"description\" : \"Octa-Core\"\n\t\t\t}\n\t\t]}\n\t]\n}"
 						},
 						"description": ""
 					},
@@ -804,7 +856,34 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"id\" : 6,\n    \"name\" : \"Bateriq\",\n    \"description\" : \"10 000 mAh\", \n    \"price\" : 20.99,\n    \"discount\" : 0,\n    \"stock\" : 100\n \n}"
+							"raw": "{\n\t\"id\" : 1,\n\t\"name\" : \"Apple iPhone 7 32GB, Black\",\n\t\"description\" : \"New innovation level with super functionalities\", \n    \"price\" : 826.45,\n    \"discount\" : 0,\n    \"stock\" : 103\n}"
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "add picture to product",
+					"request": {
+						"url": "localhost:8080/products/uploadImg",
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"description": "",
+									"type": "file",
+									"src": "res_bd76ee59005f244f6f6520d42577d875_450x450_c9k7.jpg"
+								},
+								{
+									"key": "productId",
+									"value": "1",
+									"description": "",
+									"type": "text"
+								}
+							]
 						},
 						"description": ""
 					},

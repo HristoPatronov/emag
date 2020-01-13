@@ -44,7 +44,9 @@ public class SubCategoryDAO implements ISubCategoryDAO {
         try (PreparedStatement statement = connection.prepareStatement(url)) {
             statement.setLong(1, subCategoryId);
             ResultSet set = statement.executeQuery();
-            set.next();
+            if (!set.next()){
+                return null;
+            }
             subCategory = new SubCategory(set.getLong(1),
                     set.getString(2),
                     set.getBoolean(3),

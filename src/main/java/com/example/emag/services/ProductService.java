@@ -5,6 +5,7 @@ import com.example.emag.exceptions.NotFoundException;
 import com.example.emag.model.dao.ProductDAO;
 import com.example.emag.model.dao.ReviewDAO;
 import com.example.emag.model.dao.SpecificationDAO;
+import com.example.emag.model.dao.SubCategoryDAO;
 import com.example.emag.model.dto.ProductFilteringDTO;
 import com.example.emag.model.dto.ProductWithAllDTO;
 import com.example.emag.model.pojo.Product;
@@ -26,6 +27,8 @@ public class ProductService extends AbstractService {
     private SpecificationDAO specificationDAO;
     @Autowired
     private ReviewDAO reviewDAO;
+    @Autowired
+    private SubCategoryDAO subCategoryDao;
 
     protected void checkForProductExistence(Product product) throws NotFoundException {
         if (product == null) throw new NotFoundException("Product not found");
@@ -34,13 +37,14 @@ public class ProductService extends AbstractService {
     public ProductWithAllDTO getProduct(long productId,
                                         HttpSession session) throws SQLException {
         Product product = productDao.getProductById(productId);
-        List<Specification> specifications = specificationDAO.getSpecificationsForProduct(productId);
-        List<Review> reviews = reviewDAO.getAllReviewsForProduct(productId);
-        ProductWithAllDTO productWithAllDTO = new ProductWithAllDTO(product, specifications, reviews);
         checkForProductExistence(product);
         if (product.isDeleted()) {
             throw new BadRequestException("The product is not active!");
         }
+        List<Specification> specifications = specificationDAO.getSpecificationsForProduct(productId);
+        List<Review> reviews = reviewDAO.getAllReviewsForProduct(productId);
+        ProductWithAllDTO productWithAllDTO = new ProductWithAllDTO(product, specifications, reviews);
+        checkForProductExistence(product);
         return productWithAllDTO;
     }
 
@@ -63,6 +67,12 @@ public class ProductService extends AbstractService {
         }
         if (productFilteringDTO.getSubCategoryId() == null && productFilteringDTO.getSearchText() == null){
             throw new BadRequestException("You cannot search for products without sub category and search text");
+        }
+        if (productFilteringDTO.getColumn() != null && !productFilteringDTO.getColumn().equals("price")) {
+            throw new BadRequestException("Wrong input for field - column!");
+        }
+        if (subCategoryDao.getSubcategoryById(productFilteringDTO.getSubCategoryId()) == null) {
+            throw new NotFoundException("No such subcategory!");
         }
         List<Product> currentProducts;
         if (productFilteringDTO.getSubCategoryId() != null){

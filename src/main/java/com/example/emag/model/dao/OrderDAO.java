@@ -1,19 +1,26 @@
 package com.example.emag.model.dao;
 
 import com.example.emag.model.pojo.Order;
+import com.example.emag.model.pojo.Product;
 import com.example.emag.model.pojo.User;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Component
 public class OrderDAO implements IOrderDAO {
 
+    @Autowired
+    private ProductDAO productDao;
+
     @Override
-    public void addOrder(Order order) throws SQLException {
+    public Order addOrder(Order order, Map<Product, Integer> products) throws SQLException {
         Connection connection = DBManager.getInstance().getConnection();
+        connection.setAutoCommit(false);
         String url = "INSERT INTO orders (total_price, date, user_id, payment_type_id, status_id) VALUES (?,?,?,?,?);";
         try(PreparedStatement statement = connection.prepareStatement(url, Statement.RETURN_GENERATED_KEYS)) {
             statement.setDouble(1, order.getTotalPrice());
@@ -25,7 +32,17 @@ public class OrderDAO implements IOrderDAO {
             ResultSet keys = statement.getGeneratedKeys();
             keys.next();
             order.setId(keys.getLong(1));
+            productDao.addProductsToOrder(products, order.getId());
+            productDao.removeProducts(products);
+            productDao.removeReservedQuantities(products);
+            DBManager.getInstance().getConnection().commit();
+            order.setStatus(getStatusById(order.getStatus().getId()));
+        } catch (SQLException e) {
+            connection.rollback();
+        } finally {
+            connection.setAutoCommit(true);
         }
+        return order;
     }
 
     @Override
@@ -68,7 +85,9 @@ public class OrderDAO implements IOrderDAO {
         try(PreparedStatement statement = connection.prepareStatement(url)) {
             statement.setLong(1, statusId);
             ResultSet set = statement.executeQuery();
-            set.next();
+            if (!set.next()){
+                return null;
+            }
             status = new Order.Status(statusId, set.getString(1));
         }
         return status;
@@ -82,7 +101,9 @@ public class OrderDAO implements IOrderDAO {
         try(PreparedStatement statement = connection.prepareStatement(url)) {
             statement.setLong(1, paymentTypeId);
             ResultSet set = statement.executeQuery();
-            set.next();
+            if (!set.next()){
+                return null;
+            }
             type = new Order.PaymentType(paymentTypeId, set.getString(1));
         }
         return type;

@@ -36,7 +36,7 @@ public class ReviewDAO implements IReviewDAO {
                 "JOIN users AS u ON r.user_id = u.id " +
                 "JOIN products AS p ON r.product_id = p.id " +
                 "JOIN sub_categories AS sc ON p.sub_category_id = sc.id " +
-                "JOIN categories AS c ON sc.category_id = c.id WHERE r.product_id = ?;";
+                "JOIN categories AS c ON sc.category_id = c.id WHERE r.product_id = ? ORDER BY r.date DESC;";
         Review review = null;
         try(PreparedStatement statement = connection.prepareStatement(url)) {
             statement.setLong(1, productId);
@@ -81,7 +81,7 @@ public class ReviewDAO implements IReviewDAO {
                 "JOIN users AS u ON r.user_id = u.id " +
                 "JOIN products AS p ON r.product_id = p.id " +
                 "JOIN sub_categories AS sc ON p.sub_category_id = sc.id " +
-                "JOIN categories AS c ON sc.category_id = c.id WHERE r.user_id = ?;";
+                "JOIN categories AS c ON sc.category_id = c.id WHERE r.user_id = ? ORDER BY r.date DESC;";
         Review review = null;
         try(PreparedStatement statement = connection.prepareStatement(url)) {
             statement.setLong(1, userId);

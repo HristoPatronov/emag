@@ -88,6 +88,7 @@ public class AdminService extends AbstractService {
         if (productDto.getProduct().getSubCategory().getId() <= 0) {
             throw new BadRequestException("Invalid subcategory id!");
         }
+        //TODO validate specifications
     }
 
     public Product removeProduct(long productId,
@@ -95,6 +96,9 @@ public class AdminService extends AbstractService {
         User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
         checkForAdminRights(user);
         Product product = productDao.getProductById(productId);
+        if (product == null) {
+            throw new NotFoundException("No product with this id!");
+        }
         checkForProductExistence(product);
         productDao.removeProduct(productId);
         product.setDeleted(true);

@@ -67,9 +67,6 @@ public class ReviewService extends AbstractService {
             throw new BadRequestException("The product is not active!");
         }
         List<Review> reviews = reviewDao.getAllReviewsForProduct(product.getId());
-        if (reviews.isEmpty()) {
-            throw new NotFoundException("This product has no reviews!");
-        }
         List<GetProductReviewDTO> responseDto = new ArrayList<>();
         for (Review review : reviews) {
             responseDto.add(new GetProductReviewDTO(review));
@@ -83,9 +80,6 @@ public class ReviewService extends AbstractService {
         User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
         checkForLoggedUser(user);
         List<Review> reviews = reviewDao.getAllReviewsForUser(user.getId());
-        if (reviews.isEmpty()) {
-            throw new NotFoundException("You have no reviews");
-        }
         List<GetUserReviewDTO> responseDto = new ArrayList<>();
         for (Review review : reviews) {
             responseDto.add(new GetUserReviewDTO(review));
