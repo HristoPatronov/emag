@@ -3,6 +3,8 @@ package com.example.emag.controller;
 import com.example.emag.model.dto.*;
 import com.example.emag.model.pojo.Address;
 import com.example.emag.model.pojo.Order;
+import com.example.emag.model.pojo.Product;
+import com.example.emag.model.pojo.User;
 import com.example.emag.services.UserService;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,10 +13,13 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
 import java.util.List;
+import java.util.Map;
 
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+
+import static com.example.emag.utils.UserUtil.SESSION_KEY_LOGGED_USER;
 
 @RestController
 public class UserController extends AbstractController {
@@ -29,7 +34,9 @@ public class UserController extends AbstractController {
     @PostMapping("/users")
     public UserWithoutPasswordDTO register(@RequestBody RegisterUserDTO userDto,
                                            HttpSession session) {
-        return userService.registerUser(userDto, session);
+        User user = userService.registerUser(userDto);
+        session.setAttribute(SESSION_KEY_LOGGED_USER, user);
+        return new UserWithoutPasswordDTO(user);
     }
 
     //login
@@ -37,28 +44,38 @@ public class UserController extends AbstractController {
     @PostMapping("/users/login")
     public UserWithoutPasswordDTO login(@RequestBody LoginUserDTO userDto,
                                         HttpSession session) {
-        return userService.loginUser(userDto, session);
+        User user = userService.loginUser(userDto);
+        session.setAttribute(SESSION_KEY_LOGGED_USER, user);
+        return new UserWithoutPasswordDTO(user);
     }
 
     //logout
     @SneakyThrows
     @PostMapping("/users/logout")
     public void logout(HttpSession session) {
-        userService.logoutUser(session);
+        if (session.getAttribute("cart") != null) {
+            Map<Product, Integer> products = (Map<Product, Integer>) session.getAttribute("cart");
+            userService.logoutUser(products);
+        }
+        session.invalidate();
     }
 
     //change subscription
     @SneakyThrows
     @PutMapping("/users/subscription")
     public UserWithoutPasswordDTO unsubscribe(HttpSession session) {
-        return userService.changeSubscription(session);
+        User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
+        UserWithoutPasswordDTO userWithoutPasswordDTO = userService.changeSubscription(user);
+        session.setAttribute(SESSION_KEY_LOGGED_USER, user);
+        return userWithoutPasswordDTO;
     }
 
     //get user info
     @SneakyThrows
     @GetMapping("/users")
     public UserWithoutPasswordDTO getInfo(HttpSession session) {
-        return userService.getUserInfo(session);
+        User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
+        return userService.getUserInfo(user);
     }
 
     //update user info
@@ -66,7 +83,10 @@ public class UserController extends AbstractController {
     @PutMapping("/users")
     public UserWithoutPasswordDTO updateUserInfo(@RequestBody UserWithoutPasswordDTO userDto,
                                                  HttpSession session) {
-        return userService.updateUserInfo(userDto, session);
+        User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
+        UserWithoutPasswordDTO userWithoutPasswordDTO = userService.updateUserInfo(userDto, user);
+        session.setAttribute(SESSION_KEY_LOGGED_USER, user);
+        return userWithoutPasswordDTO;
     }
 
     //change password
@@ -74,21 +94,26 @@ public class UserController extends AbstractController {
     @PutMapping("/users/password")
     public UserWithoutPasswordDTO userChangePassword(@RequestBody UserPasswordDTO userPasswordDto,
                                      HttpSession session) {
-        return userService.changePassword(userPasswordDto,session);
+        User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
+        UserWithoutPasswordDTO userWithoutPasswordDTO = userService.changePassword(userPasswordDto,user);
+        session.setAttribute(SESSION_KEY_LOGGED_USER, user);
+        return userWithoutPasswordDTO;
     }
 
     //get all addresses
     @SneakyThrows
     @GetMapping("/users/addresses")
     public List<AddressDTO> allAdressesByUserId(HttpSession session) {
-        return userService.getAllAddresses(session);
+        User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
+        return userService.getAllAddresses(user);
     }
 
     //add address
     @SneakyThrows
     @PostMapping("/users/addresses")
     public AddressDTO addAddress(@RequestBody Address address, HttpSession session) {
-        return userService.addAddress(address, session);
+        User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
+        return userService.addAddress(address, user);
     }
 
     //remove address
@@ -96,7 +121,8 @@ public class UserController extends AbstractController {
     @DeleteMapping("/users/addresses/{addressId}")
     public AddressDTO deleteAddress(@PathVariable(name="addressId") long addressId,
                                     HttpSession session) {
-        return userService.removeAddress(addressId, session);
+        User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
+        return userService.removeAddress(addressId, user);
     }
 
     //edit address
@@ -104,14 +130,16 @@ public class UserController extends AbstractController {
     @PutMapping("/users/addresses")
     public AddressDTO editAddress(@RequestBody Address address,
                             HttpSession session) {
-        return userService.editAddress(address, session);
+        User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
+        return userService.editAddress(address, user);
     }
 
     //get orders
     @SneakyThrows
     @GetMapping("/users/orders")
     public List<Order> allOrders(HttpSession session) {
-        return userService.getAllUserOrders(session);
+        User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
+        return userService.getAllUserOrders(user);
     }
 
     //get products by order
@@ -119,15 +147,16 @@ public class UserController extends AbstractController {
     @GetMapping("/users/orders/{orderId}")
     public OrderWithProductsDTO productsByOrder(@PathVariable(name="orderId") long orderId,
                                                  HttpSession session) {
-        return userService.getAllProductsByOrder(orderId, session);
+        User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
+        return userService.getAllProductsByOrder(orderId, user);
     }
 
     //get favourite products
     @SneakyThrows
     @GetMapping("/users/favourites")
     public List<ProductDTO> getFavouriteProducts(HttpSession session) {
-
-        return userService.getFavouriteProducts(session);
+        User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
+        return userService.getFavouriteProducts(user);
     }
 
     //add to favourite
@@ -135,7 +164,8 @@ public class UserController extends AbstractController {
     @PostMapping("/users/favourites/{productId}")
     public ProductDTO addFavouriteProduct(@PathVariable(name="productId") long productId,
                                             HttpSession session) {
-        return userService.addFavouriteProduct(productId, session);
+        User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
+        return userService.addFavouriteProduct(productId, user);
     }
 
     //delete from favourite
@@ -143,6 +173,7 @@ public class UserController extends AbstractController {
     @DeleteMapping("/users/favourites/{productId}")
     public ProductDTO deleteFavouriteProduct(@PathVariable(name="productId") long productId,
                                             HttpSession session) {
-        return userService.deleteProduct(productId, session);
+        User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
+        return userService.deleteProduct(productId, user);
     }
 }

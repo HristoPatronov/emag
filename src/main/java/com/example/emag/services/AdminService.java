@@ -19,12 +19,10 @@ import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.servlet.http.HttpSession;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.example.emag.services.UserService.SESSION_KEY_LOGGED_USER;
 @Service
 public class AdminService extends AbstractService {
 
@@ -50,8 +48,8 @@ public class AdminService extends AbstractService {
     }
 
     public ProductWithSpecsDTO addProduct(ProductWithSpecsDTO productDto,
-                                          HttpSession session) throws SQLException {
-        User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
+                                          User user) throws SQLException {
+
         checkForAdminRights(user);
         validateProductDto(productDto);
         SubCategory subCategory = subCategoryDao.getSubcategoryById(productDto.getProduct().getSubCategory().getId());
@@ -92,8 +90,8 @@ public class AdminService extends AbstractService {
     }
 
     public Product removeProduct(long productId,
-                                 HttpSession session) throws SQLException {
-        User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
+                                User user) throws SQLException {
+
         checkForAdminRights(user);
         Product product = productDao.getProductById(productId);
         if (product == null) {
@@ -106,8 +104,8 @@ public class AdminService extends AbstractService {
     }
 
     public Product editProduct(EditProductDTO editProductDTO,
-                               HttpSession session) throws SQLException {
-        User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
+                              User user) throws SQLException {
+
         checkForAdminRights(user);
         //TODO validate editProductDTO
         Product fetchedProduct = productDao.getProductById(editProductDTO.getId());

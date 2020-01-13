@@ -5,7 +5,6 @@ import com.example.emag.exceptions.NotFoundException;
 import com.example.emag.model.pojo.Product;
 import com.example.emag.model.pojo.User;
 
-import java.sql.SQLException;
 
 public class AbstractService {
 

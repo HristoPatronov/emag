@@ -33,8 +33,8 @@ public class ReviewService extends AbstractService {
     @SneakyThrows
     public GetProductReviewDTO addReviewToProduct(long productId,
                                                   AddReviewDTO addReviewDto,
-                                                  HttpSession session) {
-        User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
+                                                  User user) {
+
         checkForLoggedUser(user);
         Product product = productDao.getProductById(productId);
         checkForProductExistence(product);
@@ -76,8 +76,8 @@ public class ReviewService extends AbstractService {
 
     //get all reviews by user
     @SneakyThrows
-    public List<GetUserReviewDTO> getAllReviewsForUser(HttpSession session) {
-        User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
+    public List<GetUserReviewDTO> getAllReviewsForUser(User user) {
+
         checkForLoggedUser(user);
         List<Review> reviews = reviewDao.getAllReviewsForUser(user.getId());
         List<GetUserReviewDTO> responseDto = new ArrayList<>();

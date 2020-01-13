@@ -14,9 +14,7 @@ import com.example.emag.model.pojo.Specification;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.servlet.http.HttpSession;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 @Service
 public class ProductService extends AbstractService {
@@ -34,8 +32,7 @@ public class ProductService extends AbstractService {
         if (product == null) throw new NotFoundException("Product not found");
     }
 
-    public ProductWithAllDTO getProduct(long productId,
-                                        HttpSession session) throws SQLException {
+    public ProductWithAllDTO getProduct(long productId) throws SQLException {
         Product product = productDao.getProductById(productId);
         checkForProductExistence(product);
         if (product.isDeleted()) {
@@ -48,7 +45,7 @@ public class ProductService extends AbstractService {
         return productWithAllDTO;
     }
 
-    public List<Product> productsFromSearch(ProductFilteringDTO productFilteringDTO, HttpSession session) throws SQLException {
+    public List<Product> productsFromSearch(ProductFilteringDTO productFilteringDTO) throws SQLException {
         if (productFilteringDTO.getSubCategoryId() != null && productFilteringDTO.getSubCategoryId() < 1) {
             throw new BadRequestException("Invalid input for subcategory!");
         }
