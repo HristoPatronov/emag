@@ -20,7 +20,7 @@ public class PictureDAO {
         }
     }
 
-    public List<String> getPictureUrl(Long productId) throws SQLException {
+    public List<String> getPicturesUrls(Long productId) throws SQLException {
         List<String> pictureUrls = new ArrayList<>();
         try (Connection connection = DBManager.getInstance().getConnection()) {
             String sql = "SELECT url FROM files WHERE product_id = ?;";
@@ -33,5 +33,18 @@ public class PictureDAO {
             }
         }
         return pictureUrls;
+    }
+
+    public String getPictureUrl(Long productId) throws SQLException {
+        String pictureUrl;
+        try (Connection connection = DBManager.getInstance().getConnection()) {
+            String sql = "SELECT url FROM files WHERE product_id = ?;";
+            try (PreparedStatement statement = connection.prepareStatement(sql)) {
+                statement.setLong(1, productId);
+                ResultSet set = statement.executeQuery();
+                    pictureUrl = set.getString(1);
+            }
+        }
+        return pictureUrl;
     }
 }
