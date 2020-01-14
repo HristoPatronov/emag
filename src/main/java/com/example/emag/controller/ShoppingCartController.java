@@ -1,10 +1,6 @@
 package com.example.emag.controller;
 
 import com.example.emag.exceptions.BadRequestException;
-import com.example.emag.exceptions.NotFoundException;
-import com.example.emag.model.dao.DBManager;
-import com.example.emag.model.dao.OrderDAO;
-import com.example.emag.model.dao.ProductDAO;
 import com.example.emag.model.dto.ProductsWithPriceDTO;
 import com.example.emag.model.pojo.Order;
 import com.example.emag.model.pojo.Product;

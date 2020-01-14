@@ -68,11 +68,11 @@ public class ProductService extends AbstractService {
         if (productFilteringDTO.getColumn() != null && !productFilteringDTO.getColumn().equals("price")) {
             throw new BadRequestException("Wrong input for field - column!");
         }
-        if (subCategoryDao.getSubcategoryById(productFilteringDTO.getSubCategoryId()) == null) {
-            throw new NotFoundException("No such subcategory!");
-        }
         List<Product> currentProducts;
         if (productFilteringDTO.getSubCategoryId() != null){
+            if (subCategoryDao.getSubcategoryById(productFilteringDTO.getSubCategoryId()) == null) {
+                throw new NotFoundException("No such subcategory!");
+            }
             currentProducts = productDao.getProductsBySubCategory(productFilteringDTO.getSubCategoryId(),
                     productFilteringDTO.getColumn(),
                     productFilteringDTO.getMinPrice(),
