@@ -16,6 +16,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.activation.MimetypesFileTypeMap;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -70,7 +71,7 @@ public class RenderController extends AbstractController {
                     .get(uploadDir + File.separator + StringUtils.cleanPath(file.getOriginalFilename()));
             Files.copy(file.getInputStream(), copyLocation, StandardCopyOption.REPLACE_EXISTING);
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
         }
         pictureDao.addPicture(productId, file.getOriginalFilename());
     }

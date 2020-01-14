@@ -16,15 +16,16 @@ public class CategoryDAO implements ICategoryDAO {
     @Override
     public List<Category> getAllCategories() throws SQLException {
         List<Category> categories = new ArrayList<>();
-        Connection connection = DBManager.getInstance().getConnection();
-        String url = "SELECT * FROM categories;";
-        Category category = null;
-        try(PreparedStatement statement = connection.prepareStatement(url)) {
-            ResultSet set = statement.executeQuery();
-            while(set.next()) {
-                category = new Category(set.getInt(1),
-                        set.getString(2));
-                categories.add(category);
+        try (Connection connection = DBManager.getInstance().getConnection()) {
+            String url = "SELECT * FROM categories;";
+            Category category = null;
+            try (PreparedStatement statement = connection.prepareStatement(url)) {
+                ResultSet set = statement.executeQuery();
+                while (set.next()) {
+                    category = new Category(set.getInt(1),
+                            set.getString(2));
+                    categories.add(category);
+                }
             }
         }
         return categories;
