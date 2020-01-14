@@ -98,6 +98,9 @@ public class AdminService extends AbstractService {
             throw new NotFoundException("No product with this id!");
         }
         checkForProductExistence(product);
+        if (product.isDeleted()){
+            throw new BadRequestException("Product is already removed");
+        }
         productDao.removeProduct(productId);
         product.setDeleted(true);
         return product;

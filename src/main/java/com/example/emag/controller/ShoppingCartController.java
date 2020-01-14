@@ -16,8 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
-import java.sql.SQLException;
-import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -33,7 +31,13 @@ public class ShoppingCartController extends AbstractController {
     @SneakyThrows
     @GetMapping("/users/cart")
     public ProductsWithPriceDTO getProductsFromCart(HttpSession session) {
-        return shoppingCartService.getProductsFromCart(session);
+        User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
+        if (session.getAttribute("cart") == null) {
+            return null;
+        }
+        Map<Product, Integer> products = (Map<Product, Integer>) session.getAttribute("cart");
+        products = shoppingCartService.getProductsFromCart(user, products);
+        return TransformationUtil.transformMap(products);
     }
 
     //add product to cart
@@ -41,7 +45,14 @@ public class ShoppingCartController extends AbstractController {
     @PostMapping("/users/cart/products/{productId}")
     public ProductsWithPriceDTO addProductToCart(@PathVariable(name = "productId") long productId,
                                                  HttpSession session) {
-        return shoppingCartService.addProductToCart(productId, session);
+        User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
+        Map<Product, Integer> products = new HashMap<>();
+        if (session.getAttribute("cart") != null) {
+            products = (Map<Product, Integer>) session.getAttribute("cart");
+        }
+        products = shoppingCartService.addProductToCart(productId, user, products);
+        session.setAttribute("cart", products);
+        return TransformationUtil.transformMap(products);
     }
 
     //remove product from cart
@@ -49,7 +60,16 @@ public class ShoppingCartController extends AbstractController {
     @DeleteMapping("/users/cart/products/{productId}")
     public ProductsWithPriceDTO removeProductFromCart(@PathVariable(name = "productId") long productId,
                                       HttpSession session) {
-        return shoppingCartService.removeProductFromCart(productId, session);
+        User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
+        Map<Product, Integer> products;
+        if (session.getAttribute("cart") != null){
+            products = (Map<Product, Integer>) session.getAttribute("cart");
+        } else {
+            throw new BadRequestException("The cart is empty");
+        }
+        products = shoppingCartService.removeProductFromCart(productId,user, products);
+        session.setAttribute("cart", products);
+        return TransformationUtil.transformMap(products);
     }
 
     //edit quantities in cart
@@ -58,7 +78,16 @@ public class ShoppingCartController extends AbstractController {
     public ProductsWithPriceDTO editProductsInCart(@PathVariable(name = "productId") long productId,
                                    @PathVariable(name = "quantity") int quantity,
                                    HttpSession session) {
-        return shoppingCartService.editProductsInCart(productId, quantity, session);
+        User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
+        Map<Product, Integer> products;
+        if (session.getAttribute("cart") != null){
+            products = (Map<Product, Integer>) session.getAttribute("cart");
+        } else {
+            throw new BadRequestException("The cart is empty");
+        }
+        products = shoppingCartService.editProductsInCart(productId, quantity, user, products);
+        session.setAttribute("cart", products);
+        return TransformationUtil.transformMap(products);
     }
 
     //checkout
@@ -66,6 +95,15 @@ public class ShoppingCartController extends AbstractController {
     @PostMapping("/users/cart/checkout/{paymentType}")
     public Order checkout(@PathVariable long paymentType,
                          HttpSession session) {
-        return shoppingCartService.checkout(paymentType, session);
+        User user = (User) session.getAttribute(SESSION_KEY_LOGGED_USER);
+        Map<Product, Integer> products;
+        if (session.getAttribute("cart") != null){
+            products = (Map<Product, Integer>) session.getAttribute("cart");
+        } else {
+            throw new BadRequestException("The cart is empty");
+        }
+        Order order = shoppingCartService.checkout(paymentType, user, products);
+        session.setAttribute("cart", null);
+        return order;
     }
 }

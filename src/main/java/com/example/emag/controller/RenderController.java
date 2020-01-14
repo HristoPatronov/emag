@@ -27,7 +27,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.sql.SQLException;
 
-import static com.example.emag.services.UserService.SESSION_KEY_LOGGED_USER;
+import static com.example.emag.utils.UserUtil.SESSION_KEY_LOGGED_USER;
 
 @RestController
 public class RenderController extends AbstractController {

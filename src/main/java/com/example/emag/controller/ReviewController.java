@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpSession;
 import java.util.List;
 
-import static com.example.emag.services.UserService.SESSION_KEY_LOGGED_USER;
+import static com.example.emag.utils.UserUtil.SESSION_KEY_LOGGED_USER;
 
 @RestController
 public class ReviewController extends AbstractController{

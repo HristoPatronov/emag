@@ -19,7 +19,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.example.emag.services.UserService.SESSION_KEY_LOGGED_USER;
+import static com.example.emag.utils.UserUtil.SESSION_KEY_LOGGED_USER;
 
 @Service
 public class ReviewService extends AbstractService {

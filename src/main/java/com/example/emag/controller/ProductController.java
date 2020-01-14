@@ -23,17 +23,15 @@ public class ProductController extends AbstractController{
     //return product with its information OK
     @SneakyThrows
     @GetMapping("/products/{productId}")
-    public ProductWithAllDTO getProduct(@PathVariable(name = "productId") long productId,
-                                           HttpSession session) {
-        return productUtil.getProduct(productId, session);
+    public ProductWithAllDTO getProduct(@PathVariable(name = "productId") long productId) {
+        return productUtil.getProduct(productId);
     }
 
     //return products by search
     @SneakyThrows
     @PostMapping("/products/search")
-    public List<Product> productsFromSearch(@RequestBody ProductFilteringDTO productFilteringDTO,
-                                            HttpSession session) {
-        return productUtil.productsFromSearch(productFilteringDTO, session);
+    public List<Product> productsFromSearch(@RequestBody ProductFilteringDTO productFilteringDTO) {
+        return productUtil.productsFromSearch(productFilteringDTO);
     }
 
 }
