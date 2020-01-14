@@ -3,12 +3,13 @@ package com.example.emag.model.dao;
 import org.springframework.stereotype.Component;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Component
 public class PictureDAO {
 
     public void addPicture(Long productId, String url) throws SQLException {
-        long pictureId;
         try (Connection connection = DBManager.getInstance().getConnection()) {
             String sql = "INSERT INTO files (url, product_id) VALUES (?, ?);";
             try (PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -19,17 +20,18 @@ public class PictureDAO {
         }
     }
 
-    public String getPictureUrl(Long productId) throws SQLException {
-        String pictureUrl;
+    public List<String> getPictureUrl(Long productId) throws SQLException {
+        List<String> pictureUrls = new ArrayList<>();
         try (Connection connection = DBManager.getInstance().getConnection()) {
             String sql = "SELECT url FROM files WHERE product_id = ?;";
             try (PreparedStatement statement = connection.prepareStatement(sql)) {
                 statement.setLong(1, productId);
                 ResultSet set = statement.executeQuery();
-                set.next();
-                pictureUrl = set.getString(1);
+                while (set.next()) {
+                    pictureUrls.add(set.getString(1));
+                }
             }
         }
-        return pictureUrl;
+        return pictureUrls;
     }
 }

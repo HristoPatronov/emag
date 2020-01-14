@@ -10,6 +10,6 @@ public interface IAddressDAO {
     void addAddress(long userId, Address address) throws SQLException;
     List<Address> getAllAddresses(long userId) throws SQLException;
     void updateAddress(Address address, long addressId) throws SQLException;
-    Address getAddress(long addressId) throws SQLException;   //not necessary???
+    Address getAddress(long addressId) throws SQLException;
     void deleteAddress(long addressId) throws SQLException;
 }
