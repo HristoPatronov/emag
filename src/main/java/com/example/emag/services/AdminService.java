@@ -86,6 +86,9 @@ public class AdminService extends AbstractService {
         if (productDto.getProduct().getSubCategory().getId() <= 0) {
             throw new BadRequestException("Invalid subcategory id!");
         }
+        if (productDto.getSpecifications().isEmpty() || productDto.getSpecifications() == null){
+            throw new BadRequestException("No specifications Given");
+        }
         //TODO validate specifications
     }
 
@@ -110,11 +113,19 @@ public class AdminService extends AbstractService {
                               User user) throws SQLException {
 
         checkForAdminRights(user);
-        //TODO validate editProductDTO
         Product fetchedProduct = productDao.getProductById(editProductDTO.getId());
         checkForProductExistence(fetchedProduct);
         if (fetchedProduct.isDeleted()) {
             throw new BadRequestException("The product is not active!");
+        }
+        if (editProductDTO.getName().trim().isEmpty() || editProductDTO.getName() == null){
+            throw new BadRequestException("Bad input data");
+        }
+        if (editProductDTO.getDescription().trim().isEmpty() || editProductDTO.getDescription() == null){
+            throw new BadRequestException("Bad input data");
+        }
+        if (editProductDTO.getPrice() < 0 || editProductDTO.getDiscount() < 0 || editProductDTO.getStock() < 0){
+            throw new BadRequestException("Bad input data");
         }
         if (editProductDTO.getDiscount() > fetchedProduct.getDiscount()) {
             startMailThread(editProductDTO);
