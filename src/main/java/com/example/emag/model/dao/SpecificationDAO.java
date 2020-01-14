@@ -36,20 +36,19 @@ public class SpecificationDAO implements ISpecificationDAO {
     @Override
     public List<Specification> getSpecificationsForProduct(Long productID) throws SQLException {
         List<Specification> specs;
-        try (Connection connection = DBManager.getInstance().getConnection()) {
-            String url = "SELECT * FROM specifications WHERE product_id = ?;";
-            specs = new ArrayList<>();
-            try (PreparedStatement statement = connection.prepareStatement(url)) {
-                statement.setLong(1, productID);
-                ResultSet set = statement.executeQuery();
-                while (set.next()) {
-                    Specification specification = new Specification();
-                    specification.setId(set.getLong(1));
-                    specification.setTitle(set.getString(2));
-                    specification.getSpecifications().add(new Specification.Spec(set.getString(3), set.getString(4)));
-                    specification.setProductId(set.getLong(5));
-                    specs.add(specification);
-                }
+        Connection connection = DBManager.getInstance().getConnection();
+        String url = "SELECT * FROM specifications WHERE product_id = ?;";
+        specs = new ArrayList<>();
+        try (PreparedStatement statement = connection.prepareStatement(url)) {
+            statement.setLong(1, productID);
+            ResultSet set = statement.executeQuery();
+            while (set.next()) {
+                Specification specification = new Specification();
+                specification.setId(set.getLong(1));
+                specification.setTitle(set.getString(2));
+                specification.getSpecifications().add(new Specification.Spec(set.getString(3), set.getString(4)));
+                specification.setProductId(set.getLong(5));
+                specs.add(specification);
             }
         }
         return  specs;
@@ -57,12 +56,11 @@ public class SpecificationDAO implements ISpecificationDAO {
 
     @Override
     public void removeSpecification(Long specificationId) throws SQLException {
-        try (Connection connection = DBManager.getInstance().getConnection()) {
-            String url = "DELETE FROM specifications WHERE id = ?;";
-            try (PreparedStatement statement = connection.prepareStatement(url)) {
-                statement.setLong(1, specificationId);
-                statement.executeUpdate();
-            }
+        Connection connection = DBManager.getInstance().getConnection();
+        String url = "DELETE FROM specifications WHERE id = ?;";
+        try (PreparedStatement statement = connection.prepareStatement(url)) {
+            statement.setLong(1, specificationId);
+            statement.executeUpdate();
         }
     }
 }

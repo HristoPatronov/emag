@@ -44,7 +44,17 @@ public class RenderController extends AbstractController {
 
     @RequestMapping(value = "/render/{productId}", produces = {MediaType.IMAGE_JPEG_VALUE, "application/json"}, method = RequestMethod.GET)
     public void renderImage(@PathVariable(name = "productId") long productId, HttpServletResponse response) throws IOException, SQLException {
+        Product product = productDao.getProductById(productId);
+        if (product == null) {
+            throw new BadRequestException("This product don't exist!");
+        }
+        if (product.isDeleted()) {
+            throw new BadRequestException("Product is inactive!");
+        }
         String pictureUrl = pictureDao.getPictureUrl(productId);
+        if (pictureUrl == null) {
+            throw new BadRequestException("No picture found!");
+        }
         ClassPathResource imgFile = new ClassPathResource("static"+ "\\" + pictureUrl);
         response.setContentType(MediaType.IMAGE_JPEG_VALUE);
         ServletOutputStream outputStream = response.getOutputStream();

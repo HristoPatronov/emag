@@ -10,26 +10,24 @@ import java.util.List;
 public class PictureDAO {
 
     public void addPicture(Long productId, String url) throws SQLException {
-        try (Connection connection = DBManager.getInstance().getConnection()) {
-            String sql = "INSERT INTO files (url, product_id) VALUES (?, ?);";
-            try (PreparedStatement statement = connection.prepareStatement(sql)) {
-                statement.setString(1, url);
-                statement.setLong(2, productId);
-                statement.executeUpdate();
-            }
+        Connection connection = DBManager.getInstance().getConnection();
+        String sql = "INSERT INTO files (url, product_id) VALUES (?, ?);";
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, url);
+            statement.setLong(2, productId);
+            statement.executeUpdate();
         }
     }
 
     public List<String> getPicturesUrls(Long productId) throws SQLException {
         List<String> pictureUrls = new ArrayList<>();
-        try (Connection connection = DBManager.getInstance().getConnection()) {
-            String sql = "SELECT url FROM files WHERE product_id = ?;";
-            try (PreparedStatement statement = connection.prepareStatement(sql)) {
-                statement.setLong(1, productId);
-                ResultSet set = statement.executeQuery();
-                while (set.next()) {
-                    pictureUrls.add(set.getString(1));
-                }
+        Connection connection = DBManager.getInstance().getConnection();
+        String sql = "SELECT url FROM files WHERE product_id = ?;";
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setLong(1, productId);
+            ResultSet set = statement.executeQuery();
+            while (set.next()) {
+                pictureUrls.add(set.getString(1));
             }
         }
         return pictureUrls;
@@ -37,13 +35,15 @@ public class PictureDAO {
 
     public String getPictureUrl(Long productId) throws SQLException {
         String pictureUrl;
-        try (Connection connection = DBManager.getInstance().getConnection()) {
-            String sql = "SELECT url FROM files WHERE product_id = ?;";
-            try (PreparedStatement statement = connection.prepareStatement(sql)) {
-                statement.setLong(1, productId);
-                ResultSet set = statement.executeQuery();
-                    pictureUrl = set.getString(1);
+        Connection connection = DBManager.getInstance().getConnection();
+        String sql = "SELECT url FROM files WHERE product_id = ?;";
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setLong(1, productId);
+            ResultSet set = statement.executeQuery();
+            if (!set.next()) {
+                return null;
             }
+            pictureUrl = set.getString(1);
         }
         return pictureUrl;
     }
