@@ -53,7 +53,7 @@ public class OrderDAO implements IOrderDAO {
         String url = "SELECT o.*, u.*, pt.*, s.* FROM orders AS o " +
                 "JOIN payment_types AS pt ON o.payment_type_id = pt.id " +
                 "JOIN statuses AS s ON o.status_id = s.id " +
-                "JOIN users AS u ON o.user_id = u.id WHERE o.user_id = ? ORDER BY date DESC;";
+                "JOIN users AS u ON o.user_id = u.id WHERE o.user_id = ? ORDER BY o.id DESC;";
         try (PreparedStatement statement = connection.prepareStatement(url)) {
             statement.setLong(1, userId);
             ResultSet set = statement.executeQuery();

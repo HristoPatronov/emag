@@ -20,36 +20,8 @@ public class ProductDAO implements IProductDAO {
     public static final double MAX_PRICE_OF_PRODUCT = Integer.MAX_VALUE;
 
     @Override
-    public List<Product> getAllProducts() throws SQLException {
-        List<Product> products = new ArrayList<>();
-        Connection connection = DBManager.getInstance().getConnection();
-        String url = "SELECT p.*, sc.*, c.* FROM products AS p " +
-                "JOIN sub_categories AS sc ON p.sub_category_id = sc.id " +
-                "JOIN categories AS c ON sc.category_id = c.id;";
-        try (PreparedStatement statement = connection.prepareStatement(url)) {
-            ResultSet set = statement.executeQuery();
-            while (set.next()) {
-                Product product = new Product(set.getLong(1),
-                        set.getString(2),
-                        set.getString(3),
-                        set.getDouble(4),
-                        set.getInt(5),
-                        set.getInt(6),
-                        set.getInt(7),
-                        new SubCategory(set.getLong(10),
-                                set.getString(11),
-                                set.getBoolean(12),
-                                new Category(set.getLong(14),
-                                        set.getString(15))),
-                        set.getBoolean(9));
-                products.add(product);
-            }
-        }
-        return products;
-    }
-
-    @Override
-    public List<Product> getProductsBySubCategory(Long subCategoryId, String column, Double minPrice, Double maxPrice, String orderBy) throws SQLException {
+    public List<Product> getProductsBySubCategory(Long subCategoryId, String column,
+                                                  Double minPrice, Double maxPrice, String orderBy) throws SQLException {
         minPrice = minPrice == null ? MIN_PRICE_OF_PRODUCT : minPrice;
         maxPrice = maxPrice == null ? MAX_PRICE_OF_PRODUCT : maxPrice;
         column = column == null ? "id" : column;
@@ -59,7 +31,8 @@ public class ProductDAO implements IProductDAO {
         String url = "SELECT p.*, sc.*, c.* FROM products AS p " +
                 "JOIN sub_categories AS sc ON p.sub_category_id = sc.id " +
                 "JOIN categories AS c ON sc.category_id = c.id " +
-                "WHERE p.sub_category_id = ? AND p.deleted = 0 AND price BETWEEN ? AND ? ORDER BY p." + column + " " + orderBy + ";";
+                "WHERE p.sub_category_id = ? AND p.deleted = 0 AND price BETWEEN ? AND ? " +
+                "ORDER BY p." + column + " " + orderBy + ";";
         try (PreparedStatement statement = connection.prepareStatement(url)) {
             statement.setLong(1, subCategoryId);
             statement.setDouble(2, minPrice);
@@ -116,7 +89,8 @@ public class ProductDAO implements IProductDAO {
     }
 
     @Override
-    public List<Product> getProductsFromSearch(String searchInput, String column, Double minPrice, Double maxPrice, String orderBy) throws SQLException {
+    public List<Product> getProductsFromSearch(String searchInput, String column,
+                                               Double minPrice, Double maxPrice, String orderBy) throws SQLException {
         minPrice = minPrice == null ? MIN_PRICE_OF_PRODUCT : minPrice;
         maxPrice = maxPrice == null ? MAX_PRICE_OF_PRODUCT : maxPrice;
         column = column == null ? "id" : column;
@@ -126,7 +100,8 @@ public class ProductDAO implements IProductDAO {
         String url = "SELECT p.*, sc.*, c.* FROM products AS p " +
                 "JOIN sub_categories AS sc ON p.sub_category_id = sc.id " +
                 "JOIN categories AS c ON sc.category_id = c.id " +
-                "WHERE p.name LIKE ? AND p.deleted = 0 AND p.price BETWEEN ? AND ? ORDER BY p." + column + " " + orderBy + ";";
+                "WHERE p.name LIKE ? AND p.deleted = 0 AND p.price BETWEEN ? AND ? " +
+                "ORDER BY p." + column + " " + orderBy + ";";
         try (PreparedStatement statement = connection.prepareStatement(url)) {
             statement.setString(1, "%" + searchInput + "%");
             statement.setDouble(2, minPrice);
@@ -192,28 +167,6 @@ public class ProductDAO implements IProductDAO {
             statement.setInt(4, product.getDiscount());
             statement.setInt(5, product.getStock());
             statement.setLong(6, product.getId());
-            statement.executeUpdate();
-        }
-    }
-
-    @Override
-    public void updateQuantity(Integer productId, Integer quantity) throws SQLException {
-        Connection connection = DBManager.getInstance().getConnection();
-        String url = "UPDATE products SET stock = ? WHERE id = ?;";
-        try (PreparedStatement statement = connection.prepareStatement(url)) {
-            statement.setInt(1, quantity);
-            statement.setInt(2, productId);
-            statement.executeUpdate();
-        }
-    }
-
-    @Override
-    public void setDiscount(Integer productId, Integer discount) throws SQLException {
-        Connection connection = DBManager.getInstance().getConnection();
-        String url = "UPDATE products SET discount = ? WHERE id = ?;";
-        try (PreparedStatement statement = connection.prepareStatement(url)) {
-            statement.setInt(1, discount);
-            statement.setInt(2, productId);
             statement.executeUpdate();
         }
     }
@@ -314,22 +267,6 @@ public class ProductDAO implements IProductDAO {
                 statement.executeUpdate();
             }
         }
-    }
-
-    @Override
-    public boolean checkIfProductsExist(Map<Product, Integer> products) throws SQLException {
-        Connection connection = DBManager.getInstance().getConnection();
-        String url = "SELECT stock FROM products WHERE id = ?";
-        for (Product product : products.keySet()) {
-            try (PreparedStatement statement = connection.prepareStatement(url)) {
-                statement.setLong(1, product.getId());
-                ResultSet set = statement.executeQuery();
-                if (!set.next()) {
-                    return false;
-                }
-            }
-        }
-        return true;
     }
 
     @Override
